@@ -66,7 +66,7 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const EXTENSION_ID = "capkkjhgjeoelbjbmmplbammhojagcod";
+  const EXTENSION_ID = "nokohfcfdgeimgcibhnofaigmnflfjpi";
 
   const handleOpenGoogleFlow = () => {
     try {
