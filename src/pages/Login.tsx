@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { trackDeviceSession } from "@/lib/device-tracking";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -15,11 +16,15 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
       toast.error(error.message);
     } else {
+      // Track device session in background
+      if (data.user) {
+        trackDeviceSession(data.user.id, data.user.email || email);
+      }
       navigate("/dashboard");
     }
   };
