@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LogOut, ExternalLink, Download, User, Shield, KeyRound, Trash2 } from "lucide-react";
+import { LogOut, User, Shield, KeyRound, Trash2, Play, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
 interface Profile {
@@ -305,11 +305,11 @@ const Dashboard = () => {
               <>
                 <h2 className="font-semibold mb-4 text-lg">Quick Actions</h2>
                 <div className="space-y-3">
-                  <Button className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
-                    <ExternalLink className="h-4 w-4 mr-2" /> Open Google Flow
+                  <Button className="w-full font-semibold border-0 text-white bg-gradient-to-r from-[hsl(210,80%,50%)] to-[hsl(220,90%,60%)] hover:from-[hsl(210,80%,45%)] hover:to-[hsl(220,90%,55%)]">
+                    <Play className="h-4 w-4 mr-2" /> Google Veo 3.1 Ultra
                   </Button>
-                  <Button variant="outline" className="w-full border-border/50">
-                    <Download className="h-4 w-4 mr-2" /> Download Extension
+                  <Button className="w-full font-semibold border-0 text-white bg-gradient-to-r from-[hsl(270,70%,55%)] to-[hsl(290,80%,60%)] hover:from-[hsl(270,70%,50%)] hover:to-[hsl(290,80%,55%)]">
+                    <ImageIcon className="h-4 w-4 mr-2" /> Google Image
                   </Button>
                 </div>
               </>
