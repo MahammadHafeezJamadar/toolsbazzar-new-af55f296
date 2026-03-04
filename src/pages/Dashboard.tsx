@@ -3,7 +3,20 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, ExternalLink, Download, User, Shield } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { LogOut, ExternalLink, Download, User, Shield, KeyRound, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Profile {
@@ -19,6 +32,10 @@ interface Profile {
 const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ current: "", new: "", confirm: "" });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,6 +69,84 @@ const Dashboard = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
+  };
+
+  const handleChangePassword = async () => {
+    const newPass = passwordForm.new.trim();
+    const confirmPass = passwordForm.confirm.trim();
+    const currentPass = passwordForm.current.trim();
+
+    if (!currentPass || !newPass || !confirmPass) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    if (newPass.length < 6) {
+      toast.error("New password must be at least 6 characters");
+      return;
+    }
+    if (newPass !== confirmPass) {
+      toast.error("New passwords do not match");
+      return;
+    }
+
+    setPasswordLoading(true);
+
+    // Verify current password by re-signing in
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user?.email) {
+      toast.error("Session expired. Please log in again.");
+      setPasswordLoading(false);
+      return;
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: session.user.email,
+      password: currentPass,
+    });
+
+    if (signInError) {
+      toast.error("Current password is incorrect");
+      setPasswordLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password: newPass });
+    setPasswordLoading(false);
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Password updated successfully");
+      setPasswordForm({ current: "", new: "", confirm: "" });
+      setShowChangePassword(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteLoading(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error("Session expired");
+      setDeleteLoading(false);
+      return;
+    }
+
+    // Delete profile row (cascade or manual)
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .delete()
+      .eq("id", session.user.id);
+
+    if (profileError) {
+      toast.error("Failed to delete account data");
+      setDeleteLoading(false);
+      return;
+    }
+
+    await supabase.auth.signOut();
+    setDeleteLoading(false);
+    toast.success("Account deleted successfully");
+    navigate("/");
   };
 
   if (loading) {
@@ -119,6 +214,88 @@ const Dashboard = () => {
                 <span className="text-sm text-muted-foreground">Email</span>
                 <span className="text-sm font-medium">{profile?.email}</span>
               </div>
+            </div>
+
+            <div className="border-t border-border/30 mt-4 pt-4 space-y-3">
+              {/* Change Password */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-border/50"
+                onClick={() => setShowChangePassword(!showChangePassword)}
+              >
+                <KeyRound className="h-4 w-4 mr-2" /> Change Password
+              </Button>
+
+              {showChangePassword && (
+                <div className="space-y-3 p-3 rounded-lg bg-muted/30">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="current-password" className="text-xs">Current Password</Label>
+                    <Input
+                      id="current-password"
+                      type="password"
+                      value={passwordForm.current}
+                      onChange={(e) => setPasswordForm((p) => ({ ...p, current: e.target.value }))}
+                      maxLength={128}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="new-password" className="text-xs">New Password</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      value={passwordForm.new}
+                      onChange={(e) => setPasswordForm((p) => ({ ...p, new: e.target.value }))}
+                      maxLength={128}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="confirm-password" className="text-xs">Confirm New Password</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      value={passwordForm.confirm}
+                      onChange={(e) => setPasswordForm((p) => ({ ...p, confirm: e.target.value }))}
+                      maxLength={128}
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    className="w-full gradient-btn border-0 text-primary-foreground font-semibold"
+                    onClick={handleChangePassword}
+                    disabled={passwordLoading}
+                  >
+                    {passwordLoading ? "Saving..." : "Save Password"}
+                  </Button>
+                </div>
+              )}
+
+              {/* Delete Account */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="w-full">
+                    <Trash2 className="h-4 w-4 mr-2" /> Delete Account
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure you want to delete your account?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. Your account and all associated data will be permanently deleted.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteAccount}
+                      disabled={deleteLoading}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {deleteLoading ? "Deleting..." : "Delete"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
 
