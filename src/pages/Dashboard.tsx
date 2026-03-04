@@ -143,7 +143,7 @@ const Dashboard = () => {
                   Your subscription is inactive. Please contact us on WhatsApp to activate your plan.
                 </p>
                 <Button asChild className="w-full bg-[hsl(142,70%,45%)] hover:bg-[hsl(142,70%,40%)] text-white font-semibold border-0">
-                  <a href="https://wa.me/917994380985" target="_blank" rel="noopener noreferrer">
+                  <a href="https://wa.me/919448646624" target="_blank" rel="noopener noreferrer">
                     Contact on WhatsApp
                   </a>
                 </Button>
