@@ -28,14 +28,14 @@ const Register = () => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name }, emailRedirectTo: window.location.origin },
+      options: { data: { name } },
     });
     setLoading(false);
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Account created! Please verify your email.");
-      navigate("/login");
+      toast.success("Account created successfully!");
+      navigate("/dashboard");
     }
   };
 
