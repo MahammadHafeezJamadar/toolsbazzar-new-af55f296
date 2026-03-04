@@ -66,37 +66,18 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const EXTENSION_ID = "nokohfcfdgeimgcibhnofaigmnflfjpi";
+  const EXTENSION_ID = "capkkjhgjeoelbjbmmplbammhojagcod";
+  const GOOGLE_FLOW_URL = "https://labs.google/fx/tools/flow";
 
   const handleOpenGoogleFlow = () => {
     try {
       if (!(window as any).chrome?.runtime?.sendMessage) {
-        toast.error("Please install the ToolzBazzar extension first", {
-          action: {
-            label: "Download",
-            onClick: () => {
-              window.open(
-                `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/extensions/ToolzBazzar-Extension.zip`,
-                "_blank"
-              );
-            },
-          },
-        });
+        window.open(GOOGLE_FLOW_URL, "_blank");
         return;
       }
       (window as any).chrome.runtime.sendMessage(EXTENSION_ID, { action: "openGoogleFlow" }, (response: any) => {
-        if ((window as any).chrome.runtime.lastError) {
-          toast.error("Please install the ToolzBazzar extension first", {
-            action: {
-              label: "Download",
-              onClick: () => {
-                window.open(
-                  `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/extensions/ToolzBazzar-Extension.zip`,
-                  "_blank"
-                );
-              },
-            },
-          });
+        if ((window as any).chrome.runtime.lastError || !response?.status) {
+          window.open(GOOGLE_FLOW_URL, "_blank");
           return;
         }
         if (response?.status === "ok") {
@@ -104,17 +85,7 @@ const Dashboard = () => {
         }
       });
     } catch {
-      toast.error("Please install the ToolzBazzar extension first", {
-        action: {
-          label: "Download",
-          onClick: () => {
-            window.open(
-              `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/extensions/ToolzBazzar-Extension.zip`,
-              "_blank"
-            );
-          },
-        },
-      });
+      window.open(GOOGLE_FLOW_URL, "_blank");
     }
   };
 
