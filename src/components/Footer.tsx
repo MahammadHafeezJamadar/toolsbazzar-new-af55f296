@@ -12,7 +12,7 @@ const Footer = () => (
     <div className="container mx-auto px-4">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
         <div className="col-span-2 md:col-span-1">
-          <span className="text-xl font-bold gradient-text">MyFlow</span>
+          <span className="text-xl font-bold gradient-text">ToolzBazzar</span>
           <p className="text-sm text-muted-foreground mt-3">AI-powered video generation for the modern creator.</p>
         </div>
         {columns.map((c) => (
@@ -37,7 +37,7 @@ const Footer = () => (
         ))}
       </div>
       <div className="border-t border-border/30 mt-12 pt-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} MyFlow. All rights reserved.
+        © {new Date().getFullYear()} ToolzBazzar. All rights reserved.
       </div>
     </div>
   </footer>

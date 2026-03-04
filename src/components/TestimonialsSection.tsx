@@ -2,9 +2,9 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
 const testimonials = [
-  { name: "Arjun Mehta", role: "Content Creator", text: "MyFlow completely transformed my video workflow. What used to take hours now takes minutes. The AI quality is unreal!", rating: 5 },
-  { name: "Priya Sharma", role: "Marketing Lead", text: "We use MyFlow for all our social media video content. The ROI has been incredible — 3x engagement since switching.", rating: 5 },
-  { name: "Rahul Verma", role: "Freelance Editor", text: "The pricing is unbeatable for the quality you get. I've tried every AI video tool out there, and MyFlow is the best.", rating: 5 },
+   { name: "Arjun Mehta", role: "Content Creator", text: "ToolzBazzar completely transformed my video workflow. What used to take hours now takes minutes. The AI quality is unreal!", rating: 5 },
+   { name: "Priya Sharma", role: "Marketing Lead", text: "We use ToolzBazzar for all our social media video content. The ROI has been incredible — 3x engagement since switching.", rating: 5 },
+   { name: "Rahul Verma", role: "Freelance Editor", text: "The pricing is unbeatable for the quality you get. I've tried every AI video tool out there, and ToolzBazzar is the best.", rating: 5 },
 ];
 
 const TestimonialsSection = () => (

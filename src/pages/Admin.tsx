@@ -141,7 +141,7 @@ const Admin = () => {
       <nav className="glass border-b border-border/30 sticky top-0 z-50">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
           <Link to="/" className="text-xl font-bold gradient-text flex items-center gap-2">
-            <Shield className="h-5 w-5" /> MyFlow Admin
+            <Shield className="h-5 w-5" /> ToolzBazzar Admin
           </Link>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild>
