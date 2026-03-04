@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { LogOut, Save, Shield, KeyRound, Cookie, Monitor, X } from "lucide-react";
+import { LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -14,6 +14,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -123,6 +134,22 @@ const Admin = () => {
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const res = await supabase.functions.invoke("delete-user", {
+      body: { user_id: userId },
+    });
+
+    if (res.error || res.data?.error) {
+      toast.error(res.data?.error || res.error?.message || "Failed to delete user");
+    } else {
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      toast.success("User deleted");
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
@@ -169,6 +196,7 @@ const Admin = () => {
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Expiry</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Sessions</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Credentials</th>
+                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -180,6 +208,7 @@ const Admin = () => {
                     updateField={updateField}
                     activeDevices={sessionCounts[u.id] || 0}
                     onSessionRevoked={loadSessionCounts}
+                    onDeleteUser={deleteUser}
                   />
                 ))}
               </tbody>
@@ -197,12 +226,14 @@ const UserRow = ({
   updateField,
   activeDevices,
   onSessionRevoked,
+  onDeleteUser,
 }: {
   user: UserProfile;
   toggleSubscription: (id: string, current: boolean) => void;
   updateField: (id: string, field: string, value: any) => void;
   activeDevices: number;
   onSessionRevoked: () => void;
+  onDeleteUser: (id: string) => Promise<void>;
 }) => {
   const [plan, setPlan] = useState(user.plan);
   const [expiry, setExpiry] = useState(user.expiry_date || "");
@@ -429,6 +460,32 @@ const UserRow = ({
             </div>
           </DialogContent>
         </Dialog>
+      </td>
+      <td className="p-4">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm" className="text-xs">
+              <Trash2 className="h-3 w-3 mr-1" /> Delete
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure you want to delete this user?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete their account and all data. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => onDeleteUser(user.id)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </td>
     </tr>
   );
