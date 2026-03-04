@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { LogOut, Save, Shield, KeyRound, Cookie } from "lucide-react";
+import { LogOut, Save, Shield, KeyRound, Cookie, Monitor, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -29,9 +29,20 @@ interface UserProfile {
   cookies_json: any;
 }
 
+interface DeviceSession {
+  id: string;
+  device_id: string;
+  device_info: string;
+  ip_address: string | null;
+  login_time: string;
+  last_active_time: string;
+  is_active: boolean;
+}
+
 const Admin = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sessionCounts, setSessionCounts] = useState<Record<string, number>>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,6 +63,7 @@ const Admin = () => {
       }
 
       await loadUsers();
+      await loadSessionCounts();
     };
     checkAdmin();
 
@@ -69,6 +81,22 @@ const Admin = () => {
     if (error) toast.error("Failed to load users");
     else setUsers(data || []);
     setLoading(false);
+  };
+
+  const loadSessionCounts = async () => {
+    const { data, error } = await supabase
+      .from("user_sessions")
+      .select("user_id, is_active");
+
+    if (!error && data) {
+      const counts: Record<string, number> = {};
+      data.forEach((s: any) => {
+        if (s.is_active) {
+          counts[s.user_id] = (counts[s.user_id] || 0) + 1;
+        }
+      });
+      setSessionCounts(counts);
+    }
   };
 
   const toggleSubscription = async (userId: string, current: boolean) => {
@@ -139,12 +167,20 @@ const Admin = () => {
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Plan</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Status</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Expiry</th>
+                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Sessions</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Credentials</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <UserRow key={u.id} user={u} toggleSubscription={toggleSubscription} updateField={updateField} />
+                  <UserRow
+                    key={u.id}
+                    user={u}
+                    toggleSubscription={toggleSubscription}
+                    updateField={updateField}
+                    activeDevices={sessionCounts[u.id] || 0}
+                    onSessionRevoked={loadSessionCounts}
+                  />
                 ))}
               </tbody>
             </table>
@@ -159,19 +195,54 @@ const UserRow = ({
   user,
   toggleSubscription,
   updateField,
+  activeDevices,
+  onSessionRevoked,
 }: {
   user: UserProfile;
   toggleSubscription: (id: string, current: boolean) => void;
   updateField: (id: string, field: string, value: any) => void;
+  activeDevices: number;
+  onSessionRevoked: () => void;
 }) => {
   const [plan, setPlan] = useState(user.plan);
   const [expiry, setExpiry] = useState(user.expiry_date || "");
   const [credOpen, setCredOpen] = useState(false);
+  const [sessionsOpen, setSessionsOpen] = useState(false);
+  const [sessions, setSessions] = useState<DeviceSession[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
   const [googleEmail, setGoogleEmail] = useState(user.google_email || "");
   const [googlePassword, setGooglePassword] = useState(user.google_password || "");
   const [cookiesJson, setCookiesJson] = useState(
     user.cookies_json ? JSON.stringify(user.cookies_json, null, 2) : ""
   );
+
+  const loadSessions = async () => {
+    setSessionsLoading(true);
+    const { data, error } = await supabase
+      .from("user_sessions")
+      .select("id, device_id, device_info, ip_address, login_time, last_active_time, is_active")
+      .eq("user_id", user.id)
+      .order("last_active_time", { ascending: false });
+
+    if (error) toast.error("Failed to load sessions");
+    else setSessions(data || []);
+    setSessionsLoading(false);
+  };
+
+  const revokeSession = async (sessionId: string) => {
+    const { error } = await supabase
+      .from("user_sessions")
+      .update({ is_active: false })
+      .eq("id", sessionId);
+
+    if (error) {
+      toast.error("Failed to revoke session");
+    } else {
+      setSessions((prev) => prev.map((s) => s.id === sessionId ? { ...s, is_active: false } : s));
+      onSessionRevoked();
+      toast.success("Session revoked");
+    }
+  };
 
   const saveCreds = async () => {
     let parsedCookies = null;
@@ -184,7 +255,7 @@ const UserRow = ({
       }
     }
 
-    const { error } = await (await import("@/integrations/supabase/client")).supabase
+    const { error } = await supabase
       .from("profiles")
       .update({
         google_email: googleEmail || null,
@@ -198,6 +269,15 @@ const UserRow = ({
       toast.success("Credentials saved");
       setCredOpen(false);
     }
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
@@ -235,6 +315,81 @@ const UserRow = ({
           <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => updateField(user.id, "expiry_date", expiry)}>
             <Save className="h-3 w-3" />
           </Button>
+        </div>
+      </td>
+      <td className="p-4">
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-xs">
+            <Monitor className="h-3 w-3 mr-1" />
+            {activeDevices} {activeDevices === 1 ? "device" : "devices"}
+          </Badge>
+          <Dialog open={sessionsOpen} onOpenChange={(open) => {
+            setSessionsOpen(open);
+            if (open) loadSessions();
+          }}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="border-border/50 text-xs">
+                View Devices
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="glass border-border/50 max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Monitor className="h-4 w-4" /> Sessions — {user.email}
+                </DialogTitle>
+              </DialogHeader>
+              {sessionsLoading ? (
+                <div className="text-center text-muted-foreground py-8">Loading sessions...</div>
+              ) : sessions.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8">No sessions found</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border/30">
+                        <th className="text-left text-xs font-medium text-muted-foreground py-2 px-3">Device</th>
+                        <th className="text-left text-xs font-medium text-muted-foreground py-2 px-3">IP Address</th>
+                        <th className="text-left text-xs font-medium text-muted-foreground py-2 px-3">Login Time</th>
+                        <th className="text-left text-xs font-medium text-muted-foreground py-2 px-3">Last Active</th>
+                        <th className="text-left text-xs font-medium text-muted-foreground py-2 px-3">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sessions.map((s) => (
+                        <tr key={s.id} className="border-b border-border/10">
+                          <td className="py-2 px-3">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{s.device_info}</span>
+                              {s.is_active ? (
+                                <Badge variant="default" className="text-[10px] px-1.5 py-0 gradient-btn border-0 text-primary-foreground">Active</Badge>
+                              ) : (
+                                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Revoked</Badge>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-2 px-3 text-muted-foreground">{s.ip_address || "—"}</td>
+                          <td className="py-2 px-3 text-muted-foreground">{formatDate(s.login_time)}</td>
+                          <td className="py-2 px-3 text-muted-foreground">{formatDate(s.last_active_time)}</td>
+                          <td className="py-2 px-3">
+                            {s.is_active && (
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                className="text-xs h-7"
+                                onClick={() => revokeSession(s.id)}
+                              >
+                                <X className="h-3 w-3 mr-1" /> Revoke
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
       </td>
       <td className="p-4">

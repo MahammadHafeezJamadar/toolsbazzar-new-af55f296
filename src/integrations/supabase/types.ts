@@ -59,6 +59,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sessions: {
+        Row: {
+          device_id: string
+          device_info: string
+          email: string
+          id: string
+          ip_address: string | null
+          is_active: boolean
+          last_active_time: string
+          login_time: string
+          user_id: string
+        }
+        Insert: {
+          device_id: string
+          device_info: string
+          email: string
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean
+          last_active_time?: string
+          login_time?: string
+          user_id: string
+        }
+        Update: {
+          device_id?: string
+          device_info?: string
+          email?: string
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean
+          last_active_time?: string
+          login_time?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
