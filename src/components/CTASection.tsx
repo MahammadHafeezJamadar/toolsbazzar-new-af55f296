@@ -17,7 +17,7 @@ const CTASection = () => (
           Ready to <span className="gradient-text">Get Started?</span>
         </h2>
         <p className="text-muted-foreground max-w-lg mx-auto mb-8 relative z-10">
-          Join thousands of creators who are already using MyFlow to produce amazing AI-generated videos.
+          Join thousands of creators who are already using ToolzBazzar to produce amazing AI-generated videos.
         </p>
         <Button size="lg" className="gradient-btn border-0 text-primary-foreground font-semibold px-8 relative z-10" asChild>
           <Link to="/register">

@@ -30,7 +30,7 @@ const HeroSection = () => (
           <span className="gradient-text">Begins</span>
         </h1>
         <p className="max-w-2xl mx-auto text-lg text-muted-foreground mb-10">
-          Transform your ideas into stunning AI-generated videos in seconds. MyFlow gives you the power of next-gen AI tools with an intuitive creative workflow.
+          Transform your ideas into stunning AI-generated videos in seconds. ToolzBazzar gives you the power of next-gen AI tools with an intuitive creative workflow.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <Button size="lg" className="gradient-btn border-0 text-primary-foreground font-semibold px-8" asChild>
