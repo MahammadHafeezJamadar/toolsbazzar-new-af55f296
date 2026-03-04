@@ -122,17 +122,33 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Actions / Inactive Message */}
           <div className="glass rounded-xl p-6">
-            <h2 className="font-semibold mb-4 text-lg">Quick Actions</h2>
-            <div className="space-y-3">
-              <Button className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
-                <ExternalLink className="h-4 w-4 mr-2" /> Open Google Flow
-              </Button>
-              <Button variant="outline" className="w-full border-border/50">
-                <Download className="h-4 w-4 mr-2" /> Download Extension
-              </Button>
-            </div>
+            {profile?.subscription_active ? (
+              <>
+                <h2 className="font-semibold mb-4 text-lg">Quick Actions</h2>
+                <div className="space-y-3">
+                  <Button className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
+                    <ExternalLink className="h-4 w-4 mr-2" /> Open Google Flow
+                  </Button>
+                  <Button variant="outline" className="w-full border-border/50">
+                    <Download className="h-4 w-4 mr-2" /> Download Extension
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="font-semibold mb-4 text-lg text-destructive">Subscription Inactive</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Your subscription is inactive. Please contact us on WhatsApp to activate your plan.
+                </p>
+                <Button asChild className="w-full bg-[hsl(142,70%,45%)] hover:bg-[hsl(142,70%,40%)] text-white font-semibold border-0">
+                  <a href="https://wa.me/917994380985" target="_blank" rel="noopener noreferrer">
+                    Contact on WhatsApp
+                  </a>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
