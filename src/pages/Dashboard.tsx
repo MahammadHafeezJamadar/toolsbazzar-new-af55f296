@@ -66,6 +66,58 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const EXTENSION_ID = "capkkjhgjeoelbjbmmplbammhojagcod";
+
+  const handleOpenGoogleFlow = () => {
+    try {
+      if (!(window as any).chrome?.runtime?.sendMessage) {
+        toast.error("Please install the ToolzBazzar extension first", {
+          action: {
+            label: "Download",
+            onClick: () => {
+              window.open(
+                `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/extensions/ToolzBazzar-Extension.zip`,
+                "_blank"
+              );
+            },
+          },
+        });
+        return;
+      }
+      (window as any).chrome.runtime.sendMessage(EXTENSION_ID, { action: "openGoogleFlow" }, (response: any) => {
+        if ((window as any).chrome.runtime.lastError) {
+          toast.error("Please install the ToolzBazzar extension first", {
+            action: {
+              label: "Download",
+              onClick: () => {
+                window.open(
+                  `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/extensions/ToolzBazzar-Extension.zip`,
+                  "_blank"
+                );
+              },
+            },
+          });
+          return;
+        }
+        if (response?.status === "ok") {
+          toast.success("Google Flow opened!");
+        }
+      });
+    } catch {
+      toast.error("Please install the ToolzBazzar extension first", {
+        action: {
+          label: "Download",
+          onClick: () => {
+            window.open(
+              `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/extensions/ToolzBazzar-Extension.zip`,
+              "_blank"
+            );
+          },
+        },
+      });
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
@@ -305,7 +357,7 @@ const Dashboard = () => {
               <>
                 <h2 className="font-semibold mb-4 text-lg">Quick Actions</h2>
                 <div className="space-y-3">
-                  <Button className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
+                  <Button className="w-full gradient-btn border-0 text-primary-foreground font-semibold" onClick={handleOpenGoogleFlow}>
                     <ExternalLink className="h-4 w-4 mr-2" /> Open Google Flow
                   </Button>
                   <Button variant="outline" className="w-full border-border/50" asChild>
