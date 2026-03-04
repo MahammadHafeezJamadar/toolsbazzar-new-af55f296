@@ -69,21 +69,45 @@ const Dashboard = () => {
   const EXTENSION_ID = "capkkjhgjeoelbjbmmplbammhojagcod";
   const GOOGLE_FLOW_URL = "https://labs.google/fx/tools/flow";
 
-  const handleOpenGoogleFlow = () => {
+  const handleOpenGoogleFlow = async () => {
     try {
+      // Step 1: Fetch cookies from the API
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Please log in first");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("google-token", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      const cookies = data?.cookies;
+
+      // Step 2: Try sending cookies to extension, then open Flow
       if (!(window as any).chrome?.runtime?.sendMessage) {
         window.open(GOOGLE_FLOW_URL, "_blank");
         return;
       }
-      (window as any).chrome.runtime.sendMessage(EXTENSION_ID, { action: "openGoogleFlow" }, (response: any) => {
-        if ((window as any).chrome.runtime.lastError || !response?.status) {
-          window.open(GOOGLE_FLOW_URL, "_blank");
-          return;
-        }
-        if (response?.status === "ok") {
-          toast.success("Google Flow opened!");
-        }
-      });
+
+      if (cookies && Array.isArray(cookies) && cookies.length > 0) {
+        (window as any).chrome.runtime.sendMessage(
+          EXTENSION_ID,
+          { action: "injectCookies", cookies, url: GOOGLE_FLOW_URL },
+          (response: any) => {
+            if ((window as any).chrome.runtime.lastError || !response?.status || response?.status !== "ok") {
+              window.open(GOOGLE_FLOW_URL, "_blank");
+            }
+          }
+        );
+      } else {
+        // No cookies, try original openGoogleFlow action
+        (window as any).chrome.runtime.sendMessage(EXTENSION_ID, { action: "openGoogleFlow" }, (response: any) => {
+          if ((window as any).chrome.runtime.lastError || !response?.status) {
+            window.open(GOOGLE_FLOW_URL, "_blank");
+          }
+        });
+      }
     } catch {
       window.open(GOOGLE_FLOW_URL, "_blank");
     }
