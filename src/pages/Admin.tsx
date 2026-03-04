@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { LogOut, Plus, Save, Shield } from "lucide-react";
+import { LogOut, Save, Shield, KeyRound, Cookie } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface UserProfile {
   id: string;
@@ -23,15 +24,14 @@ interface UserProfile {
   plan: string;
   subscription_active: boolean;
   expiry_date: string | null;
+  google_email: string | null;
+  google_password: string | null;
+  cookies_json: any;
 }
-
-const ADMIN_EMAIL = "admin@myflow.com";
 
 const Admin = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [newUser, setNewUser] = useState({ email: "", name: "", plan: "Basic" });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,7 +64,7 @@ const Admin = () => {
   const loadUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, name, plan, subscription_active, expiry_date")
+      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json")
       .order("email");
     if (error) toast.error("Failed to load users");
     else setUsers(data || []);
@@ -83,7 +83,7 @@ const Admin = () => {
     }
   };
 
-  const updateField = async (userId: string, field: string, value: string) => {
+  const updateField = async (userId: string, field: string, value: any) => {
     const { error } = await supabase
       .from("profiles")
       .update({ [field]: value })
@@ -115,61 +115,19 @@ const Admin = () => {
           <Link to="/" className="text-xl font-bold gradient-text flex items-center gap-2">
             <Shield className="h-5 w-5" /> MyFlow Admin
           </Link>
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
-            <LogOut className="h-4 w-4 mr-2" /> Logout
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/dashboard">Dashboard</Link>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" /> Logout
+            </Button>
+          </div>
         </div>
       </nav>
 
       <div className="container mx-auto px-4 py-12">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gradient-btn border-0 text-primary-foreground font-semibold">
-                <Plus className="h-4 w-4 mr-2" /> Add User
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="glass border-border/50">
-              <DialogHeader>
-                <DialogTitle>Add New User</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 pt-4">
-                <div>
-                  <Label>Email</Label>
-                  <Input value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} className="mt-1 bg-secondary/50 border-border/50" />
-                </div>
-                <div>
-                  <Label>Name</Label>
-                  <Input value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} className="mt-1 bg-secondary/50 border-border/50" />
-                </div>
-                <div>
-                  <Label>Plan</Label>
-                  <Input value={newUser.plan} onChange={(e) => setNewUser({ ...newUser, plan: e.target.value })} className="mt-1 bg-secondary/50 border-border/50" />
-                </div>
-                <Button
-                  className="w-full gradient-btn border-0 text-primary-foreground font-semibold"
-                  onClick={async () => {
-                    const { error } = await supabase.from("profiles").insert({
-                      email: newUser.email,
-                      name: newUser.name,
-                      plan: newUser.plan,
-                    });
-                    if (error) toast.error(error.message);
-                    else {
-                      toast.success("User added");
-                      setDialogOpen(false);
-                      setNewUser({ email: "", name: "", plan: "Basic" });
-                      loadUsers();
-                    }
-                  }}
-                >
-                  Add User
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+        <h1 className="text-3xl font-bold mb-8">User Management</h1>
 
         <div className="glass rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
@@ -181,7 +139,7 @@ const Admin = () => {
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Plan</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Status</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Expiry</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Actions</th>
+                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Credentials</th>
                 </tr>
               </thead>
               <tbody>
@@ -204,10 +162,43 @@ const UserRow = ({
 }: {
   user: UserProfile;
   toggleSubscription: (id: string, current: boolean) => void;
-  updateField: (id: string, field: string, value: string) => void;
+  updateField: (id: string, field: string, value: any) => void;
 }) => {
   const [plan, setPlan] = useState(user.plan);
   const [expiry, setExpiry] = useState(user.expiry_date || "");
+  const [credOpen, setCredOpen] = useState(false);
+  const [googleEmail, setGoogleEmail] = useState(user.google_email || "");
+  const [googlePassword, setGooglePassword] = useState(user.google_password || "");
+  const [cookiesJson, setCookiesJson] = useState(
+    user.cookies_json ? JSON.stringify(user.cookies_json, null, 2) : ""
+  );
+
+  const saveCreds = async () => {
+    let parsedCookies = null;
+    if (cookiesJson.trim()) {
+      try {
+        parsedCookies = JSON.parse(cookiesJson);
+      } catch {
+        toast.error("Invalid JSON for cookies");
+        return;
+      }
+    }
+
+    const { error } = await (await import("@/integrations/supabase/client")).supabase
+      .from("profiles")
+      .update({
+        google_email: googleEmail || null,
+        google_password: googlePassword || null,
+        cookies_json: parsedCookies,
+      })
+      .eq("id", user.id);
+
+    if (error) toast.error("Failed to save credentials");
+    else {
+      toast.success("Credentials saved");
+      setCredOpen(false);
+    }
+  };
 
   return (
     <tr className="border-b border-border/20 hover:bg-secondary/20 transition-colors">
@@ -247,7 +238,42 @@ const UserRow = ({
         </div>
       </td>
       <td className="p-4">
-        <span className="text-xs text-muted-foreground">—</span>
+        <Dialog open={credOpen} onOpenChange={setCredOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="border-border/50 text-xs">
+              <KeyRound className="h-3 w-3 mr-1" /> Set Credentials
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="glass border-border/50 max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <KeyRound className="h-4 w-4" /> Credentials — {user.email}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              <div>
+                <Label>Google Email</Label>
+                <Input value={googleEmail} onChange={(e) => setGoogleEmail(e.target.value)} className="mt-1 bg-secondary/50 border-border/50" />
+              </div>
+              <div>
+                <Label>Google Password</Label>
+                <Input type="password" value={googlePassword} onChange={(e) => setGooglePassword(e.target.value)} className="mt-1 bg-secondary/50 border-border/50" />
+              </div>
+              <div>
+                <Label className="flex items-center gap-1"><Cookie className="h-3 w-3" /> Cookies JSON</Label>
+                <Textarea
+                  value={cookiesJson}
+                  onChange={(e) => setCookiesJson(e.target.value)}
+                  className="mt-1 bg-secondary/50 border-border/50 font-mono text-xs min-h-[120px]"
+                  placeholder='[{"name":"...", "value":"..."}]'
+                />
+              </div>
+              <Button className="w-full gradient-btn border-0 text-primary-foreground font-semibold" onClick={saveCreds}>
+                <Save className="h-4 w-4 mr-2" /> Save Credentials
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </td>
     </tr>
   );
