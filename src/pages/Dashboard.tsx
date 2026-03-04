@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, ExternalLink, Download, User } from "lucide-react";
+import { LogOut, ExternalLink, Download, User, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 interface Profile {
@@ -13,6 +13,7 @@ interface Profile {
   plan: string;
   subscription_active: boolean;
   expiry_date: string | null;
+  is_admin: boolean | null;
 }
 
 const Dashboard = () => {
@@ -29,7 +30,7 @@ const Dashboard = () => {
       }
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, name, plan, subscription_active, expiry_date")
+        .select("id, email, name, plan, subscription_active, expiry_date, is_admin")
         .eq("id", session.user.id)
         .single();
 
@@ -66,9 +67,16 @@ const Dashboard = () => {
       <nav className="glass border-b border-border/30 sticky top-0 z-50">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
           <Link to="/" className="text-xl font-bold gradient-text">MyFlow</Link>
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
-            <LogOut className="h-4 w-4 mr-2" /> Logout
-          </Button>
+          <div className="flex items-center gap-3">
+            {profile?.is_admin && (
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/admin" className="flex items-center gap-1"><Shield className="h-4 w-4" /> Admin</Link>
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" /> Logout
+            </Button>
+          </div>
         </div>
       </nav>
 

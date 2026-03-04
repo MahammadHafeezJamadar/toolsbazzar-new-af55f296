@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 const navLinks = [
   { label: "Features", href: "#features" },
@@ -12,6 +13,29 @@ const navLinks = [
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      setLoggedIn(true);
+      const { data } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", session.user.id)
+        .single();
+      if (data?.is_admin) setIsAdmin(true);
+    };
+    check();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setLoggedIn(!!session);
+      if (!session) { setIsAdmin(false); }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/30">
@@ -29,14 +53,27 @@ const Navbar = () => {
               {l.label}
             </a>
           ))}
+          {isAdmin && (
+            <Link to="/admin" className="text-sm text-accent hover:text-foreground transition-colors flex items-center gap-1">
+              <Shield className="h-3.5 w-3.5" /> Admin
+            </Link>
+          )}
         </div>
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/login">Login</Link>
-          </Button>
-          <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold" asChild>
-            <Link to="/register">Get Started</Link>
-          </Button>
+          {loggedIn ? (
+            <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold" asChild>
+              <Link to="/dashboard">Dashboard</Link>
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold" asChild>
+                <Link to="/register">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
         <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
           {open ? <X size={24} /> : <Menu size={24} />}
@@ -49,13 +86,26 @@ const Navbar = () => {
               {l.label}
             </a>
           ))}
+          {isAdmin && (
+            <Link to="/admin" className="text-accent hover:text-foreground py-2 flex items-center gap-1" onClick={() => setOpen(false)}>
+              <Shield className="h-3.5 w-3.5" /> Admin
+            </Link>
+          )}
           <div className="flex gap-2 pt-2">
-            <Button variant="ghost" size="sm" asChild className="flex-1">
-              <Link to="/login">Login</Link>
-            </Button>
-            <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold flex-1" asChild>
-              <Link to="/register">Get Started</Link>
-            </Button>
+            {loggedIn ? (
+              <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold flex-1" asChild>
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" asChild className="flex-1">
+                  <Link to="/login">Login</Link>
+                </Button>
+                <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold flex-1" asChild>
+                  <Link to="/register">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
