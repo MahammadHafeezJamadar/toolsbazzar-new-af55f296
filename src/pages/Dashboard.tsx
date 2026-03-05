@@ -82,7 +82,7 @@ const Dashboard = () => {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
-      const cookies = data?.cookies;
+      const cookies = data?.cookies?.cookies;
 
       // Step 2: Try sending cookies to extension, then open Flow
       if (!(window as any).chrome?.runtime?.sendMessage) {
