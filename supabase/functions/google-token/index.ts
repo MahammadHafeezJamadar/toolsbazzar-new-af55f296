@@ -48,15 +48,29 @@ serve(async (req) => {
       });
     }
 
+    let parsedCookies = [];
+    if (profile.cookies_json) {
+      try {
+        parsedCookies = typeof profile.cookies_json === "string"
+          ? JSON.parse(profile.cookies_json)
+          : profile.cookies_json;
+      } catch {
+        parsedCookies = [];
+      }
+    }
+
     return new Response(JSON.stringify({
       status: "success",
-      google_email: profile.google_email,
-      google_password: profile.google_password,
+      google_flow: {
+        email: profile.google_email,
+        password: profile.google_password,
+      },
+      cookies: {
+        cookies: Array.isArray(parsedCookies) ? parsedCookies : [],
+      },
       subscription: {
         status: profile.subscription_active ? "active" : "inactive",
-        expiry_date: profile.expiry_date,
       },
-      cookies: profile.cookies_json,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
