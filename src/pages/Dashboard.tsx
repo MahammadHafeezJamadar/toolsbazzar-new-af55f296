@@ -71,7 +71,6 @@ const Dashboard = () => {
 
   const handleOpenGoogleFlow = async () => {
     try {
-      // Step 1: Fetch cookies from the API
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error("Please log in first");
@@ -82,33 +81,36 @@ const Dashboard = () => {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
+      console.log("[google-token] Full response:", JSON.stringify(data, null, 2));
+      console.log("[google-token] Error:", error);
+
       const cookies = data?.cookies?.cookies;
 
-      // Step 2: Try sending cookies to extension, then open Flow
-      if (!(window as any).chrome?.runtime?.sendMessage) {
-        window.open(GOOGLE_FLOW_URL, "_blank");
-        return;
+      // Try sending cookies to extension for document.cookie injection
+      if ((window as any).chrome?.runtime?.sendMessage) {
+        if (cookies && Array.isArray(cookies) && cookies.length > 0) {
+          console.log("[google-token] Sending", cookies.length, "cookies to extension for injection");
+          (window as any).chrome.runtime.sendMessage(
+            EXTENSION_ID,
+            { action: "injectCookies", cookies, url: GOOGLE_FLOW_URL },
+            (response: any) => {
+              console.log("[google-token] Extension response:", response);
+              if ((window as any).chrome.runtime.lastError) {
+                console.warn("[google-token] Extension error:", (window as any).chrome.runtime.lastError);
+                window.open(GOOGLE_FLOW_URL, "_blank");
+              }
+              // Extension handles opening the tab after injection
+            }
+          );
+          return;
+        }
       }
 
-      if (cookies && Array.isArray(cookies) && cookies.length > 0) {
-        (window as any).chrome.runtime.sendMessage(
-          EXTENSION_ID,
-          { action: "injectCookies", cookies, url: GOOGLE_FLOW_URL },
-          (response: any) => {
-            if ((window as any).chrome.runtime.lastError || !response?.status || response?.status !== "ok") {
-              window.open(GOOGLE_FLOW_URL, "_blank");
-            }
-          }
-        );
-      } else {
-        // No cookies, try original openGoogleFlow action
-        (window as any).chrome.runtime.sendMessage(EXTENSION_ID, { action: "openGoogleFlow" }, (response: any) => {
-          if ((window as any).chrome.runtime.lastError || !response?.status) {
-            window.open(GOOGLE_FLOW_URL, "_blank");
-          }
-        });
-      }
-    } catch {
+      // Fallback: open Google Flow directly
+      console.log("[google-token] No extension or no cookies, opening directly");
+      window.open(GOOGLE_FLOW_URL, "_blank");
+    } catch (err) {
+      console.error("[google-token] Error:", err);
       window.open(GOOGLE_FLOW_URL, "_blank");
     }
   };
