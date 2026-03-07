@@ -66,7 +66,7 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const EXTENSION_ID = "capkkjhgjeoelbjbmmplbammhojagcod";
+  const EXTENSION_ID = "jmopbgmkekdfiojbnibjgafdccccenod";
   const GOOGLE_FLOW_URL = "https://labs.google/fx/tools/flow";
 
   const handleOpenGoogleFlow = async () => {
@@ -86,28 +86,30 @@ const Dashboard = () => {
 
       const cookies = data?.cookies?.cookies;
 
-      // Try sending cookies to extension for document.cookie injection
-      if ((window as any).chrome?.runtime?.sendMessage) {
-        if (cookies && Array.isArray(cookies) && cookies.length > 0) {
+      if (cookies && Array.isArray(cookies) && cookies.length > 0) {
+        try {
+          console.log("[google-token] Sending cookies to extension", EXTENSION_ID);
           console.log("[google-token] Sending", cookies.length, "cookies to extension for injection");
           (window as any).chrome.runtime.sendMessage(
             EXTENSION_ID,
             { action: "injectCookies", cookies, url: GOOGLE_FLOW_URL },
             (response: any) => {
               console.log("[google-token] Extension response:", response);
-              if ((window as any).chrome.runtime.lastError) {
-                console.warn("[google-token] Extension error:", (window as any).chrome.runtime.lastError);
+              const lastErr = (window as any).chrome?.runtime?.lastError;
+              if (lastErr) {
+                console.warn("[google-token] Extension error:", lastErr);
                 window.open(GOOGLE_FLOW_URL, "_blank");
               }
-              // Extension handles opening the tab after injection
             }
           );
           return;
+        } catch (extErr) {
+          console.warn("[google-token] chrome.runtime.sendMessage failed:", extErr);
         }
       }
 
       // Fallback: open Google Flow directly
-      console.log("[google-token] No extension or no cookies, opening directly");
+      console.log("[google-token] No cookies available, opening directly");
       window.open(GOOGLE_FLOW_URL, "_blank");
     } catch (err) {
       console.error("[google-token] Error:", err);
