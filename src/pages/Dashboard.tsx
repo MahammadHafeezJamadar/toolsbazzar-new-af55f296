@@ -77,43 +77,30 @@ const Dashboard = () => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke("google-token", {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
+      const accessToken = session.access_token;
+      console.log("[google-flow] Sending access_token to extension", EXTENSION_ID);
 
-      console.log("[google-token] Full response:", JSON.stringify(data, null, 2));
-      console.log("[google-token] Error:", error);
-
-      const cookies = data?.cookies?.cookies;
-
-      if (cookies && Array.isArray(cookies) && cookies.length > 0) {
-        try {
-          console.log("[google-token] Sending cookies to extension", EXTENSION_ID);
-          console.log("[google-token] Sending", cookies.length, "cookies to extension for injection");
-          (window as any).chrome.runtime.sendMessage(
-            EXTENSION_ID,
-            { action: "injectCookies", cookies, url: GOOGLE_FLOW_URL },
-            (response: any) => {
-              console.log("[google-token] Extension response:", response);
-              const lastErr = (window as any).chrome?.runtime?.lastError;
-              if (lastErr) {
-                console.warn("[google-token] Extension error:", lastErr);
-                window.open(GOOGLE_FLOW_URL, "_blank");
-              }
+      try {
+        (window as any).chrome.runtime.sendMessage(
+          EXTENSION_ID,
+          { action: "openGoogleFlow", access_token: accessToken },
+          (response: any) => {
+            const lastErr = (window as any).chrome?.runtime?.lastError;
+            if (lastErr) {
+              console.warn("[google-flow] Extension error:", lastErr);
+              toast.error("Extension not found. Please install the ToolzBazzar extension.");
+            } else {
+              console.log("[google-flow] Extension response:", response);
             }
-          );
-          return;
-        } catch (extErr) {
-          console.warn("[google-token] chrome.runtime.sendMessage failed:", extErr);
-        }
+          }
+        );
+      } catch (extErr) {
+        console.warn("[google-flow] chrome.runtime.sendMessage failed:", extErr);
+        toast.error("Chrome extension not detected. Please use Chrome and install the extension.");
       }
-
-      // Fallback: open Google Flow directly
-      console.log("[google-token] No cookies available, opening directly");
-      window.open(GOOGLE_FLOW_URL, "_blank");
     } catch (err) {
-      console.error("[google-token] Error:", err);
-      window.open(GOOGLE_FLOW_URL, "_blank");
+      console.error("[google-flow] Error:", err);
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
