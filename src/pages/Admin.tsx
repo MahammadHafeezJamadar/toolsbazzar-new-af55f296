@@ -229,7 +229,42 @@ const Admin = () => {
       </nav>
 
       <div className="container mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-8">User Management</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold">User Management</h1>
+          <Dialog open={globalCookiesOpen} onOpenChange={(open) => {
+            setGlobalCookiesOpen(open);
+            if (open) loadGlobalCookies();
+          }}>
+            <DialogTrigger asChild>
+              <Button className="gradient-btn border-0 text-primary-foreground font-semibold">
+                <Globe className="h-4 w-4 mr-2" /> Set Global Cookies
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="glass border-border/50 max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Globe className="h-4 w-4" /> Global Cookies
+                </DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground">
+                When set, these cookies will be used for ALL users instead of individual user cookies.
+              </p>
+              <Textarea
+                value={globalCookies}
+                onChange={(e) => setGlobalCookies(e.target.value)}
+                className="bg-secondary/50 border-border/50 font-mono text-xs min-h-[200px]"
+                placeholder='[{"name":"...", "value":"..."}]'
+              />
+              <Button
+                className="w-full gradient-btn border-0 text-primary-foreground font-semibold"
+                onClick={saveGlobalCookies}
+                disabled={globalCookiesLoading}
+              >
+                <Save className="h-4 w-4 mr-2" /> {globalCookiesLoading ? "Saving..." : "Save Global Cookies"}
+              </Button>
+            </DialogContent>
+          </Dialog>
+        </div>
 
         <div className="glass rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
