@@ -66,7 +66,7 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const EXTENSION_ID = "mgmcbpbohmocmooflbaobbjkhimomhkl";
+  const EXTENSION_ID = "nkjkofpphngekmnjkdfjhakaegmgcddi";
   const GOOGLE_FLOW_URL = "https://labs.google/fx/tools/flow";
 
   const handleOpenGoogleFlow = async () => {
