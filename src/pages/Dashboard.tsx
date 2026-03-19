@@ -347,7 +347,7 @@ const Dashboard = () => {
                     <ExternalLink className="h-4 w-4 mr-2" /> Open Google Flow
                   </Button>
                   <Button variant="outline" className="w-full border-border/50" asChild>
-                    <a href={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/extensions/ToolzBazzar-Extension.zip`} download>
+                    <a href="https://github.com/MahammadHafeezJamadar/toolzbazzar-extension/raw/main/ToolzBazzar-CookieInjection-v1.zip" download>
                       <Download className="h-4 w-4 mr-2" /> Download Extension
                     </a>
                   </Button>
