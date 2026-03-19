@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2 } from "lucide-react";
+import { LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2, Globe } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -54,6 +54,9 @@ const Admin = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [sessionCounts, setSessionCounts] = useState<Record<string, number>>({});
+  const [globalCookiesOpen, setGlobalCookiesOpen] = useState(false);
+  const [globalCookies, setGlobalCookies] = useState("");
+  const [globalCookiesLoading, setGlobalCookiesLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -150,6 +153,50 @@ const Admin = () => {
     }
   };
 
+  const loadGlobalCookies = async () => {
+    const { data } = await supabase
+      .from("global_settings")
+      .select("value")
+      .eq("key", "global_cookies")
+      .single();
+    if (data?.value) setGlobalCookies(data.value);
+  };
+
+  const saveGlobalCookies = async () => {
+    if (globalCookies.trim()) {
+      try {
+        JSON.parse(globalCookies);
+      } catch {
+        toast.error("Invalid JSON");
+        return;
+      }
+    }
+    setGlobalCookiesLoading(true);
+    const { data: existing } = await supabase
+      .from("global_settings")
+      .select("id")
+      .eq("key", "global_cookies")
+      .single();
+
+    let error;
+    if (existing) {
+      ({ error } = await supabase
+        .from("global_settings")
+        .update({ value: globalCookies.trim() || null, updated_at: new Date().toISOString() })
+        .eq("key", "global_cookies"));
+    } else {
+      ({ error } = await supabase
+        .from("global_settings")
+        .insert({ key: "global_cookies", value: globalCookies.trim() || null }));
+    }
+    setGlobalCookiesLoading(false);
+    if (error) toast.error("Failed to save global cookies");
+    else {
+      toast.success("Global cookies saved");
+      setGlobalCookiesOpen(false);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
@@ -182,7 +229,42 @@ const Admin = () => {
       </nav>
 
       <div className="container mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-8">User Management</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold">User Management</h1>
+          <Dialog open={globalCookiesOpen} onOpenChange={(open) => {
+            setGlobalCookiesOpen(open);
+            if (open) loadGlobalCookies();
+          }}>
+            <DialogTrigger asChild>
+              <Button className="gradient-btn border-0 text-primary-foreground font-semibold">
+                <Globe className="h-4 w-4 mr-2" /> Set Global Cookies
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="glass border-border/50 max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Globe className="h-4 w-4" /> Global Cookies
+                </DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground">
+                When set, these cookies will be used for ALL users instead of individual user cookies.
+              </p>
+              <Textarea
+                value={globalCookies}
+                onChange={(e) => setGlobalCookies(e.target.value)}
+                className="bg-secondary/50 border-border/50 font-mono text-xs min-h-[200px]"
+                placeholder='[{"name":"...", "value":"..."}]'
+              />
+              <Button
+                className="w-full gradient-btn border-0 text-primary-foreground font-semibold"
+                onClick={saveGlobalCookies}
+                disabled={globalCookiesLoading}
+              >
+                <Save className="h-4 w-4 mr-2" /> {globalCookiesLoading ? "Saving..." : "Save Global Cookies"}
+              </Button>
+            </DialogContent>
+          </Dialog>
+        </div>
 
         <div className="glass rounded-xl overflow-hidden">
           <div className="overflow-x-auto">

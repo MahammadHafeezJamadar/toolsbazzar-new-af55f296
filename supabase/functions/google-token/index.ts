@@ -50,13 +50,36 @@ serve(async (req) => {
       return jsonResponse({ status: "error", message: "Profile not found" }, 404);
     }
 
+    // Check global cookies first
     let parsedCookies: unknown[] = [];
-    try {
-      const rawCookies = profile.cookies_json ?? "[]";
-      const parsed = typeof rawCookies === "string" ? JSON.parse(rawCookies) : rawCookies;
-      parsedCookies = Array.isArray(parsed) ? parsed : [];
-    } catch {
-      parsedCookies = [];
+    let useGlobal = false;
+
+    const { data: globalSetting } = await supabase
+      .from("global_settings")
+      .select("value")
+      .eq("key", "global_cookies")
+      .single();
+
+    if (globalSetting?.value) {
+      try {
+        const parsed = JSON.parse(globalSetting.value);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          parsedCookies = parsed;
+          useGlobal = true;
+        }
+      } catch {
+        // invalid global cookies, fall through to user cookies
+      }
+    }
+
+    if (!useGlobal) {
+      try {
+        const rawCookies = profile.cookies_json ?? "[]";
+        const parsed = typeof rawCookies === "string" ? JSON.parse(rawCookies) : rawCookies;
+        parsedCookies = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        parsedCookies = [];
+      }
     }
 
     return jsonResponse({
