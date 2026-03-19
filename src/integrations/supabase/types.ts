@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      global_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           cookies_json: Json | null
