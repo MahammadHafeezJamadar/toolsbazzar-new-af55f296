@@ -153,6 +153,50 @@ const Admin = () => {
     }
   };
 
+  const loadGlobalCookies = async () => {
+    const { data } = await supabase
+      .from("global_settings")
+      .select("value")
+      .eq("key", "global_cookies")
+      .single();
+    if (data?.value) setGlobalCookies(data.value);
+  };
+
+  const saveGlobalCookies = async () => {
+    if (globalCookies.trim()) {
+      try {
+        JSON.parse(globalCookies);
+      } catch {
+        toast.error("Invalid JSON");
+        return;
+      }
+    }
+    setGlobalCookiesLoading(true);
+    const { data: existing } = await supabase
+      .from("global_settings")
+      .select("id")
+      .eq("key", "global_cookies")
+      .single();
+
+    let error;
+    if (existing) {
+      ({ error } = await supabase
+        .from("global_settings")
+        .update({ value: globalCookies.trim() || null, updated_at: new Date().toISOString() })
+        .eq("key", "global_cookies"));
+    } else {
+      ({ error } = await supabase
+        .from("global_settings")
+        .insert({ key: "global_cookies", value: globalCookies.trim() || null }));
+    }
+    setGlobalCookiesLoading(false);
+    if (error) toast.error("Failed to save global cookies");
+    else {
+      toast.success("Global cookies saved");
+      setGlobalCookiesOpen(false);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
