@@ -30,6 +30,9 @@ interface Profile {
   is_admin: boolean | null;
   credits_total: number;
   credits_used: number;
+  daily_credits_limit: number;
+  credits_used_today: number;
+  last_reset_date: string | null;
 }
 
 const Dashboard = () => {
