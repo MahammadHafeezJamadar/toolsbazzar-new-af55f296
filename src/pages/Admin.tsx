@@ -277,6 +277,7 @@ const Admin = () => {
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Email</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Plan</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Status</th>
+                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Credits</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Expiry</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Sessions</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Credentials</th>
