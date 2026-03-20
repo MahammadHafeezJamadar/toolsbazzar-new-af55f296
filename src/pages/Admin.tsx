@@ -95,7 +95,7 @@ const Admin = () => {
   const loadUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, credits_total, credits_used")
+      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date")
       .order("email");
     if (error) toast.error("Failed to load users");
     else setUsers(data || []);
