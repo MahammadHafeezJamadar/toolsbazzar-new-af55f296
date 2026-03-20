@@ -444,6 +444,10 @@ const Dashboard = () => {
                       <Download className="h-4 w-4 mr-2" /> Download Extension
                     </a>
                   </Button>
+                  <Button variant="outline" className="w-full border-border/50" asChild>
+                    <Link to="/refer">
+                      <Gift className="h-4 w-4 mr-2" /> Refer & Earn 200 Credits
+                    </Link>
                 </div>
               </>
             ) : (
