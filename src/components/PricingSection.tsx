@@ -7,19 +7,19 @@ const plans = [
   {
     name: "Basic",
     price: "₹299",
-    features: ["2,000 credits/month", "1 device only", "Basic templates", "Email support"],
+    features: ["2,000 credits/month", "1 device only", "Veo 3.1 Fast only", "Lower Priority generation", "WhatsApp support"],
     popular: false,
   },
   {
     name: "Pro",
     price: "₹499",
-    features: ["25,000 credits/month", "2 devices", "Premium templates", "Priority support", "API access"],
+    features: ["25,000 credits/month", "2 devices", "Veo 3.1 Fast + Quality", "Normal Priority generation", "HD video download", "WhatsApp support"],
     popular: true,
   },
   {
     name: "Ultra",
     price: "₹799",
-    features: ["45,000 credits/month", "2 devices", "All templates", "24/7 dedicated support", "API access", "Early access to new features"],
+    features: ["45,000 credits/month", "2 devices", "Veo 3.1 Fast + Quality", "High Priority generation", "HD video download", "24/7 WhatsApp support", "Dedicated support"],
     popular: false,
   },
 ];
