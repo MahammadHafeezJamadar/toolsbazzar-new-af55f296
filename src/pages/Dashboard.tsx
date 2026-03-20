@@ -28,6 +28,8 @@ interface Profile {
   subscription_active: boolean;
   expiry_date: string | null;
   is_admin: boolean | null;
+  credits_total: number;
+  credits_used: number;
 }
 
 const Dashboard = () => {
