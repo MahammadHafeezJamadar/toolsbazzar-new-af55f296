@@ -322,6 +322,7 @@ const UserRow = ({
 }) => {
   const [plan, setPlan] = useState(user.plan);
   const [expiry, setExpiry] = useState(user.expiry_date || "");
+  const [creditsTotal, setCreditsTotal] = useState(String(user.credits_total ?? 1000));
   const [credOpen, setCredOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const [sessions, setSessions] = useState<DeviceSession[]>([]);
