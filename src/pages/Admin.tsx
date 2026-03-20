@@ -38,6 +38,8 @@ interface UserProfile {
   google_email: string | null;
   google_password: string | null;
   cookies_json: any;
+  credits_total: number;
+  credits_used: number;
 }
 
 interface DeviceSession {
