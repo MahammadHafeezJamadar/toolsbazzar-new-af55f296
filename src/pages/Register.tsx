@@ -82,6 +82,10 @@ const Register = () => {
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} className="mt-1 bg-secondary/50 border-border/50" />
           </div>
+          <div>
+            <Label htmlFor="referralCode">Referral Code (optional)</Label>
+            <Input id="referralCode" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} placeholder="Enter referral code" className="mt-1 bg-secondary/50 border-border/50 font-mono uppercase" />
+          </div>
           <Button type="submit" disabled={loading} className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
             {loading ? "Creating account..." : "Create Account"}
           </Button>

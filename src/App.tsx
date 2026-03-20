@@ -25,6 +25,7 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/refer" element={<ReferAndEarn />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
