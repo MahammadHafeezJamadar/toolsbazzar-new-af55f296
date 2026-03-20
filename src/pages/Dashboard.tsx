@@ -448,6 +448,7 @@ const Dashboard = () => {
                     <Link to="/refer">
                       <Gift className="h-4 w-4 mr-2" /> Refer & Earn 200 Credits
                     </Link>
+                  </Button>
                 </div>
               </>
             ) : (
