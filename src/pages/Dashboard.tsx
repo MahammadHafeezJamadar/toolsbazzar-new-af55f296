@@ -420,9 +420,25 @@ const Dashboard = () => {
               <>
                 <h2 className="font-semibold mb-4 text-lg">Quick Actions</h2>
                 <div className="space-y-3">
-                  <Button className="w-full gradient-btn border-0 text-primary-foreground font-semibold" onClick={handleOpenGoogleFlow}>
-                    <ExternalLink className="h-4 w-4 mr-2" /> Open Google Flow
-                  </Button>
+                  {(() => {
+                    const today = new Date().toISOString().split('T')[0];
+                    const isToday = profile?.last_reset_date === today;
+                    const usedToday = isToday ? (profile?.credits_used_today ?? 0) : 0;
+                    const dailyLimit = profile?.daily_credits_limit ?? 100;
+                    const dailyLimitReached = usedToday >= dailyLimit;
+                    const creditsRemaining = (profile?.credits_total ?? 0) - (profile?.credits_used ?? 0);
+                    const disabled = dailyLimitReached || creditsRemaining <= 0;
+                    return (
+                      <Button
+                        className="w-full gradient-btn border-0 text-primary-foreground font-semibold"
+                        onClick={handleOpenGoogleFlow}
+                        disabled={disabled}
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        {dailyLimitReached ? "Daily Limit Reached" : creditsRemaining <= 0 ? "No Credits" : "Open Google Flow"}
+                      </Button>
+                    );
+                  })()}
                   <Button variant="outline" className="w-full border-border/50" asChild>
                     <a href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-ultra45k.zip" download>
                       <Download className="h-4 w-4 mr-2" /> Download Extension

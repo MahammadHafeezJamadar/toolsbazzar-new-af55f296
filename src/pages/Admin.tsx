@@ -438,6 +438,19 @@ const UserRow = ({
           </Button>
         </div>
         <span className="text-[10px] text-muted-foreground">Used: {user.credits_used ?? 0}</span>
+        <div className="flex items-center gap-1 mt-1">
+          <Input
+            type="number"
+            value={dailyLimit}
+            onChange={(e) => setDailyLimit(e.target.value)}
+            className="h-7 w-16 text-[10px] bg-secondary/50 border-border/50"
+            placeholder="Daily"
+          />
+          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => updateField(user.id, "daily_credits_limit", parseInt(dailyLimit) || 0)}>
+            <Save className="h-3 w-3" />
+          </Button>
+        </div>
+        <span className="text-[10px] text-muted-foreground">Daily: {user.credits_used_today ?? 0}/{user.daily_credits_limit ?? 100}</span>
       </td>
       <td className="p-4">
         <div className="flex items-center gap-1">
