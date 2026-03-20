@@ -30,6 +30,9 @@ interface Profile {
   is_admin: boolean | null;
   credits_total: number;
   credits_used: number;
+  daily_credits_limit: number;
+  credits_used_today: number;
+  last_reset_date: string | null;
 }
 
 const Dashboard = () => {
@@ -50,7 +53,7 @@ const Dashboard = () => {
       }
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used")
+        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date")
         .eq("id", session.user.id)
         .single();
 
@@ -254,6 +257,43 @@ const Dashboard = () => {
             );
           })()}
 
+          {/* Daily Credits Card */}
+          {(() => {
+            const today = new Date().toISOString().split('T')[0];
+            const isToday = profile?.last_reset_date === today;
+            const usedToday = isToday ? (profile?.credits_used_today ?? 0) : 0;
+            const dailyLimit = profile?.daily_credits_limit ?? 100;
+            const dailyPercentage = dailyLimit > 0 ? (usedToday / dailyLimit) * 100 : 0;
+            const dailyLimitReached = usedToday >= dailyLimit;
+            return (
+              <div className="glass rounded-xl p-6 md:col-span-2">
+                {dailyLimitReached ? (
+                  <>
+                    <h2 className="font-semibold mb-2 text-lg text-destructive">Daily Limit Reached</h2>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      You have reached your daily credits limit. Come back tomorrow!
+                    </p>
+                    <Progress value={100} className="h-3" />
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-muted-foreground">Resets at midnight</span>
+                      <span className="text-xs font-semibold text-destructive">{usedToday} / {dailyLimit}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="font-semibold mb-4 text-lg">Daily Credits</h2>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">Used Today</span>
+                      <span className="text-sm font-semibold">{usedToday} / {dailyLimit}</span>
+                    </div>
+                    <Progress value={dailyPercentage} className="h-3" />
+                    <p className="text-xs text-muted-foreground mt-2">Resets every midnight automatically</p>
+                  </>
+                )}
+              </div>
+            );
+          })()}
+
           {/* Subscription Card */}
           <div className="glass rounded-xl p-6">
             <h2 className="font-semibold mb-4 text-lg">Subscription</h2>
@@ -380,9 +420,25 @@ const Dashboard = () => {
               <>
                 <h2 className="font-semibold mb-4 text-lg">Quick Actions</h2>
                 <div className="space-y-3">
-                  <Button className="w-full gradient-btn border-0 text-primary-foreground font-semibold" onClick={handleOpenGoogleFlow}>
-                    <ExternalLink className="h-4 w-4 mr-2" /> Open Google Flow
-                  </Button>
+                  {(() => {
+                    const today = new Date().toISOString().split('T')[0];
+                    const isToday = profile?.last_reset_date === today;
+                    const usedToday = isToday ? (profile?.credits_used_today ?? 0) : 0;
+                    const dailyLimit = profile?.daily_credits_limit ?? 100;
+                    const dailyLimitReached = usedToday >= dailyLimit;
+                    const creditsRemaining = (profile?.credits_total ?? 0) - (profile?.credits_used ?? 0);
+                    const disabled = dailyLimitReached || creditsRemaining <= 0;
+                    return (
+                      <Button
+                        className="w-full gradient-btn border-0 text-primary-foreground font-semibold"
+                        onClick={handleOpenGoogleFlow}
+                        disabled={disabled}
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        {dailyLimitReached ? "Daily Limit Reached" : creditsRemaining <= 0 ? "No Credits" : "Open Google Flow"}
+                      </Button>
+                    );
+                  })()}
                   <Button variant="outline" className="w-full border-border/50" asChild>
                     <a href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-ultra45k.zip" download>
                       <Download className="h-4 w-4 mr-2" /> Download Extension

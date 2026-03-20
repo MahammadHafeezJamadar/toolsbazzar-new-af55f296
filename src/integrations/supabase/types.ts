@@ -41,12 +41,15 @@ export type Database = {
           created_at: string | null
           credits_total: number
           credits_used: number
+          credits_used_today: number
+          daily_credits_limit: number
           email: string
           expiry_date: string | null
           google_email: string | null
           google_password: string | null
           id: string
           is_admin: boolean | null
+          last_reset_date: string
           name: string | null
           plan: string | null
           subscription_active: boolean | null
@@ -57,12 +60,15 @@ export type Database = {
           created_at?: string | null
           credits_total?: number
           credits_used?: number
+          credits_used_today?: number
+          daily_credits_limit?: number
           email: string
           expiry_date?: string | null
           google_email?: string | null
           google_password?: string | null
           id?: string
           is_admin?: boolean | null
+          last_reset_date?: string
           name?: string | null
           plan?: string | null
           subscription_active?: boolean | null
@@ -73,12 +79,15 @@ export type Database = {
           created_at?: string | null
           credits_total?: number
           credits_used?: number
+          credits_used_today?: number
+          daily_credits_limit?: number
           email?: string
           expiry_date?: string | null
           google_email?: string | null
           google_password?: string | null
           id?: string
           is_admin?: boolean | null
+          last_reset_date?: string
           name?: string | null
           plan?: string | null
           subscription_active?: boolean | null
