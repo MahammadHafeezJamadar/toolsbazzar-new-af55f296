@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Progress } from "@/components/ui/progress";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
