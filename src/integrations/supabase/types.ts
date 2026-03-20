@@ -39,6 +39,8 @@ export type Database = {
         Row: {
           cookies_json: Json | null
           created_at: string | null
+          credits_total: number
+          credits_used: number
           email: string
           expiry_date: string | null
           google_email: string | null
@@ -53,6 +55,8 @@ export type Database = {
         Insert: {
           cookies_json?: Json | null
           created_at?: string | null
+          credits_total?: number
+          credits_used?: number
           email: string
           expiry_date?: string | null
           google_email?: string | null
@@ -67,6 +71,8 @@ export type Database = {
         Update: {
           cookies_json?: Json | null
           created_at?: string | null
+          credits_total?: number
+          credits_used?: number
           email?: string
           expiry_date?: string | null
           google_email?: string | null
