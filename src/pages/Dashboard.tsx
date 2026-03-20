@@ -50,7 +50,7 @@ const Dashboard = () => {
       }
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, name, plan, subscription_active, expiry_date, is_admin")
+        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used")
         .eq("id", session.user.id)
         .single();
 
