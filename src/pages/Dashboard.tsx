@@ -440,7 +440,7 @@ const Dashboard = () => {
                     );
                   })()}
                   <Button variant="outline" className="w-full border-border/50" asChild>
-                    <a href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-ultra45k.zip" download>
+                    <a href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-veo.zip" download>
                       <Download className="h-4 w-4 mr-2" /> Download Extension
                     </a>
                   </Button>
