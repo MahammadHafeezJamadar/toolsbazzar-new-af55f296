@@ -40,6 +40,9 @@ interface UserProfile {
   cookies_json: any;
   credits_total: number;
   credits_used: number;
+  daily_credits_limit: number;
+  credits_used_today: number;
+  last_reset_date: string | null;
 }
 
 interface DeviceSession {
