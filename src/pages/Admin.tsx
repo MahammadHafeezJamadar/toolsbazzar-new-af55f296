@@ -424,6 +424,20 @@ const UserRow = ({
       <td className="p-4">
         <div className="flex items-center gap-1">
           <Input
+            type="number"
+            value={creditsTotal}
+            onChange={(e) => setCreditsTotal(e.target.value)}
+            className="h-8 w-20 text-xs bg-secondary/50 border-border/50"
+          />
+          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => updateField(user.id, "credits_total", parseInt(creditsTotal) || 0)}>
+            <Save className="h-3 w-3" />
+          </Button>
+        </div>
+        <span className="text-[10px] text-muted-foreground">Used: {user.credits_used ?? 0}</span>
+      </td>
+      <td className="p-4">
+        <div className="flex items-center gap-1">
+          <Input
             type="date"
             value={expiry}
             onChange={(e) => setExpiry(e.target.value)}
