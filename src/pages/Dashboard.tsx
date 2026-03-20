@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Progress } from "@/components/ui/progress";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,8 @@ interface Profile {
   subscription_active: boolean;
   expiry_date: string | null;
   is_admin: boolean | null;
+  credits_total: number;
+  credits_used: number;
 }
 
 const Dashboard = () => {
@@ -47,7 +50,7 @@ const Dashboard = () => {
       }
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, name, plan, subscription_active, expiry_date, is_admin")
+        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used")
         .eq("id", session.user.id)
         .single();
 
@@ -217,6 +220,40 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Credits Card */}
+          {(() => {
+            const creditsRemaining = (profile?.credits_total ?? 0) - (profile?.credits_used ?? 0);
+            const creditsTotal = profile?.credits_total ?? 0;
+            const percentage = creditsTotal > 0 ? (creditsRemaining / creditsTotal) * 100 : 0;
+            const isFinished = creditsRemaining <= 0;
+            return (
+              <div className="glass rounded-xl p-6 md:col-span-2">
+                {isFinished ? (
+                  <>
+                    <h2 className="font-semibold mb-2 text-lg text-destructive">Credits Finished</h2>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      You have used all your credits. Please contact admin to get more credits.
+                    </p>
+                    <Button asChild className="w-full bg-[hsl(142,70%,45%)] hover:bg-[hsl(142,70%,40%)] text-white font-semibold border-0">
+                      <a href="https://wa.me/919448646624" target="_blank" rel="noopener noreferrer">
+                        Contact on WhatsApp
+                      </a>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="font-semibold mb-4 text-lg">Credits</h2>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">Remaining</span>
+                      <span className="text-sm font-semibold">{creditsRemaining} / {creditsTotal}</span>
+                    </div>
+                    <Progress value={percentage} className="h-3" />
+                  </>
+                )}
+              </div>
+            );
+          })()}
+
           {/* Subscription Card */}
           <div className="glass rounded-xl p-6">
             <h2 className="font-semibold mb-4 text-lg">Subscription</h2>

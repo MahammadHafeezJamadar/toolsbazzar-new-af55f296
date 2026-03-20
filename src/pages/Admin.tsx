@@ -38,6 +38,8 @@ interface UserProfile {
   google_email: string | null;
   google_password: string | null;
   cookies_json: any;
+  credits_total: number;
+  credits_used: number;
 }
 
 interface DeviceSession {
@@ -90,7 +92,7 @@ const Admin = () => {
   const loadUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json")
+      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, credits_total, credits_used")
       .order("email");
     if (error) toast.error("Failed to load users");
     else setUsers(data || []);
@@ -275,6 +277,7 @@ const Admin = () => {
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Email</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Plan</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Status</th>
+                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Credits</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Expiry</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Sessions</th>
                   <th className="text-left text-xs font-medium text-muted-foreground p-4">Credentials</th>
@@ -319,6 +322,7 @@ const UserRow = ({
 }) => {
   const [plan, setPlan] = useState(user.plan);
   const [expiry, setExpiry] = useState(user.expiry_date || "");
+  const [creditsTotal, setCreditsTotal] = useState(String(user.credits_total ?? 1000));
   const [credOpen, setCredOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const [sessions, setSessions] = useState<DeviceSession[]>([]);
@@ -416,6 +420,20 @@ const UserRow = ({
             {user.subscription_active ? "Active" : "Inactive"}
           </Badge>
         </div>
+      </td>
+      <td className="p-4">
+        <div className="flex items-center gap-1">
+          <Input
+            type="number"
+            value={creditsTotal}
+            onChange={(e) => setCreditsTotal(e.target.value)}
+            className="h-8 w-20 text-xs bg-secondary/50 border-border/50"
+          />
+          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => updateField(user.id, "credits_total", parseInt(creditsTotal) || 0)}>
+            <Save className="h-3 w-3" />
+          </Button>
+        </div>
+        <span className="text-[10px] text-muted-foreground">Used: {user.credits_used ?? 0}</span>
       </td>
       <td className="p-4">
         <div className="flex items-center gap-1">
