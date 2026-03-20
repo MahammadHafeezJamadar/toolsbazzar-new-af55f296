@@ -7,19 +7,19 @@ const plans = [
   {
     name: "Basic",
     price: "₹299",
-    features: ["10 videos/month", "720p resolution", "Basic templates", "Email support", "5GB storage"],
+    features: ["2,000 credits/month", "1 device only", "Basic templates", "Email support"],
     popular: false,
   },
   {
     name: "Pro",
-    price: "₹599",
-    features: ["50 videos/month", "1080p resolution", "Premium templates", "Priority support", "25GB storage", "API access"],
+    price: "₹499",
+    features: ["25,000 credits/month", "2 devices", "Premium templates", "Priority support", "API access"],
     popular: true,
   },
   {
-    name: "Enterprise",
-    price: "₹999",
-    features: ["Unlimited videos", "4K resolution", "Custom templates", "24/7 dedicated support", "100GB storage", "API access", "Team collaboration"],
+    name: "Ultra",
+    price: "₹799",
+    features: ["45,000 credits/month", "2 devices", "All templates", "24/7 dedicated support", "API access", "Early access to new features"],
     popular: false,
   },
 ];
