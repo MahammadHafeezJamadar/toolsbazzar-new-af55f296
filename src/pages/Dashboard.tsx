@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LogOut, User, Shield, KeyRound, Trash2, ExternalLink, Download } from "lucide-react";
+import { LogOut, User, Shield, KeyRound, Trash2, ExternalLink, Download, Gift } from "lucide-react";
 import { toast } from "sonner";
 
 interface Profile {
@@ -443,6 +443,11 @@ const Dashboard = () => {
                     <a href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-veo.zip" download>
                       <Download className="h-4 w-4 mr-2" /> Download Extension
                     </a>
+                  </Button>
+                  <Button variant="outline" className="w-full border-border/50" asChild>
+                    <Link to="/refer">
+                      <Gift className="h-4 w-4 mr-2" /> Refer & Earn 200 Credits
+                    </Link>
                   </Button>
                 </div>
               </>

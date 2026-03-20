@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,8 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [referralCode, setReferralCode] = useState(searchParams.get("ref") || "");
   const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -25,18 +27,33 @@ const Register = () => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { name } },
     });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error(error.message);
-    } else {
-      toast.success("Account created successfully!");
-      navigate("/dashboard");
+      return;
     }
+
+    // Process referral if code provided
+    if (referralCode.trim() && data.user) {
+      const { error: refError } = await supabase.rpc("process_referral", {
+        referral_code_input: referralCode.trim().toUpperCase(),
+        new_user_id: data.user.id,
+      });
+      if (refError) {
+        console.warn("Referral processing failed:", refError.message);
+      } else {
+        toast.success("🎉 You received 100 bonus credits from referral!");
+      }
+    }
+
+    setLoading(false);
+    toast.success("Account created successfully!");
+    navigate("/dashboard");
   };
 
   return (
@@ -64,6 +81,10 @@ const Register = () => {
           <div>
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} className="mt-1 bg-secondary/50 border-border/50" />
+          </div>
+          <div>
+            <Label htmlFor="referralCode">Referral Code (optional)</Label>
+            <Input id="referralCode" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} placeholder="Enter referral code" className="mt-1 bg-secondary/50 border-border/50 font-mono uppercase" />
           </div>
           <Button type="submit" disabled={loading} className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
             {loading ? "Creating account..." : "Create Account"}
