@@ -257,6 +257,43 @@ const Dashboard = () => {
             );
           })()}
 
+          {/* Daily Credits Card */}
+          {(() => {
+            const today = new Date().toISOString().split('T')[0];
+            const isToday = profile?.last_reset_date === today;
+            const usedToday = isToday ? (profile?.credits_used_today ?? 0) : 0;
+            const dailyLimit = profile?.daily_credits_limit ?? 100;
+            const dailyPercentage = dailyLimit > 0 ? (usedToday / dailyLimit) * 100 : 0;
+            const dailyLimitReached = usedToday >= dailyLimit;
+            return (
+              <div className="glass rounded-xl p-6 md:col-span-2">
+                {dailyLimitReached ? (
+                  <>
+                    <h2 className="font-semibold mb-2 text-lg text-destructive">Daily Limit Reached</h2>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      You have reached your daily credits limit. Come back tomorrow!
+                    </p>
+                    <Progress value={100} className="h-3" />
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-muted-foreground">Resets at midnight</span>
+                      <span className="text-xs font-semibold text-destructive">{usedToday} / {dailyLimit}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="font-semibold mb-4 text-lg">Daily Credits</h2>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">Used Today</span>
+                      <span className="text-sm font-semibold">{usedToday} / {dailyLimit}</span>
+                    </div>
+                    <Progress value={dailyPercentage} className="h-3" />
+                    <p className="text-xs text-muted-foreground mt-2">Resets every midnight automatically</p>
+                  </>
+                )}
+              </div>
+            );
+          })()}
+
           {/* Subscription Card */}
           <div className="glass rounded-xl p-6">
             <h2 className="font-semibold mb-4 text-lg">Subscription</h2>
