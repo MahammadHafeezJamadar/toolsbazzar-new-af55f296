@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LogOut, User, Shield, KeyRound, Trash2, ExternalLink, Download } from "lucide-react";
+import { LogOut, User, Shield, KeyRound, Trash2, ExternalLink, Download, Gift } from "lucide-react";
 import { toast } from "sonner";
 
 interface Profile {
