@@ -12,7 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2, Globe } from "lucide-react";
+import {
+  LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2, Globe,
+  Users, CreditCard, Zap, TrendingUp, LayoutDashboard, Settings, ChevronUp, ChevronDown, Eye,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -62,6 +65,14 @@ interface DeviceSession {
   is_active: boolean;
 }
 
+type AdminTab = "dashboard" | "users" | "settings";
+
+const sidebarItems: { id: AdminTab; label: string; icon: React.ElementType }[] = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "users", label: "Users", icon: Users },
+  { id: "settings", label: "Settings", icon: Settings },
+];
+
 const Admin = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,6 +80,7 @@ const Admin = () => {
   const [globalCookiesOpen, setGlobalCookiesOpen] = useState(false);
   const [globalCookies, setGlobalCookies] = useState("");
   const [globalCookiesLoading, setGlobalCookiesLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -214,107 +226,266 @@ const Admin = () => {
     navigate("/login");
   };
 
+  // Stats calculations
+  const totalUsers = users.length;
+  const activeSubscriptions = users.filter((u) => u.subscription_active).length;
+  const totalCreditsUsed = users.reduce((sum, u) => sum + (u.credits_used ?? 0), 0);
+  const planRevenue: Record<string, number> = { Basic: 299, Pro: 499, Ultra: 799 };
+  const monthlyRevenue = users
+    .filter((u) => u.subscription_active)
+    .reduce((sum, u) => sum + (planRevenue[u.plan] || 0), 0);
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0a0a" }}>
         <div className="text-muted-foreground">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      <nav className="glass border-b border-border/30 sticky top-0 z-50">
-        <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <Link to="/" className="text-xl font-bold gradient-text flex items-center gap-2">
-            <Shield className="h-5 w-5" /> ToolzBazzar Admin
+    <div className="min-h-screen flex" style={{ background: "#0a0a0a" }}>
+      {/* Sidebar */}
+      <aside className="w-64 min-h-screen flex flex-col border-r" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
+        <div className="p-6">
+          <Link to="/" className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-accent" />
+            <span className="text-lg font-bold text-foreground">ToolzBazzar</span>
           </Link>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" /> Logout
-            </Button>
-          </div>
+          <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
         </div>
-      </nav>
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <Dialog open={globalCookiesOpen} onOpenChange={(open) => {
-            setGlobalCookiesOpen(open);
-            if (open) loadGlobalCookies();
-          }}>
-            <DialogTrigger asChild>
-              <Button className="gradient-btn border-0 text-primary-foreground font-semibold">
-                <Globe className="h-4 w-4 mr-2" /> Set Global Cookies
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="glass border-border/50 max-w-lg">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Globe className="h-4 w-4" /> Global Cookies
-                </DialogTitle>
-              </DialogHeader>
-              <p className="text-sm text-muted-foreground">
-                When set, these cookies will be used for ALL users instead of individual user cookies.
-              </p>
-              <Textarea
-                value={globalCookies}
-                onChange={(e) => setGlobalCookies(e.target.value)}
-                className="bg-secondary/50 border-border/50 font-mono text-xs min-h-[200px]"
-                placeholder='[{"name":"...", "value":"..."}]'
+        <nav className="flex-1 px-3 space-y-1">
+          {sidebarItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === item.id
+                  ? "bg-accent/10 text-accent"
+                  : "text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a]"
+              }`}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="p-3 border-t" style={{ borderColor: "#1e1e1e" }}>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a] transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
+          <Link
+            to="/dashboard"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a] transition-colors mt-1"
+          >
+            <Eye className="h-4 w-4" />
+            User Dashboard
+          </Link>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-8">
+          {activeTab === "dashboard" && (
+            <DashboardTab
+              totalUsers={totalUsers}
+              activeSubscriptions={activeSubscriptions}
+              totalCreditsUsed={totalCreditsUsed}
+              monthlyRevenue={monthlyRevenue}
+            />
+          )}
+          {activeTab === "users" && (
+            <UsersTab
+              users={users}
+              sessionCounts={sessionCounts}
+              toggleSubscription={toggleSubscription}
+              updateField={updateField}
+              deleteUser={deleteUser}
+              loadSessionCounts={loadSessionCounts}
+            />
+          )}
+          {activeTab === "settings" && (
+            <SettingsTab
+              globalCookiesOpen={globalCookiesOpen}
+              setGlobalCookiesOpen={setGlobalCookiesOpen}
+              globalCookies={globalCookies}
+              setGlobalCookies={setGlobalCookies}
+              globalCookiesLoading={globalCookiesLoading}
+              loadGlobalCookies={loadGlobalCookies}
+              saveGlobalCookies={saveGlobalCookies}
+            />
+          )}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+/* ─── Dashboard Tab ─── */
+const StatCard = ({
+  icon: Icon,
+  label,
+  value,
+  trend,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  trend?: string;
+}) => (
+  <div className="rounded-xl p-5 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+    <div className="flex items-center justify-between mb-3">
+      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+        <Icon className="h-4 w-4 text-accent" />
+      </div>
+      {trend && (
+        <span className="flex items-center gap-0.5 text-xs font-medium text-accent">
+          <ChevronUp className="h-3 w-3" />
+          {trend}
+        </span>
+      )}
+    </div>
+    <div className="text-2xl font-bold text-foreground">{value}</div>
+    <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
+  </div>
+);
+
+const DashboardTab = ({
+  totalUsers,
+  activeSubscriptions,
+  totalCreditsUsed,
+  monthlyRevenue,
+}: {
+  totalUsers: number;
+  activeSubscriptions: number;
+  totalCreditsUsed: number;
+  monthlyRevenue: number;
+}) => (
+  <div>
+    <h1 className="text-2xl font-bold text-foreground mb-6">Dashboard</h1>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <StatCard icon={Users} label="Total Users" value={String(totalUsers)} trend="+12%" />
+      <StatCard icon={CreditCard} label="Active Subscriptions" value={String(activeSubscriptions)} trend="+8%" />
+      <StatCard icon={Zap} label="Total Credits Used" value={totalCreditsUsed.toLocaleString()} />
+      <StatCard icon={TrendingUp} label="Revenue (est.)" value={`₹${monthlyRevenue.toLocaleString()}`} trend="+15%" />
+    </div>
+  </div>
+);
+
+/* ─── Users Tab ─── */
+const UsersTab = ({
+  users,
+  sessionCounts,
+  toggleSubscription,
+  updateField,
+  deleteUser,
+  loadSessionCounts,
+}: {
+  users: UserProfile[];
+  sessionCounts: Record<string, number>;
+  toggleSubscription: (id: string, current: boolean) => void;
+  updateField: (id: string, field: string, value: any) => void;
+  deleteUser: (id: string) => Promise<void>;
+  loadSessionCounts: () => void;
+}) => (
+  <div>
+    <h1 className="text-2xl font-bold text-foreground mb-6">User Management</h1>
+    <div className="rounded-xl border overflow-hidden" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr style={{ borderBottom: "1px solid #1e1e1e" }}>
+              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Name</th>
+              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Email</th>
+              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Plan</th>
+              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Status</th>
+              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Credits</th>
+              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Expiry</th>
+              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <UserRow
+                key={u.id}
+                user={u}
+                toggleSubscription={toggleSubscription}
+                updateField={updateField}
+                activeDevices={sessionCounts[u.id] || 0}
+                onSessionRevoked={loadSessionCounts}
+                onDeleteUser={deleteUser}
               />
-              <Button
-                className="w-full gradient-btn border-0 text-primary-foreground font-semibold"
-                onClick={saveGlobalCookies}
-                disabled={globalCookiesLoading}
-              >
-                <Save className="h-4 w-4 mr-2" /> {globalCookiesLoading ? "Saving..." : "Save Global Cookies"}
-              </Button>
-            </DialogContent>
-          </Dialog>
-        </div>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+);
 
-        <div className="glass rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border/30">
-                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Name</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Email</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Plan</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Status</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Credits</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Expiry</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Sessions</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Credentials</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground p-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <UserRow
-                    key={u.id}
-                    user={u}
-                    toggleSubscription={toggleSubscription}
-                    updateField={updateField}
-                    activeDevices={sessionCounts[u.id] || 0}
-                    onSessionRevoked={loadSessionCounts}
-                    onDeleteUser={deleteUser}
-                  />
-                ))}
-              </tbody>
-            </table>
+/* ─── Settings Tab ─── */
+const SettingsTab = ({
+  globalCookiesOpen,
+  setGlobalCookiesOpen,
+  globalCookies,
+  setGlobalCookies,
+  globalCookiesLoading,
+  loadGlobalCookies,
+  saveGlobalCookies,
+}: {
+  globalCookiesOpen: boolean;
+  setGlobalCookiesOpen: (v: boolean) => void;
+  globalCookies: string;
+  setGlobalCookies: (v: string) => void;
+  globalCookiesLoading: boolean;
+  loadGlobalCookies: () => void;
+  saveGlobalCookies: () => void;
+}) => {
+  useEffect(() => {
+    loadGlobalCookies();
+  }, []);
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Settings</h1>
+      <div className="rounded-xl border p-6 max-w-2xl" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+            <Globe className="h-4 w-4 text-accent" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">Global Cookies</h3>
+            <p className="text-xs text-muted-foreground">
+              When set, these cookies will be used for ALL users instead of individual user cookies.
+            </p>
           </div>
         </div>
+        <Textarea
+          value={globalCookies}
+          onChange={(e) => setGlobalCookies(e.target.value)}
+          className="font-mono text-xs min-h-[200px] border-[#1e1e1e] bg-[#0a0a0a] focus:border-accent"
+          placeholder='[{"name":"...", "value":"..."}]'
+        />
+        <Button
+          className="mt-4 gradient-btn border-0 font-semibold"
+          onClick={saveGlobalCookies}
+          disabled={globalCookiesLoading}
+        >
+          <Save className="h-4 w-4 mr-2" /> {globalCookiesLoading ? "Saving..." : "Save Global Cookies"}
+        </Button>
       </div>
     </div>
   );
 };
 
+/* ─── User Row ─── */
 const UserRow = ({
   user,
   toggleSubscription,
@@ -409,8 +580,8 @@ const UserRow = ({
   };
 
   return (
-    <tr className="border-b border-border/20 hover:bg-secondary/20 transition-colors">
-      <td className="p-4 text-sm font-medium">{user.name || "—"}</td>
+    <tr className="hover:bg-[#1a1a1a] transition-colors" style={{ borderBottom: "1px solid #1e1e1e" }}>
+      <td className="p-4 text-sm font-medium text-foreground">{user.name || "—"}</td>
       <td className="p-4 text-sm text-muted-foreground">{user.email}</td>
       <td className="p-4">
         <Select
@@ -430,7 +601,7 @@ const UserRow = ({
             }
           }}
         >
-          <SelectTrigger className="h-8 w-32 text-xs bg-secondary/50 border-border/50">
+          <SelectTrigger className="h-8 w-28 text-xs bg-[#0a0a0a] border-[#1e1e1e] text-accent font-medium">
             <SelectValue placeholder="Select plan" />
           </SelectTrigger>
           <SelectContent>
@@ -443,37 +614,51 @@ const UserRow = ({
       <td className="p-4">
         <div className="flex items-center gap-2">
           <Switch checked={user.subscription_active} onCheckedChange={() => toggleSubscription(user.id, user.subscription_active)} />
-          <Badge variant={user.subscription_active ? "default" : "secondary"} className={user.subscription_active ? "gradient-btn border-0 text-primary-foreground text-xs" : "text-xs"}>
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
+              user.subscription_active
+                ? "bg-[#0d3320] text-[#34d399]"
+                : "bg-[#331111] text-[#f87171]"
+            }`}
+          >
             {user.subscription_active ? "Active" : "Inactive"}
-          </Badge>
+          </span>
         </div>
       </td>
       <td className="p-4">
-        <div className="flex items-center gap-1">
-          <Input
-            type="number"
-            value={creditsTotal}
-            onChange={(e) => setCreditsTotal(e.target.value)}
-            className="h-8 w-20 text-xs bg-secondary/50 border-border/50"
-          />
-          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => updateField(user.id, "credits_total", parseInt(creditsTotal) || 0)}>
-            <Save className="h-3 w-3" />
-          </Button>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-1">
+            <Input
+              type="number"
+              value={creditsTotal}
+              onChange={(e) => setCreditsTotal(e.target.value)}
+              className="h-7 w-20 text-xs bg-[#0a0a0a] border-[#1e1e1e]"
+            />
+            <button
+              className="h-7 w-7 flex items-center justify-center rounded bg-[#1a1a3e] text-[#818cf8] hover:bg-[#252560] transition-colors"
+              onClick={() => updateField(user.id, "credits_total", parseInt(creditsTotal) || 0)}
+            >
+              <Save className="h-3 w-3" />
+            </button>
+          </div>
+          <span className="text-[10px] text-muted-foreground block">Used: {user.credits_used ?? 0}</span>
+          <div className="flex items-center gap-1">
+            <Input
+              type="number"
+              value={dailyLimit}
+              onChange={(e) => setDailyLimit(e.target.value)}
+              className="h-6 w-16 text-[10px] bg-[#0a0a0a] border-[#1e1e1e]"
+              placeholder="Daily"
+            />
+            <button
+              className="h-6 w-6 flex items-center justify-center rounded bg-[#1a1a3e] text-[#818cf8] hover:bg-[#252560] transition-colors"
+              onClick={() => updateField(user.id, "daily_credits_limit", parseInt(dailyLimit) || 0)}
+            >
+              <Save className="h-2.5 w-2.5" />
+            </button>
+          </div>
+          <span className="text-[10px] text-muted-foreground block">Daily: {user.credits_used_today ?? 0}/{user.daily_credits_limit ?? 100}</span>
         </div>
-        <span className="text-[10px] text-muted-foreground">Used: {user.credits_used ?? 0}</span>
-        <div className="flex items-center gap-1 mt-1">
-          <Input
-            type="number"
-            value={dailyLimit}
-            onChange={(e) => setDailyLimit(e.target.value)}
-            className="h-7 w-16 text-[10px] bg-secondary/50 border-border/50"
-            placeholder="Daily"
-          />
-          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => updateField(user.id, "daily_credits_limit", parseInt(dailyLimit) || 0)}>
-            <Save className="h-3 w-3" />
-          </Button>
-        </div>
-        <span className="text-[10px] text-muted-foreground">Daily: {user.credits_used_today ?? 0}/{user.daily_credits_limit ?? 100}</span>
       </td>
       <td className="p-4">
         <div className="flex items-center gap-1">
@@ -481,32 +666,70 @@ const UserRow = ({
             type="date"
             value={expiry}
             onChange={(e) => setExpiry(e.target.value)}
-            className="h-8 text-xs bg-secondary/50 border-border/50"
+            className="h-7 text-xs bg-[#0a0a0a] border-[#1e1e1e]"
           />
-          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => updateField(user.id, "expiry_date", expiry)}>
+          <button
+            className="h-7 w-7 flex items-center justify-center rounded bg-[#0d3320] text-[#34d399] hover:bg-[#164e36] transition-colors"
+            onClick={() => updateField(user.id, "expiry_date", expiry)}
+          >
             <Save className="h-3 w-3" />
-          </Button>
+          </button>
         </div>
       </td>
       <td className="p-4">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs">
-            <Monitor className="h-3 w-3 mr-1" />
-            {activeDevices} {activeDevices === 1 ? "device" : "devices"}
-          </Badge>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {/* Set Credentials */}
+          <Dialog open={credOpen} onOpenChange={setCredOpen}>
+            <DialogTrigger asChild>
+              <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#1a1a3e] text-[#818cf8] hover:bg-[#252560] transition-colors flex items-center gap-1">
+                <KeyRound className="h-3 w-3" /> Creds
+              </button>
+            </DialogTrigger>
+            <DialogContent className="border-[#1e1e1e] max-w-lg" style={{ background: "#111111" }}>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-foreground">
+                  <KeyRound className="h-4 w-4 text-accent" /> Credentials — {user.email}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 pt-2">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Google Email</Label>
+                  <Input value={googleEmail} onChange={(e) => setGoogleEmail(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent" />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Google Password</Label>
+                  <Input type="password" value={googlePassword} onChange={(e) => setGooglePassword(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent" />
+                </div>
+                <div>
+                  <Label className="flex items-center gap-1 text-xs text-muted-foreground"><Cookie className="h-3 w-3" /> Cookies JSON</Label>
+                  <Textarea
+                    value={cookiesJson}
+                    onChange={(e) => setCookiesJson(e.target.value)}
+                    className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] font-mono text-xs min-h-[120px] focus:border-accent"
+                    placeholder='[{"name":"...", "value":"..."}]'
+                  />
+                </div>
+                <Button className="w-full gradient-btn border-0 font-semibold" onClick={saveCreds}>
+                  <Save className="h-4 w-4 mr-2" /> Save Credentials
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* View Devices */}
           <Dialog open={sessionsOpen} onOpenChange={(open) => {
             setSessionsOpen(open);
             if (open) loadSessions();
           }}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="border-border/50 text-xs">
-                View Devices
-              </Button>
+              <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#1a2332] text-[#38bdf8] hover:bg-[#1e3a52] transition-colors flex items-center gap-1">
+                <Monitor className="h-3 w-3" /> {activeDevices}
+              </button>
             </DialogTrigger>
-            <DialogContent className="glass border-border/50 max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="border-[#1e1e1e] max-w-2xl max-h-[80vh] overflow-y-auto" style={{ background: "#111111" }}>
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Monitor className="h-4 w-4" /> Sessions — {user.email}
+                <DialogTitle className="flex items-center gap-2 text-foreground">
+                  <Monitor className="h-4 w-4 text-accent" /> Sessions — {user.email}
                 </DialogTitle>
               </DialogHeader>
               {sessionsLoading ? (
@@ -517,25 +740,27 @@ const UserRow = ({
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-border/30">
-                        <th className="text-left text-xs font-medium text-muted-foreground py-2 px-3">Device</th>
-                        <th className="text-left text-xs font-medium text-muted-foreground py-2 px-3">IP Address</th>
-                        <th className="text-left text-xs font-medium text-muted-foreground py-2 px-3">Login Time</th>
-                        <th className="text-left text-xs font-medium text-muted-foreground py-2 px-3">Last Active</th>
-                        <th className="text-left text-xs font-medium text-muted-foreground py-2 px-3">Action</th>
+                      <tr style={{ borderBottom: "1px solid #1e1e1e" }}>
+                        <th className="text-left text-[11px] font-medium text-muted-foreground py-2 px-3 uppercase tracking-wider">Device</th>
+                        <th className="text-left text-[11px] font-medium text-muted-foreground py-2 px-3 uppercase tracking-wider">IP</th>
+                        <th className="text-left text-[11px] font-medium text-muted-foreground py-2 px-3 uppercase tracking-wider">Login</th>
+                        <th className="text-left text-[11px] font-medium text-muted-foreground py-2 px-3 uppercase tracking-wider">Last Active</th>
+                        <th className="text-left text-[11px] font-medium text-muted-foreground py-2 px-3 uppercase tracking-wider">Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       {sessions.map((s) => (
-                        <tr key={s.id} className="border-b border-border/10">
+                        <tr key={s.id} style={{ borderBottom: "1px solid #1a1a1a" }}>
                           <td className="py-2 px-3">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium">{s.device_info}</span>
-                              {s.is_active ? (
-                                <Badge variant="default" className="text-[10px] px-1.5 py-0 gradient-btn border-0 text-primary-foreground">Active</Badge>
-                              ) : (
-                                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Revoked</Badge>
-                              )}
+                              <span className="font-medium text-foreground">{s.device_info}</span>
+                              <span className={`text-[10px] px-1.5 py-0 rounded-full font-medium ${
+                                s.is_active
+                                  ? "bg-[#0d3320] text-[#34d399]"
+                                  : "bg-[#1e1e1e] text-muted-foreground"
+                              }`}>
+                                {s.is_active ? "Active" : "Revoked"}
+                              </span>
                             </div>
                           </td>
                           <td className="py-2 px-3 text-muted-foreground">{s.ip_address || "—"}</td>
@@ -543,14 +768,12 @@ const UserRow = ({
                           <td className="py-2 px-3 text-muted-foreground">{formatDate(s.last_active_time)}</td>
                           <td className="py-2 px-3">
                             {s.is_active && (
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                className="text-xs h-7"
+                              <button
+                                className="h-6 px-2 rounded text-[10px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors flex items-center gap-1"
                                 onClick={() => revokeSession(s.id)}
                               >
-                                <X className="h-3 w-3 mr-1" /> Revoke
-                              </Button>
+                                <X className="h-2.5 w-2.5" /> Revoke
+                              </button>
                             )}
                           </td>
                         </tr>
@@ -561,71 +784,45 @@ const UserRow = ({
               )}
             </DialogContent>
           </Dialog>
+
+          {/* Activate / Deactivate */}
+          <button
+            className={`h-7 px-2.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1 ${
+              user.subscription_active
+                ? "bg-[#332200] text-[#fb923c] hover:bg-[#4a3300]"
+                : "bg-[#0d3320] text-[#34d399] hover:bg-[#164e36]"
+            }`}
+            onClick={() => toggleSubscription(user.id, user.subscription_active)}
+          >
+            {user.subscription_active ? "Deactivate" : "Activate"}
+          </button>
+
+          {/* Delete */}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors flex items-center gap-1">
+                <Trash2 className="h-3 w-3" /> Delete
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="border-[#1e1e1e]" style={{ background: "#111111" }}>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-foreground">Delete this user?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete their account and all data. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="bg-[#1e1e1e] border-[#2a2a2a] text-foreground hover:bg-[#2a2a2a]">Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => onDeleteUser(user.id)}
+                  className="bg-[#7f1d1d] text-[#fca5a5] hover:bg-[#991b1b]"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
-      </td>
-      <td className="p-4">
-        <Dialog open={credOpen} onOpenChange={setCredOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="border-border/50 text-xs">
-              <KeyRound className="h-3 w-3 mr-1" /> Set Credentials
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="glass border-border/50 max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <KeyRound className="h-4 w-4" /> Credentials — {user.email}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 pt-2">
-              <div>
-                <Label>Google Email</Label>
-                <Input value={googleEmail} onChange={(e) => setGoogleEmail(e.target.value)} className="mt-1 bg-secondary/50 border-border/50" />
-              </div>
-              <div>
-                <Label>Google Password</Label>
-                <Input type="password" value={googlePassword} onChange={(e) => setGooglePassword(e.target.value)} className="mt-1 bg-secondary/50 border-border/50" />
-              </div>
-              <div>
-                <Label className="flex items-center gap-1"><Cookie className="h-3 w-3" /> Cookies JSON</Label>
-                <Textarea
-                  value={cookiesJson}
-                  onChange={(e) => setCookiesJson(e.target.value)}
-                  className="mt-1 bg-secondary/50 border-border/50 font-mono text-xs min-h-[120px]"
-                  placeholder='[{"name":"...", "value":"..."}]'
-                />
-              </div>
-              <Button className="w-full gradient-btn border-0 text-primary-foreground font-semibold" onClick={saveCreds}>
-                <Save className="h-4 w-4 mr-2" /> Save Credentials
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </td>
-      <td className="p-4">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm" className="text-xs">
-              <Trash2 className="h-3 w-3 mr-1" /> Delete
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure you want to delete this user?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently delete their account and all data. This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => onDeleteUser(user.id)}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </td>
     </tr>
   );
