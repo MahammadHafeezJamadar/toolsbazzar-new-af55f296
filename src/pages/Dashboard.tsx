@@ -309,7 +309,7 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
             Welcome back, <span className="gradient-text">{profile?.name || "User"}</span>!
           </h1>
           <div className="flex items-center gap-3">
