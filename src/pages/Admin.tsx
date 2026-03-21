@@ -406,35 +406,18 @@ const UsersTab = ({
 }) => (
   <div>
     <h1 className="text-2xl font-bold text-foreground mb-6">User Management</h1>
-    <div className="rounded-xl border overflow-hidden" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr style={{ borderBottom: "1px solid #1e1e1e" }}>
-              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Name</th>
-              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Email</th>
-              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Plan</th>
-              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Status</th>
-              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Credits</th>
-              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Expiry</th>
-              <th className="text-left text-[11px] font-medium text-muted-foreground p-4 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <UserRow
-                key={u.id}
-                user={u}
-                toggleSubscription={toggleSubscription}
-                updateField={updateField}
-                activeDevices={sessionCounts[u.id] || 0}
-                onSessionRevoked={loadSessionCounts}
-                onDeleteUser={deleteUser}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {users.map((u) => (
+        <UserCard
+          key={u.id}
+          user={u}
+          toggleSubscription={toggleSubscription}
+          updateField={updateField}
+          activeDevices={sessionCounts[u.id] || 0}
+          onSessionRevoked={loadSessionCounts}
+          onDeleteUser={deleteUser}
+        />
+      ))}
     </div>
   </div>
 );
