@@ -16,7 +16,7 @@ const CTASection = () => (
           Ready to Get Started?
         </h2>
         <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto mb-8">
-          Join thousands of creators who are already using ToolzBazzar to produce amazing AI-generated videos.
+          Join thousands of creators who are already using FlowBazzar to produce amazing AI-generated videos.
         </p>
         <Button size="lg" className="gradient-btn border-0 font-semibold px-8 h-12 rounded-lg w-full sm:w-auto" asChild>
           <Link to="/register">
