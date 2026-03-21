@@ -53,6 +53,13 @@ interface UserProfile {
   daily_credits_limit: number;
   credits_used_today: number;
   last_reset_date: string | null;
+  created_at: string | null;
+  mobile_number: string | null;
+  street_address: string | null;
+  city: string | null;
+  state: string | null;
+  pin_code: string | null;
+  country: string | null;
 }
 
 interface DeviceSession {
