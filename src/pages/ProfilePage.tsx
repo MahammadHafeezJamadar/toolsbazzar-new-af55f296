@@ -170,7 +170,7 @@ const ProfilePage = () => {
                 onChange={(e) => setForm((f) => ({ ...f, mobile_number: e.target.value.replace(/[^0-9+\- ]/g, "") }))}
                 maxLength={20}
                 className="bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent"
-                placeholder="+91 9876543210"
+                placeholder="Enter your WhatsApp number"
               />
             </div>
 
