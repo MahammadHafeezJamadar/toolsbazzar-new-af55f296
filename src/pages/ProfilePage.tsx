@@ -103,7 +103,7 @@ const ProfilePage = () => {
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
-          <Link to="/" className="text-lg font-bold text-foreground">ToolsBazzar</Link>
+          <Link to="/" className="text-lg font-bold text-foreground">ToolzBazzar</Link>
           <div className="flex items-center gap-2">
             {isAdmin && (
               <Button variant="ghost" size="sm" asChild>

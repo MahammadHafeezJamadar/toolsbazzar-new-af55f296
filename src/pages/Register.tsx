@@ -61,7 +61,7 @@ const Register = () => {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-accent/10 blur-[100px] pointer-events-none" />
       <div className="w-full max-w-md glass rounded-2xl p-8 relative z-10">
         <div className="text-center mb-8">
-          <Link to="/" className="text-2xl font-bold gradient-text">ToolsBazzar</Link>
+          <Link to="/" className="text-2xl font-bold gradient-text">ToolzBazzar</Link>
           <h1 className="text-xl font-semibold mt-4">Create your account</h1>
           <p className="text-sm text-muted-foreground mt-1">Start creating AI videos today</p>
         </div>
