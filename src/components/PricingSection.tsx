@@ -32,11 +32,11 @@ const PricingSection = () => {
   const [yearly, setYearly] = useState(false);
 
   return (
-    <section id="pricing" className="py-28">
+    <section id="pricing" className="py-16 md:py-28">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">Simple Pricing</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto mb-8">
+        <div className="text-center mb-10 md:mb-12">
+          <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">Simple Pricing</h2>
+          <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto mb-8">
             Choose the plan that fits your creative needs.
           </p>
           <div className="inline-flex items-center bg-card border border-border rounded-lg p-1">
@@ -66,7 +66,7 @@ const PricingSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className={`bg-card border rounded-xl p-8 relative ${
+              className={`bg-card border rounded-xl p-6 md:p-8 relative ${
                 p.popular ? "border-accent ring-1 ring-accent/20" : "border-border"
               }`}
             >
@@ -77,7 +77,7 @@ const PricingSection = () => {
               )}
               <h3 className="text-lg font-semibold mb-1">{p.name}</h3>
               <div className="mb-6">
-                <span className="text-4xl font-bold text-foreground">
+                <span className="text-3xl md:text-4xl font-bold text-foreground">
                   ₹{yearly ? p.yearly : p.monthly}
                 </span>
                 <span className="text-muted-foreground text-sm">/{yearly ? "yr" : "mo"}</span>
@@ -91,7 +91,7 @@ const PricingSection = () => {
                 ))}
               </ul>
               <Button
-                className={`w-full font-semibold ${
+                className={`w-full font-semibold h-11 ${
                   p.popular ? "gradient-btn border-0" : "border-border"
                 }`}
                 variant={p.popular ? "default" : "outline"}

@@ -7,11 +7,11 @@ const testimonials = [
 ];
 
 const TestimonialsSection = () => (
-  <section id="testimonials" className="py-28">
+  <section id="testimonials" className="py-16 md:py-28">
     <div className="container mx-auto px-4">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">What Our Users Say</h2>
-        <p className="text-muted-foreground max-w-xl mx-auto">Trusted by creators and businesses worldwide.</p>
+      <div className="text-center mb-10 md:mb-16">
+        <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">What Our Users Say</h2>
+        <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">Trusted by creators and businesses worldwide.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
         {testimonials.map((t, i) => (
@@ -21,7 +21,7 @@ const TestimonialsSection = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
-            className="bg-card border border-border rounded-xl p-6 hover:border-accent/30 transition-colors"
+            className="bg-card border border-border rounded-xl p-5 md:p-6 hover:border-accent/30 transition-colors"
           >
             <p className="text-sm text-muted-foreground mb-6 leading-relaxed">"{t.text}"</p>
             <div className="flex items-center gap-3">

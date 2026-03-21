@@ -253,9 +253,9 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen flex" style={{ background: "#0a0a0a" }}>
-      {/* Sidebar */}
-      <aside className="w-64 min-h-screen flex flex-col border-r" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
+    <div className="min-h-screen pb-14 md:pb-0" style={{ background: "#0a0a0a" }}>
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-64 min-h-screen flex-col border-r fixed left-0 top-0 z-40" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="p-6">
           <Link to="/" className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-accent" />
@@ -299,9 +299,43 @@ const Admin = () => {
         </div>
       </aside>
 
+      {/* Mobile Top Bar */}
+      <nav className="sticky top-0 z-50 border-b md:hidden" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
+        <div className="flex items-center justify-between h-14 px-4">
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4 text-accent" />
+            <span className="text-lg font-bold text-foreground">Admin</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/dashboard" className="text-muted-foreground"><Eye className="h-4 w-4" /></Link>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Bottom Nav */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t md:hidden flex items-center justify-around h-14" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
+        {sidebarItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`flex flex-col items-center gap-0.5 min-w-[60px] ${
+              activeTab === item.id ? "text-accent" : "text-muted-foreground"
+            }`}
+          >
+            <item.icon className="h-5 w-5" />
+            <span className="text-[10px]">{item.label}</span>
+          </button>
+        ))}
+      </div>
+
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
+      <main className="md:ml-64 overflow-y-auto">
+        <div className="p-4 md:p-8">
           {activeTab === "dashboard" && (
             <DashboardTab
               totalUsers={totalUsers}
@@ -406,7 +440,7 @@ const UsersTab = ({
 }) => (
   <div>
     <h1 className="text-2xl font-bold text-foreground mb-6">User Management</h1>
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
       {users.map((u) => (
         <UserCard
           key={u.id}

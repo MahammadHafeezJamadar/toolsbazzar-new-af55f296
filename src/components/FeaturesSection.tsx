@@ -29,13 +29,13 @@ const features = [
 ];
 
 const FeaturesSection = () => (
-  <section id="features" className="py-28">
+  <section id="features" className="py-16 md:py-28">
     <div className="container mx-auto px-4">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">
+      <div className="text-center mb-10 md:mb-16">
+        <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">
           Powerful Features
         </h2>
-        <p className="text-muted-foreground max-w-lg mx-auto">
+        <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto">
           Everything you need to create professional AI-generated videos.
         </p>
       </div>
@@ -47,12 +47,12 @@ const FeaturesSection = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
-            className="bg-card border border-border rounded-xl p-6 hover:border-accent/30 transition-colors"
+            className="bg-card border border-border rounded-xl p-5 md:p-6 hover:border-accent/30 transition-colors"
           >
             <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
               <f.icon className="h-5 w-5 text-accent" />
             </div>
-            <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
+            <h3 className="font-semibold text-base md:text-lg mb-2">{f.title}</h3>
             <p className="text-sm text-muted-foreground mb-4">{f.desc}</p>
             <ul className="space-y-1.5">
               {f.points.map((p) => (
