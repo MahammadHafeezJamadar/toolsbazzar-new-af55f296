@@ -37,7 +37,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          city: string | null
           cookies_json: Json | null
+          country: string | null
           created_at: string | null
           credits_total: number
           credits_used: number
@@ -50,15 +52,21 @@ export type Database = {
           id: string
           is_admin: boolean | null
           last_reset_date: string
+          mobile_number: string | null
           name: string | null
+          pin_code: string | null
           plan: string | null
           referral_code: string | null
           referred_by: string | null
+          state: string | null
+          street_address: string | null
           subscription_active: boolean | null
           updated_at: string | null
         }
         Insert: {
+          city?: string | null
           cookies_json?: Json | null
+          country?: string | null
           created_at?: string | null
           credits_total?: number
           credits_used?: number
@@ -71,15 +79,21 @@ export type Database = {
           id?: string
           is_admin?: boolean | null
           last_reset_date?: string
+          mobile_number?: string | null
           name?: string | null
+          pin_code?: string | null
           plan?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          state?: string | null
+          street_address?: string | null
           subscription_active?: boolean | null
           updated_at?: string | null
         }
         Update: {
+          city?: string | null
           cookies_json?: Json | null
+          country?: string | null
           created_at?: string | null
           credits_total?: number
           credits_used?: number
@@ -92,10 +106,14 @@ export type Database = {
           id?: string
           is_admin?: boolean | null
           last_reset_date?: string
+          mobile_number?: string | null
           name?: string | null
+          pin_code?: string | null
           plan?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          state?: string | null
+          street_address?: string | null
           subscription_active?: boolean | null
           updated_at?: string | null
         }
