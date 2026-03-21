@@ -380,32 +380,31 @@ const Dashboard = () => {
                   </button>
 
                   <div className="grid grid-cols-2 gap-3">
-                    {profile?.plan?.toLowerCase() === "basic" ? (
-                      <a
-                        href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Basic-v1%20(1).zip"
-                        download
-                        className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
-                        style={{ borderColor: "#1e1e1e", color: "#999" }}
-                      >
-                        <Download className="h-3.5 w-3.5" /> Basic Extension
-                      </a>
-                    ) : (
-                      <a
-                        href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Pro-v1.zip"
-                        download
-                        className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
-                        style={{ borderColor: "#1e1e1e", color: "#999" }}
-                      >
-                        <Download className="h-3.5 w-3.5" /> Pro Extension
-                      </a>
-                    )}
-                    <Link
-                      to="/refer"
+                    <button
+                      onClick={() => {
+                        const url = profile?.plan?.toLowerCase() === "basic"
+                          ? "https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Basic-v1%20(1).zip"
+                          : "https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Pro-v1.zip";
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = "";
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        toast.success("Download started!");
+                      }}
+                      className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
+                      style={{ borderColor: "#1e1e1e", color: "#999" }}
+                    >
+                      <Download className="h-3.5 w-3.5" /> {profile?.plan?.toLowerCase() === "basic" ? "Basic" : "Pro"} Extension
+                    </button>
+                    <button
+                      onClick={() => navigate("/refer")}
                       className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
                       style={{ borderColor: "#1e1e1e", color: "#999" }}
                     >
                       <Gift className="h-3.5 w-3.5" /> Refer & Earn
-                    </Link>
+                    </button>
                   </div>
                 </div>
               ) : (
