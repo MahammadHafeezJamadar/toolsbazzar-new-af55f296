@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2, Globe } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -406,16 +413,32 @@ const UserRow = ({
       <td className="p-4 text-sm font-medium">{user.name || "—"}</td>
       <td className="p-4 text-sm text-muted-foreground">{user.email}</td>
       <td className="p-4">
-        <div className="flex items-center gap-1">
-          <Input
-            value={plan}
-            onChange={(e) => setPlan(e.target.value)}
-            className="h-8 w-24 text-xs bg-secondary/50 border-border/50"
-          />
-          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => updateField(user.id, "plan", plan)}>
-            <Save className="h-3 w-3" />
-          </Button>
-        </div>
+        <Select
+          value={plan}
+          onValueChange={async (value) => {
+            setPlan(value);
+            const creditsMap: Record<string, number> = { Basic: 2000, Pro: 25000, Ultra: 45000 };
+            const newCredits = creditsMap[value] || 2000;
+            const { error } = await supabase
+              .from("profiles")
+              .update({ plan: value, credits_total: newCredits, credits_used: 0 })
+              .eq("id", user.id);
+            if (error) toast.error("Update failed");
+            else {
+              setCreditsTotal(String(newCredits));
+              toast.success(`Plan set to ${value} — ${newCredits.toLocaleString()} credits`);
+            }
+          }}
+        >
+          <SelectTrigger className="h-8 w-32 text-xs bg-secondary/50 border-border/50">
+            <SelectValue placeholder="Select plan" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Basic">Basic — 2K</SelectItem>
+            <SelectItem value="Pro">Pro — 25K</SelectItem>
+            <SelectItem value="Ultra">Ultra — 45K</SelectItem>
+          </SelectContent>
+        </Select>
       </td>
       <td className="p-4">
         <div className="flex items-center gap-2">
