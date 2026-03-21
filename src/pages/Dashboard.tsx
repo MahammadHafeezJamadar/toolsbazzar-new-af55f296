@@ -439,11 +439,19 @@ const Dashboard = () => {
                       </Button>
                     );
                   })()}
-                  <Button variant="outline" className="w-full border-border/50" asChild>
-                    <a href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-veo.zip" download>
-                      <Download className="h-4 w-4 mr-2" /> Download Extension
-                    </a>
-                  </Button>
+                  {profile?.plan?.toLowerCase() === "basic" ? (
+                    <Button variant="outline" className="w-full border-border/50" asChild>
+                      <a href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Basic-v1%20(1).zip" download>
+                        <Download className="h-4 w-4 mr-2" /> Download Basic Extension
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button variant="outline" className="w-full border-border/50" asChild>
+                      <a href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Pro-v1.zip" download>
+                        <Download className="h-4 w-4 mr-2" /> Download Pro Extension
+                      </a>
+                    </Button>
+                  )}
                   <Button variant="outline" className="w-full border-border/50" asChild>
                     <Link to="/refer">
                       <Gift className="h-4 w-4 mr-2" /> Refer & Earn 200 Credits
