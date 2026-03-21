@@ -412,15 +412,13 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Your subscription is inactive. Contact us to activate your plan.
                   </p>
-                  <a
-                    href="https://wa.me/919448646624"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => window.open("https://wa.me/919448646624", "_blank", "noopener,noreferrer")}
                     className="w-full h-10 rounded-lg font-semibold text-sm flex items-center justify-center gap-2"
                     style={{ background: "hsl(142 70% 45%)", color: "#fff" }}
                   >
                     Contact on WhatsApp
-                  </a>
+                  </button>
                 </div>
               )}
             </motion.div>
