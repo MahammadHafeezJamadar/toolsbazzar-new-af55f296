@@ -35,9 +35,9 @@ const PricingSection = () => {
     <section id="pricing" className="py-16 md:py-28">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10 md:mb-12">
-          <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">Simple Pricing</h2>
+          <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">Simple, Transparent Pricing</h2>
           <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto mb-8">
-            Choose the plan that fits your creative needs.
+            No hidden charges. Cancel anytime.
           </p>
           <div className="inline-flex items-center bg-card border border-border rounded-lg p-1">
             <button

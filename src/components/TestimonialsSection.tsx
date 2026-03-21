@@ -10,8 +10,8 @@ const TestimonialsSection = () => (
   <section id="testimonials" className="py-16 md:py-28">
     <div className="container mx-auto px-4">
       <div className="text-center mb-10 md:mb-16">
-        <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">What Our Users Say</h2>
-        <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">Trusted by creators and businesses worldwide.</p>
+        <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">Trusted by Indian Creators</h2>
+        <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">Join thousands of creators already using ToolzBazzar</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
         {testimonials.map((t, i) => (
