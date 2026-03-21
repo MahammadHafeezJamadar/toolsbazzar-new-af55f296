@@ -56,7 +56,7 @@ const ReferAndEarn = () => {
     <div className="min-h-screen">
       <nav className="glass border-b border-border/30 sticky top-0 z-50">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <Link to="/" className="text-xl font-bold gradient-text">FlowBazzar</Link>
+          <Link to="/" className="text-xl font-bold gradient-text">ToolsBazzar</Link>
           <Button variant="ghost" size="sm" asChild>
             <Link to="/dashboard"><ArrowLeft className="h-4 w-4 mr-2" /> Dashboard</Link>
           </Button>
