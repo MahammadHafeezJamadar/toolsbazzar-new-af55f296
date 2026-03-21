@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -253,14 +253,14 @@ const Dashboard = () => {
       {/* Desktop Nav */}
       <nav className="sticky top-0 z-50 border-b hidden md:block" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
-          <Link to="/" className="text-lg font-bold text-foreground">ToolzBazzar</Link>
+          <button onClick={() => navigate("/")} className="text-lg font-bold text-foreground bg-transparent border-0 cursor-pointer">ToolzBazzar</button>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/profile" className="flex items-center gap-1 text-muted-foreground hover:text-foreground"><User className="h-4 w-4" /> My Profile</Link>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/profile")} className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
+              <User className="h-4 w-4" /> My Profile
             </Button>
             {profile?.is_admin && (
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/admin" className="flex items-center gap-1 text-accent"><Shield className="h-4 w-4" /> Admin</Link>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/admin")} className="flex items-center gap-1 text-accent">
+                <Shield className="h-4 w-4" /> Admin
               </Button>
             )}
             <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
@@ -273,7 +273,7 @@ const Dashboard = () => {
       {/* Mobile Top Bar */}
       <nav className="sticky top-0 z-50 border-b md:hidden" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="flex items-center justify-between h-14 px-4">
-          <Link to="/" className="text-lg font-bold text-foreground">ToolzBazzar</Link>
+          <button onClick={() => navigate("/")} className="text-lg font-bold text-foreground bg-transparent border-0 cursor-pointer">ToolzBazzar</button>
           <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
             <LogOut className="h-4 w-4" />
           </Button>
@@ -282,23 +282,23 @@ const Dashboard = () => {
 
       {/* Mobile Bottom Nav */}
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t md:hidden flex items-center justify-around h-14" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
-        <Link to="/dashboard" className="flex flex-col items-center gap-0.5 text-accent">
+        <button onClick={() => navigate("/dashboard")} className="flex flex-col items-center gap-0.5 text-accent bg-transparent border-0 cursor-pointer">
           <Zap className="h-5 w-5" />
           <span className="text-[10px]">Home</span>
-        </Link>
-        <Link to="/profile" className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground">
+        </button>
+        <button onClick={() => navigate("/profile")} className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground bg-transparent border-0 cursor-pointer">
           <User className="h-5 w-5" />
           <span className="text-[10px]">Profile</span>
-        </Link>
-        <Link to="/refer" className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground">
+        </button>
+        <button onClick={() => navigate("/refer")} className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground bg-transparent border-0 cursor-pointer">
           <Gift className="h-5 w-5" />
           <span className="text-[10px]">Refer</span>
-        </Link>
+        </button>
         {profile?.is_admin && (
-          <Link to="/admin" className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground">
+          <button onClick={() => navigate("/admin")} className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground bg-transparent border-0 cursor-pointer">
             <Shield className="h-5 w-5" />
             <span className="text-[10px]">Admin</span>
-          </Link>
+          </button>
         )}
       </div>
 
@@ -380,32 +380,31 @@ const Dashboard = () => {
                   </button>
 
                   <div className="grid grid-cols-2 gap-3">
-                    {profile?.plan?.toLowerCase() === "basic" ? (
-                      <a
-                        href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Basic-v1%20(1).zip"
-                        download
-                        className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
-                        style={{ borderColor: "#1e1e1e", color: "#999" }}
-                      >
-                        <Download className="h-3.5 w-3.5" /> Basic Extension
-                      </a>
-                    ) : (
-                      <a
-                        href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Pro-v1.zip"
-                        download
-                        className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
-                        style={{ borderColor: "#1e1e1e", color: "#999" }}
-                      >
-                        <Download className="h-3.5 w-3.5" /> Pro Extension
-                      </a>
-                    )}
-                    <Link
-                      to="/refer"
+                    <button
+                      onClick={() => {
+                        const url = profile?.plan?.toLowerCase() === "basic"
+                          ? "https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Basic-v1%20(1).zip"
+                          : "https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Pro-v1.zip";
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = "";
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        toast.success("Download started!");
+                      }}
+                      className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
+                      style={{ borderColor: "#1e1e1e", color: "#999" }}
+                    >
+                      <Download className="h-3.5 w-3.5" /> {profile?.plan?.toLowerCase() === "basic" ? "Basic" : "Pro"} Extension
+                    </button>
+                    <button
+                      onClick={() => navigate("/refer")}
                       className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
                       style={{ borderColor: "#1e1e1e", color: "#999" }}
                     >
                       <Gift className="h-3.5 w-3.5" /> Refer & Earn
-                    </Link>
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -413,15 +412,13 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Your subscription is inactive. Contact us to activate your plan.
                   </p>
-                  <a
-                    href="https://wa.me/919448646624"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => window.open("https://wa.me/919448646624", "_blank", "noopener,noreferrer")}
                     className="w-full h-10 rounded-lg font-semibold text-sm flex items-center justify-center gap-2"
                     style={{ background: "hsl(142 70% 45%)", color: "#fff" }}
                   >
                     Contact on WhatsApp
-                  </a>
+                  </button>
                 </div>
               )}
             </motion.div>
@@ -625,13 +622,13 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <Link
-                to="/refer"
+              <button
+                onClick={() => navigate("/refer")}
                 className="mt-4 w-full h-9 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border hover:bg-[#1a1a1a] transition-colors"
                 style={{ borderColor: "hsla(174, 72%, 46%, 0.3)", color: "hsl(174 72% 56%)" }}
               >
                 View Referral Page <ChevronRight className="h-3 w-3" />
-              </Link>
+              </button>
             </motion.div>
           </div>
         </div>
