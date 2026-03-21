@@ -38,9 +38,9 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/30">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
-        <Link to="/" className="text-xl font-bold gradient-text">
+        <Link to="/" className="text-lg font-bold text-foreground">
           ToolzBazzar
         </Link>
         <div className="hidden md:flex items-center gap-8">
@@ -61,7 +61,7 @@ const Navbar = () => {
         </div>
         <div className="hidden md:flex items-center gap-3">
           {loggedIn ? (
-            <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold" asChild>
+            <Button size="sm" className="gradient-btn border-0 font-semibold" asChild>
               <Link to="/dashboard">Dashboard</Link>
             </Button>
           ) : (
@@ -69,7 +69,7 @@ const Navbar = () => {
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/login">Login</Link>
               </Button>
-              <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold" asChild>
+              <Button size="sm" className="gradient-btn border-0 font-semibold" asChild>
                 <Link to="/register">Get Started</Link>
               </Button>
             </>
@@ -80,7 +80,7 @@ const Navbar = () => {
         </button>
       </div>
       {open && (
-        <div className="md:hidden glass border-t border-border/30 p-4 flex flex-col gap-3">
+        <div className="md:hidden bg-card border-t border-border p-4 flex flex-col gap-3">
           {navLinks.map((l) => (
             <a key={l.label} href={l.href} className="text-muted-foreground hover:text-foreground py-2" onClick={() => setOpen(false)}>
               {l.label}
@@ -93,7 +93,7 @@ const Navbar = () => {
           )}
           <div className="flex gap-2 pt-2">
             {loggedIn ? (
-              <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold flex-1" asChild>
+              <Button size="sm" className="gradient-btn border-0 font-semibold flex-1" asChild>
                 <Link to="/dashboard">Dashboard</Link>
               </Button>
             ) : (
@@ -101,7 +101,7 @@ const Navbar = () => {
                 <Button variant="ghost" size="sm" asChild className="flex-1">
                   <Link to="/login">Login</Link>
                 </Button>
-                <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold flex-1" asChild>
+                <Button size="sm" className="gradient-btn border-0 font-semibold flex-1" asChild>
                   <Link to="/register">Get Started</Link>
                 </Button>
               </>
