@@ -253,14 +253,14 @@ const Dashboard = () => {
       {/* Desktop Nav */}
       <nav className="sticky top-0 z-50 border-b hidden md:block" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
-          <Link to="/" className="text-lg font-bold text-foreground">ToolzBazzar</Link>
+          <button onClick={() => navigate("/")} className="text-lg font-bold text-foreground bg-transparent border-0 cursor-pointer">ToolzBazzar</button>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/profile" className="flex items-center gap-1 text-muted-foreground hover:text-foreground"><User className="h-4 w-4" /> My Profile</Link>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/profile")} className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
+              <User className="h-4 w-4" /> My Profile
             </Button>
             {profile?.is_admin && (
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/admin" className="flex items-center gap-1 text-accent"><Shield className="h-4 w-4" /> Admin</Link>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/admin")} className="flex items-center gap-1 text-accent">
+                <Shield className="h-4 w-4" /> Admin
               </Button>
             )}
             <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
@@ -273,7 +273,7 @@ const Dashboard = () => {
       {/* Mobile Top Bar */}
       <nav className="sticky top-0 z-50 border-b md:hidden" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="flex items-center justify-between h-14 px-4">
-          <Link to="/" className="text-lg font-bold text-foreground">ToolzBazzar</Link>
+          <button onClick={() => navigate("/")} className="text-lg font-bold text-foreground bg-transparent border-0 cursor-pointer">ToolzBazzar</button>
           <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
             <LogOut className="h-4 w-4" />
           </Button>
@@ -282,23 +282,23 @@ const Dashboard = () => {
 
       {/* Mobile Bottom Nav */}
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t md:hidden flex items-center justify-around h-14" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
-        <Link to="/dashboard" className="flex flex-col items-center gap-0.5 text-accent">
+        <button onClick={() => navigate("/dashboard")} className="flex flex-col items-center gap-0.5 text-accent bg-transparent border-0 cursor-pointer">
           <Zap className="h-5 w-5" />
           <span className="text-[10px]">Home</span>
-        </Link>
-        <Link to="/profile" className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground">
+        </button>
+        <button onClick={() => navigate("/profile")} className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground bg-transparent border-0 cursor-pointer">
           <User className="h-5 w-5" />
           <span className="text-[10px]">Profile</span>
-        </Link>
-        <Link to="/refer" className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground">
+        </button>
+        <button onClick={() => navigate("/refer")} className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground bg-transparent border-0 cursor-pointer">
           <Gift className="h-5 w-5" />
           <span className="text-[10px]">Refer</span>
-        </Link>
+        </button>
         {profile?.is_admin && (
-          <Link to="/admin" className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground">
+          <button onClick={() => navigate("/admin")} className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground bg-transparent border-0 cursor-pointer">
             <Shield className="h-5 w-5" />
             <span className="text-[10px]">Admin</span>
-          </Link>
+          </button>
         )}
       </div>
 
