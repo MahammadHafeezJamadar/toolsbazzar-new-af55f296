@@ -477,8 +477,14 @@ const SettingsTab = ({
   );
 };
 
-/* ─── User Row ─── */
-const UserRow = ({
+/* ─── User Card ─── */
+const planColors: Record<string, { bg: string; text: string }> = {
+  Basic: { bg: "#1a2332", text: "#38bdf8" },
+  Pro: { bg: "#1a1a3e", text: "#818cf8" },
+  Ultra: { bg: "#2d1a3e", text: "#c084fc" },
+};
+
+const UserCard = ({
   user,
   toggleSubscription,
   updateField,
@@ -493,10 +499,11 @@ const UserRow = ({
   onSessionRevoked: () => void;
   onDeleteUser: (id: string) => Promise<void>;
 }) => {
+  const [expanded, setExpanded] = useState(false);
   const [plan, setPlan] = useState(user.plan);
-  const [expiry, setExpiry] = useState(user.expiry_date || "");
   const [creditsTotal, setCreditsTotal] = useState(String(user.credits_total ?? 1000));
   const [dailyLimit, setDailyLimit] = useState(String(user.daily_credits_limit ?? 100));
+  const [expiry, setExpiry] = useState(user.expiry_date || "");
   const [credOpen, setCredOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
@@ -508,6 +515,9 @@ const UserRow = ({
     user.cookies_json ? JSON.stringify(user.cookies_json, null, 2) : ""
   );
 
+  const initials = (user.name || user.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+  const pc = planColors[user.plan] || planColors.Basic;
+
   const loadSessions = async () => {
     setSessionsLoading(true);
     const { data, error } = await supabase
@@ -515,21 +525,15 @@ const UserRow = ({
       .select("id, device_id, device_info, ip_address, login_time, last_active_time, is_active")
       .eq("user_id", user.id)
       .order("last_active_time", { ascending: false });
-
     if (error) toast.error("Failed to load sessions");
     else setSessions(data || []);
     setSessionsLoading(false);
   };
 
   const revokeSession = async (sessionId: string) => {
-    const { error } = await supabase
-      .from("user_sessions")
-      .update({ is_active: false })
-      .eq("id", sessionId);
-
-    if (error) {
-      toast.error("Failed to revoke session");
-    } else {
+    const { error } = await supabase.from("user_sessions").update({ is_active: false }).eq("id", sessionId);
+    if (error) toast.error("Failed to revoke session");
+    else {
       setSessions((prev) => prev.map((s) => s.id === sessionId ? { ...s, is_active: false } : s));
       onSessionRevoked();
       toast.success("Session revoked");
@@ -539,345 +543,311 @@ const UserRow = ({
   const saveCreds = async () => {
     let parsedCookies = null;
     if (cookiesJson.trim()) {
-      try {
-        parsedCookies = JSON.parse(cookiesJson);
-      } catch {
-        toast.error("Invalid JSON for cookies");
-        return;
-      }
+      try { parsedCookies = JSON.parse(cookiesJson); }
+      catch { toast.error("Invalid JSON for cookies"); return; }
     }
-
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        google_email: googleEmail || null,
-        google_password: googlePassword || null,
-        cookies_json: parsedCookies,
-      })
-      .eq("id", user.id);
-
+    const { error } = await supabase.from("profiles").update({
+      google_email: googleEmail || null, google_password: googlePassword || null, cookies_json: parsedCookies,
+    }).eq("id", user.id);
     if (error) toast.error("Failed to save credentials");
-    else {
-      toast.success("Credentials saved");
-      setCredOpen(false);
-    }
+    else { toast.success("Credentials saved"); setCredOpen(false); }
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const formatDate = (dateStr: string) => new Date(dateStr).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
   return (
-    <tr className="hover:bg-[#1a1a1a] transition-colors" style={{ borderBottom: "1px solid #1e1e1e" }}>
-      <td className="p-4 text-sm font-medium text-foreground">{user.name || "—"}</td>
-      <td className="p-4 text-sm text-muted-foreground">{user.email}</td>
-      <td className="p-4">
-        <Select
-          value={plan}
-          onValueChange={async (value) => {
-            setPlan(value);
-            const creditsMap: Record<string, number> = { Basic: 2000, Pro: 25000, Ultra: 45000 };
-            const newCredits = creditsMap[value] || 2000;
-            const { error } = await supabase
-              .from("profiles")
-              .update({ plan: value, credits_total: newCredits, credits_used: 0 })
-              .eq("id", user.id);
-            if (error) toast.error("Update failed");
-            else {
-              setCreditsTotal(String(newCredits));
-              toast.success(`Plan set to ${value} — ${newCredits.toLocaleString()} credits`);
-            }
-          }}
-        >
-          <SelectTrigger className="h-8 w-28 text-xs bg-[#0a0a0a] border-[#1e1e1e] text-accent font-medium">
-            <SelectValue placeholder="Select plan" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Basic">Basic — 2K</SelectItem>
-            <SelectItem value="Pro">Pro — 25K</SelectItem>
-            <SelectItem value="Ultra">Ultra — 45K</SelectItem>
-          </SelectContent>
-        </Select>
-      </td>
-      <td className="p-4">
-        <div className="flex items-center gap-2">
-          <Switch checked={user.subscription_active} onCheckedChange={() => toggleSubscription(user.id, user.subscription_active)} />
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
-              user.subscription_active
-                ? "bg-[#0d3320] text-[#34d399]"
-                : "bg-[#331111] text-[#f87171]"
-            }`}
+    <div
+      className="rounded-xl border transition-all duration-300 cursor-pointer"
+      style={{
+        background: "#111111",
+        borderColor: expanded ? "hsla(174, 72%, 46%, 0.3)" : "#1e1e1e",
+        boxShadow: expanded ? "0 0 25px hsla(174, 72%, 46%, 0.08)" : "none",
+      }}
+      onClick={() => setExpanded(!expanded)}
+    >
+      {/* Card Header */}
+      <div className="p-5">
+        <div className="flex items-start gap-3">
+          <div
+            className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+            style={{
+              background: "linear-gradient(135deg, hsla(174, 72%, 46%, 0.2), hsla(150, 60%, 50%, 0.2))",
+              color: "hsl(174 72% 56%)",
+              border: "1px solid hsla(174, 72%, 46%, 0.3)",
+            }}
           >
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="font-semibold text-sm text-foreground truncate">{user.name || "—"}</span>
+              <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+            </div>
+            <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+            {user.mobile_number && (
+              <div className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                <Phone className="h-3 w-3" /> {user.mobile_number}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2 mt-3">
+          <span className="text-[11px] font-medium px-2 py-0.5 rounded-full" style={{ background: pc.bg, color: pc.text }}>
+            {user.plan || "—"}
+          </span>
+          <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${user.subscription_active ? "bg-[#0d3320] text-[#34d399]" : "bg-[#331111] text-[#f87171]"}`}>
             {user.subscription_active ? "Active" : "Inactive"}
           </span>
+          <span className="text-[11px] text-muted-foreground ml-auto flex items-center gap-1">
+            <Monitor className="h-3 w-3" /> {activeDevices}
+          </span>
         </div>
-      </td>
-      <td className="p-4">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-1">
-            <Input
-              type="number"
-              value={creditsTotal}
-              onChange={(e) => setCreditsTotal(e.target.value)}
-              className="h-7 w-20 text-xs bg-[#0a0a0a] border-[#1e1e1e]"
-            />
-            <button
-              className="h-7 w-7 flex items-center justify-center rounded bg-[#1a1a3e] text-[#818cf8] hover:bg-[#252560] transition-colors"
-              onClick={() => updateField(user.id, "credits_total", parseInt(creditsTotal) || 0)}
-            >
-              <Save className="h-3 w-3" />
-            </button>
-          </div>
-          <span className="text-[10px] text-muted-foreground block">Used: {user.credits_used ?? 0}</span>
-          <div className="flex items-center gap-1">
-            <Input
-              type="number"
-              value={dailyLimit}
-              onChange={(e) => setDailyLimit(e.target.value)}
-              className="h-6 w-16 text-[10px] bg-[#0a0a0a] border-[#1e1e1e]"
-              placeholder="Daily"
-            />
-            <button
-              className="h-6 w-6 flex items-center justify-center rounded bg-[#1a1a3e] text-[#818cf8] hover:bg-[#252560] transition-colors"
-              onClick={() => updateField(user.id, "daily_credits_limit", parseInt(dailyLimit) || 0)}
-            >
-              <Save className="h-2.5 w-2.5" />
-            </button>
-          </div>
-          <span className="text-[10px] text-muted-foreground block">Daily: {user.credits_used_today ?? 0}/{user.daily_credits_limit ?? 100}</span>
-        </div>
-      </td>
-      <td className="p-4">
-        <div className="flex items-center gap-1">
-          <Input
-            type="date"
-            value={expiry}
-            onChange={(e) => setExpiry(e.target.value)}
-            className="h-7 text-xs bg-[#0a0a0a] border-[#1e1e1e]"
-          />
-          <button
-            className="h-7 w-7 flex items-center justify-center rounded bg-[#0d3320] text-[#34d399] hover:bg-[#164e36] transition-colors"
-            onClick={() => updateField(user.id, "expiry_date", expiry)}
+      </div>
+
+      {/* Expanded Content */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
           >
-            <Save className="h-3 w-3" />
-          </button>
-        </div>
-      </td>
-      <td className="p-4">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {/* View Profile */}
-          <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
-            <DialogTrigger asChild>
-              <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#0d2818] text-[#34d399] hover:bg-[#164e36] transition-colors flex items-center gap-1">
-                <Eye className="h-3 w-3" /> Profile
-              </button>
-            </DialogTrigger>
-            <DialogContent className="border-[#1e1e1e] max-w-lg max-h-[80vh] overflow-y-auto" style={{ background: "#111111" }}>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-foreground">
-                  <Eye className="h-4 w-4 text-accent" /> Profile — {user.name || user.email}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-5 pt-2">
-                <div>
-                  <h4 className="text-xs font-semibold text-accent uppercase tracking-wider mb-3">Basic Info</h4>
-                  <div className="space-y-2">
-                    <ProfileRow label="Full Name" value={user.name} />
-                    <ProfileRow label="Email" value={user.email} />
-                    <ProfileRow label="Mobile (WhatsApp)" value={(user as any).mobile_number} />
-                    <ProfileRow label="Plan" value={user.plan} />
-                    <ProfileRow label="Status" value={user.subscription_active ? "Active" : "Inactive"} isStatus statusActive={user.subscription_active} />
-                  </div>
-                </div>
-                <div className="border-t pt-4" style={{ borderColor: "#1e1e1e" }}>
-                  <h4 className="text-xs font-semibold text-accent uppercase tracking-wider mb-3">Address</h4>
-                  <div className="space-y-2">
-                    <ProfileRow label="Street" value={(user as any).street_address} />
-                    <ProfileRow label="City" value={(user as any).city} />
-                    <ProfileRow label="State" value={(user as any).state} />
-                    <ProfileRow label="PIN Code" value={(user as any).pin_code} />
-                    <ProfileRow label="Country" value={(user as any).country} />
-                  </div>
-                </div>
-                <div className="border-t pt-4" style={{ borderColor: "#1e1e1e" }}>
-                  <h4 className="text-xs font-semibold text-accent uppercase tracking-wider mb-3">Account</h4>
-                  <div className="space-y-2">
-                    <ProfileRow label="Credits" value={`${user.credits_used ?? 0} / ${user.credits_total ?? 0} used`} />
-                    <ProfileRow label="Daily Limit" value={`${user.credits_used_today ?? 0} / ${user.daily_credits_limit ?? 0}`} />
-                    <ProfileRow label="Expiry" value={user.expiry_date} />
-                    <ProfileRow label="Registered" value={(user as any).created_at ? new Date((user as any).created_at).toLocaleDateString() : null} />
-                  </div>
-                </div>
+            <div className="px-5 pb-5 border-t" style={{ borderColor: "#1e1e1e" }}>
+              {/* Info Grid */}
+              <div className="grid grid-cols-2 gap-3 mt-4 mb-4">
+                <InfoItem label="Credits" value={`${user.credits_used ?? 0} / ${user.credits_total ?? 0}`} />
+                <InfoItem label="Daily" value={`${user.credits_used_today ?? 0} / ${user.daily_credits_limit ?? 0}`} />
+                <InfoItem label="Expiry" value={user.expiry_date || "—"} />
+                <InfoItem label="Devices" value={`${activeDevices} connected`} />
+                <InfoItem label="Location" value={[user.city, user.state, user.country].filter(Boolean).join(", ") || "—"} />
+                <InfoItem label="Registered" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"} />
               </div>
-            </DialogContent>
-          </Dialog>
 
-          {/* Set Credentials */}
-          <Dialog open={credOpen} onOpenChange={setCredOpen}>
-            <DialogTrigger asChild>
-              <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#1a1a3e] text-[#818cf8] hover:bg-[#252560] transition-colors flex items-center gap-1">
-                <KeyRound className="h-3 w-3" /> Creds
-              </button>
-            </DialogTrigger>
-            <DialogContent className="border-[#1e1e1e] max-w-lg" style={{ background: "#111111" }}>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-foreground">
-                  <KeyRound className="h-4 w-4 text-accent" /> Credentials — {user.email}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 pt-2">
-                <div>
-                  <Label className="text-xs text-muted-foreground">Google Email</Label>
-                  <Input value={googleEmail} onChange={(e) => setGoogleEmail(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent" />
+              {/* Action: Set Plan */}
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2">
+                  <Select value={plan} onValueChange={async (value) => {
+                    setPlan(value);
+                    const creditsMap: Record<string, number> = { Basic: 2000, Pro: 25000, Ultra: 45000 };
+                    const newCredits = creditsMap[value] || 2000;
+                    const { error } = await supabase.from("profiles").update({ plan: value, credits_total: newCredits, credits_used: 0 }).eq("id", user.id);
+                    if (error) toast.error("Update failed");
+                    else { setCreditsTotal(String(newCredits)); toast.success(`Plan → ${value}`); }
+                  }}>
+                    <SelectTrigger className="h-8 flex-1 text-xs bg-[#0a0a0a] border-[#1e1e1e]">
+                      <SelectValue placeholder="Plan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Basic">Basic — 2K</SelectItem>
+                      <SelectItem value="Pro">Pro — 25K</SelectItem>
+                      <SelectItem value="Ultra">Ultra — 45K</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Google Password</Label>
-                  <Input type="password" value={googlePassword} onChange={(e) => setGooglePassword(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent" />
-                </div>
-                <div>
-                  <Label className="flex items-center gap-1 text-xs text-muted-foreground"><Cookie className="h-3 w-3" /> Cookies JSON</Label>
-                  <Textarea
-                    value={cookiesJson}
-                    onChange={(e) => setCookiesJson(e.target.value)}
-                    className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] font-mono text-xs min-h-[120px] focus:border-accent"
-                    placeholder='[{"name":"...", "value":"..."}]'
-                  />
-                </div>
-                <Button className="w-full gradient-btn border-0 font-semibold" onClick={saveCreds}>
-                  <Save className="h-4 w-4 mr-2" /> Save Credentials
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
 
-          {/* View Devices */}
-          <Dialog open={sessionsOpen} onOpenChange={(open) => {
-            setSessionsOpen(open);
-            if (open) loadSessions();
-          }}>
-            <DialogTrigger asChild>
-              <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#1a2332] text-[#38bdf8] hover:bg-[#1e3a52] transition-colors flex items-center gap-1">
-                <Monitor className="h-3 w-3" /> {activeDevices}
-              </button>
-            </DialogTrigger>
-            <DialogContent className="border-[#1e1e1e] max-w-2xl max-h-[80vh] overflow-y-auto" style={{ background: "#111111" }}>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-foreground">
-                  <Monitor className="h-4 w-4 text-accent" /> Sessions — {user.email}
-                </DialogTitle>
-              </DialogHeader>
-              {sessionsLoading ? (
-                <div className="text-center text-muted-foreground py-8">Loading sessions...</div>
-              ) : sessions.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8">No sessions found</div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr style={{ borderBottom: "1px solid #1e1e1e" }}>
-                        <th className="text-left text-[11px] font-medium text-muted-foreground py-2 px-3 uppercase tracking-wider">Device</th>
-                        <th className="text-left text-[11px] font-medium text-muted-foreground py-2 px-3 uppercase tracking-wider">IP</th>
-                        <th className="text-left text-[11px] font-medium text-muted-foreground py-2 px-3 uppercase tracking-wider">Login</th>
-                        <th className="text-left text-[11px] font-medium text-muted-foreground py-2 px-3 uppercase tracking-wider">Last Active</th>
-                        <th className="text-left text-[11px] font-medium text-muted-foreground py-2 px-3 uppercase tracking-wider">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sessions.map((s) => (
-                        <tr key={s.id} style={{ borderBottom: "1px solid #1a1a1a" }}>
-                          <td className="py-2 px-3">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-foreground">{s.device_info}</span>
-                              <span className={`text-[10px] px-1.5 py-0 rounded-full font-medium ${
-                                s.is_active
-                                  ? "bg-[#0d3320] text-[#34d399]"
-                                  : "bg-[#1e1e1e] text-muted-foreground"
-                              }`}>
-                                {s.is_active ? "Active" : "Revoked"}
-                              </span>
+                {/* Credits + Daily Limit */}
+                <div className="flex gap-2">
+                  <div className="flex items-center gap-1 flex-1">
+                    <Input type="number" value={creditsTotal} onChange={(e) => setCreditsTotal(e.target.value)} className="h-8 text-xs bg-[#0a0a0a] border-[#1e1e1e]" placeholder="Credits" />
+                    <button className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded bg-[#1a1a3e] text-[#818cf8] hover:bg-[#252560] transition-colors" onClick={() => updateField(user.id, "credits_total", parseInt(creditsTotal) || 0)}>
+                      <Save className="h-3 w-3" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1 flex-1">
+                    <Input type="number" value={dailyLimit} onChange={(e) => setDailyLimit(e.target.value)} className="h-8 text-xs bg-[#0a0a0a] border-[#1e1e1e]" placeholder="Daily" />
+                    <button className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded bg-[#332200] text-[#fb923c] hover:bg-[#4a3300] transition-colors" onClick={() => updateField(user.id, "daily_credits_limit", parseInt(dailyLimit) || 0)}>
+                      <Save className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Expiry */}
+                <div className="flex items-center gap-1">
+                  <Input type="date" value={expiry} onChange={(e) => setExpiry(e.target.value)} className="h-8 flex-1 text-xs bg-[#0a0a0a] border-[#1e1e1e]" />
+                  <button className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded bg-[#0d3320] text-[#34d399] hover:bg-[#164e36] transition-colors" onClick={() => updateField(user.id, "expiry_date", expiry)}>
+                    <Save className="h-3 w-3" />
+                  </button>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {/* Set Credentials */}
+                  <Dialog open={credOpen} onOpenChange={setCredOpen}>
+                    <DialogTrigger asChild>
+                      <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#0d2332] text-[#22d3ee] hover:bg-[#164050] transition-colors flex items-center gap-1">
+                        <KeyRound className="h-3 w-3" /> Creds
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="border-[#1e1e1e] max-w-lg" style={{ background: "#111111" }}>
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-foreground">
+                          <KeyRound className="h-4 w-4 text-accent" /> Credentials — {user.email}
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 pt-2">
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Google Email</Label>
+                          <Input value={googleEmail} onChange={(e) => setGoogleEmail(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent" />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Google Password</Label>
+                          <Input type="password" value={googlePassword} onChange={(e) => setGooglePassword(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent" />
+                        </div>
+                        <div>
+                          <Label className="flex items-center gap-1 text-xs text-muted-foreground"><Cookie className="h-3 w-3" /> Cookies JSON</Label>
+                          <Textarea value={cookiesJson} onChange={(e) => setCookiesJson(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] font-mono text-xs min-h-[120px] focus:border-accent" placeholder='[{"name":"...", "value":"..."}]' />
+                        </div>
+                        <Button className="w-full gradient-btn border-0 font-semibold" onClick={saveCreds}>
+                          <Save className="h-4 w-4 mr-2" /> Save Credentials
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* View Devices */}
+                  <Dialog open={sessionsOpen} onOpenChange={(open) => { setSessionsOpen(open); if (open) loadSessions(); }}>
+                    <DialogTrigger asChild>
+                      <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#1e1e1e] text-[#999] hover:bg-[#2a2a2a] transition-colors flex items-center gap-1">
+                        <Monitor className="h-3 w-3" /> Devices
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="border-[#1e1e1e] max-w-2xl max-h-[80vh] overflow-y-auto" style={{ background: "#111111" }}>
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-foreground">
+                          <Monitor className="h-4 w-4 text-accent" /> Sessions — {user.email}
+                        </DialogTitle>
+                      </DialogHeader>
+                      {sessionsLoading ? (
+                        <div className="text-center text-muted-foreground py-8">Loading...</div>
+                      ) : sessions.length === 0 ? (
+                        <div className="text-center text-muted-foreground py-8">No sessions</div>
+                      ) : (
+                        <div className="space-y-2">
+                          {sessions.map((s) => (
+                            <div key={s.id} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#0a0a0a" }}>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-medium text-foreground">{s.device_info}</span>
+                                  <span className={`text-[10px] px-1.5 rounded-full font-medium ${s.is_active ? "bg-[#0d3320] text-[#34d399]" : "bg-[#1e1e1e] text-muted-foreground"}`}>
+                                    {s.is_active ? "Active" : "Revoked"}
+                                  </span>
+                                </div>
+                                <div className="text-[10px] text-muted-foreground mt-0.5">{s.ip_address || "—"} · {formatDate(s.last_active_time)}</div>
+                              </div>
+                              {s.is_active && (
+                                <button className="h-6 px-2 rounded text-[10px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors" onClick={() => revokeSession(s.id)}>
+                                  Revoke
+                                </button>
+                              )}
                             </div>
-                          </td>
-                          <td className="py-2 px-3 text-muted-foreground">{s.ip_address || "—"}</td>
-                          <td className="py-2 px-3 text-muted-foreground">{formatDate(s.login_time)}</td>
-                          <td className="py-2 px-3 text-muted-foreground">{formatDate(s.last_active_time)}</td>
-                          <td className="py-2 px-3">
-                            {s.is_active && (
-                              <button
-                                className="h-6 px-2 rounded text-[10px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors flex items-center gap-1"
-                                onClick={() => revokeSession(s.id)}
-                              >
-                                <X className="h-2.5 w-2.5" /> Revoke
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          ))}
+                        </div>
+                      )}
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* View Profile */}
+                  <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+                    <DialogTrigger asChild>
+                      <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#1e1e1e] text-foreground hover:bg-[#2a2a2a] transition-colors flex items-center gap-1">
+                        <Eye className="h-3 w-3" /> Profile
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="border-[#1e1e1e] max-w-lg max-h-[80vh] overflow-y-auto" style={{ background: "#111111" }}>
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-foreground">
+                          <Eye className="h-4 w-4 text-accent" /> {user.name || user.email}
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 pt-2">
+                        <Section title="Basic Info">
+                          <InfoRow label="Name" value={user.name} />
+                          <InfoRow label="Email" value={user.email} />
+                          <InfoRow label="WhatsApp" value={user.mobile_number} />
+                          <InfoRow label="Plan" value={user.plan} />
+                          <InfoRow label="Status" value={user.subscription_active ? "Active" : "Inactive"} isStatus active={user.subscription_active} />
+                        </Section>
+                        <Section title="Address">
+                          <InfoRow label="Street" value={user.street_address} />
+                          <InfoRow label="City" value={user.city} />
+                          <InfoRow label="State" value={user.state} />
+                          <InfoRow label="PIN" value={user.pin_code} />
+                          <InfoRow label="Country" value={user.country} />
+                        </Section>
+                        <Section title="Account">
+                          <InfoRow label="Credits" value={`${user.credits_used ?? 0} / ${user.credits_total ?? 0}`} />
+                          <InfoRow label="Daily" value={`${user.credits_used_today ?? 0} / ${user.daily_credits_limit ?? 0}`} />
+                          <InfoRow label="Expiry" value={user.expiry_date} />
+                          <InfoRow label="Joined" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : null} />
+                        </Section>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Activate/Deactivate */}
+                  <button
+                    className={`h-7 px-2.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1 ${
+                      user.subscription_active ? "bg-[#331111] text-[#f87171] hover:bg-[#451a1a]" : "bg-[#0d3320] text-[#34d399] hover:bg-[#164e36]"
+                    }`}
+                    onClick={() => toggleSubscription(user.id, user.subscription_active)}
+                  >
+                    {user.subscription_active ? "Deactivate" : "Activate"}
+                  </button>
+
+                  {/* Delete */}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors flex items-center gap-1">
+                        <Trash2 className="h-3 w-3" /> Delete
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="border-[#1e1e1e]" style={{ background: "#111111" }}>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-foreground">Delete this user?</AlertDialogTitle>
+                        <AlertDialogDescription>Permanently delete account and all data. Cannot be undone.</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="bg-[#1e1e1e] border-[#2a2a2a] text-foreground hover:bg-[#2a2a2a]">Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onDeleteUser(user.id)} className="bg-[#7f1d1d] text-[#fca5a5] hover:bg-[#991b1b]">Delete</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
-              )}
-            </DialogContent>
-          </Dialog>
-
-          {/* Activate / Deactivate */}
-          <button
-            className={`h-7 px-2.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1 ${
-              user.subscription_active
-                ? "bg-[#332200] text-[#fb923c] hover:bg-[#4a3300]"
-                : "bg-[#0d3320] text-[#34d399] hover:bg-[#164e36]"
-            }`}
-            onClick={() => toggleSubscription(user.id, user.subscription_active)}
-          >
-            {user.subscription_active ? "Deactivate" : "Activate"}
-          </button>
-
-          {/* Delete */}
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors flex items-center gap-1">
-                <Trash2 className="h-3 w-3" /> Delete
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="border-[#1e1e1e]" style={{ background: "#111111" }}>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-foreground">Delete this user?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently delete their account and all data. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="bg-[#1e1e1e] border-[#2a2a2a] text-foreground hover:bg-[#2a2a2a]">Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => onDeleteUser(user.id)}
-                  className="bg-[#7f1d1d] text-[#fca5a5] hover:bg-[#991b1b]"
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </td>
-    </tr>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
-const ProfileRow = ({ label, value, isStatus, statusActive }: { label: string; value: string | null | undefined; isStatus?: boolean; statusActive?: boolean }) => (
-  <div className="flex items-center justify-between text-sm">
-    <span className="text-muted-foreground text-xs">{label}</span>
+/* ─── Small helpers ─── */
+const InfoItem = ({ label, value }: { label: string; value: string }) => (
+  <div className="rounded-lg p-2.5" style={{ background: "#0a0a0a" }}>
+    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</div>
+    <div className="text-xs font-medium text-foreground mt-0.5 truncate">{value}</div>
+  </div>
+);
+
+const InfoRow = ({ label, value, isStatus, active }: { label: string; value: string | null | undefined; isStatus?: boolean; active?: boolean }) => (
+  <div className="flex items-center justify-between py-1">
+    <span className="text-xs text-muted-foreground">{label}</span>
     {isStatus ? (
-      <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${statusActive ? "bg-[#0d3320] text-[#34d399]" : "bg-[#331111] text-[#f87171]"}`}>
-        {value || "—"}
-      </span>
+      <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${active ? "bg-[#0d3320] text-[#34d399]" : "bg-[#331111] text-[#f87171]"}`}>{value || "—"}</span>
     ) : (
       <span className="text-xs font-medium text-foreground">{value || "—"}</span>
     )}
+  </div>
+);
+
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div className="border-t pt-3" style={{ borderColor: "#1e1e1e" }}>
+    <h4 className="text-[10px] font-semibold text-accent uppercase tracking-wider mb-2">{title}</h4>
+    <div className="space-y-1">{children}</div>
   </div>
 );
 
