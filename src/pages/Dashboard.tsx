@@ -255,6 +255,9 @@ const Dashboard = () => {
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
           <Link to="/" className="text-lg font-bold text-foreground">ToolzBazzar</Link>
           <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/profile" className="flex items-center gap-1 text-muted-foreground hover:text-foreground"><User className="h-4 w-4" /> My Profile</Link>
+            </Button>
             {profile?.is_admin && (
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/admin" className="flex items-center gap-1 text-accent"><Shield className="h-4 w-4" /> Admin</Link>
