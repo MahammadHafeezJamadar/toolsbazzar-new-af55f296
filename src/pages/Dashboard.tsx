@@ -351,7 +351,7 @@ const Dashboard = () => {
           <StatCard icon={Clock} label="Days Left" value={String(daysLeft)} sub="in current plan" color="accent" />
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
           {/* Left column */}
           <div className="lg:col-span-2 space-y-4">
             {/* Quick Actions */}
