@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { Progress } from "@/components/ui/progress";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,8 +16,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LogOut, User, Shield, KeyRound, Trash2, ExternalLink, Download, Gift } from "lucide-react";
+import {
+  LogOut, Shield, KeyRound, Trash2, ExternalLink, Download, Gift,
+  Zap, CalendarClock, CreditCard, Clock, Copy, Users, ChevronRight,
+} from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 interface Profile {
   id: string;
@@ -33,8 +36,69 @@ interface Profile {
   daily_credits_limit: number;
   credits_used_today: number;
   last_reset_date: string | null;
+  referral_code: string | null;
 }
 
+/* ─── Circular Progress ─── */
+const CircularProgress = ({
+  value,
+  max,
+  size = 120,
+  strokeWidth = 8,
+  label,
+  sublabel,
+}: {
+  value: number;
+  max: number;
+  size?: number;
+  strokeWidth?: number;
+  label: string;
+  sublabel?: string;
+}) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const pct = max > 0 ? Math.min(value / max, 1) : 0;
+  const offset = circumference - pct * circumference;
+
+  return (
+    <div className="flex flex-col items-center">
+      <svg width={size} height={size} className="-rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#1e1e1e"
+          strokeWidth={strokeWidth}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="url(#gradient)"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className="transition-all duration-700 ease-out"
+        />
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="hsl(174 72% 46%)" />
+            <stop offset="100%" stopColor="hsl(150 60% 50%)" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="absolute flex flex-col items-center justify-center" style={{ width: size, height: size }}>
+        <span className="text-xl font-bold text-foreground">{label}</span>
+        {sublabel && <span className="text-[10px] text-muted-foreground">{sublabel}</span>}
+      </div>
+    </div>
+  );
+};
+
+/* ─── Dashboard ─── */
 const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,26 +106,35 @@ const Dashboard = () => {
   const [passwordForm, setPasswordForm] = useState({ current: "", new: "", confirm: "" });
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [referralCount, setReferralCount] = useState(0);
+  const [referralCredits, setReferralCredits] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     const getProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/login");
-        return;
-      }
+      if (!session) { navigate("/login"); return; }
+
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date")
+        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, referral_code")
         .eq("id", session.user.id)
         .single();
 
-      if (error) {
-        toast.error("Failed to load profile");
-      } else {
-        setProfile(data);
+      if (error) toast.error("Failed to load profile");
+      else setProfile(data);
+
+      // Load referral stats
+      const { data: refs } = await supabase
+        .from("referrals")
+        .select("id, credits_awarded")
+        .eq("referrer_id", session.user.id);
+
+      if (refs) {
+        setReferralCount(refs.length);
+        setReferralCredits(refs.reduce((s, r) => s + (r.credits_awarded ?? 0), 0));
       }
+
       setLoading(false);
     };
     getProfile();
@@ -73,39 +146,26 @@ const Dashboard = () => {
   }, [navigate]);
 
   const EXTENSION_ID = "nkjkofpphngekmnjkdfjhakaegmgcddi";
-  const GOOGLE_FLOW_URL = "https://labs.google/fx/tools/flow";
 
   const handleOpenGoogleFlow = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Please log in first");
-        return;
-      }
+      if (!session) { toast.error("Please log in first"); return; }
 
       const accessToken = session.access_token;
-      console.log("[google-flow] Sending access_token to extension", EXTENSION_ID);
-
       try {
         (window as any).chrome.runtime.sendMessage(
           EXTENSION_ID,
           { action: "openGoogleFlow", access_token: accessToken },
           (response: any) => {
             const lastErr = (window as any).chrome?.runtime?.lastError;
-            if (lastErr) {
-              console.warn("[google-flow] Extension error:", lastErr);
-              toast.error("Extension not found. Please install the ToolzBazzar extension.");
-            } else {
-              console.log("[google-flow] Extension response:", response);
-            }
+            if (lastErr) toast.error("Extension not found. Please install the ToolzBazzar extension.");
           }
         );
-      } catch (extErr) {
-        console.warn("[google-flow] chrome.runtime.sendMessage failed:", extErr);
+      } catch {
         toast.error("Chrome extension not detected. Please use Chrome and install the extension.");
       }
-    } catch (err) {
-      console.error("[google-flow] Error:", err);
+    } catch {
       toast.error("Something went wrong. Please try again.");
     }
   };
@@ -120,46 +180,21 @@ const Dashboard = () => {
     const confirmPass = passwordForm.confirm.trim();
     const currentPass = passwordForm.current.trim();
 
-    if (!currentPass || !newPass || !confirmPass) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-    if (newPass.length < 6) {
-      toast.error("New password must be at least 6 characters");
-      return;
-    }
-    if (newPass !== confirmPass) {
-      toast.error("New passwords do not match");
-      return;
-    }
+    if (!currentPass || !newPass || !confirmPass) { toast.error("Please fill in all fields"); return; }
+    if (newPass.length < 6) { toast.error("New password must be at least 6 characters"); return; }
+    if (newPass !== confirmPass) { toast.error("New passwords do not match"); return; }
 
     setPasswordLoading(true);
-
-    // Verify current password by re-signing in
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user?.email) {
-      toast.error("Session expired. Please log in again.");
-      setPasswordLoading(false);
-      return;
-    }
+    if (!session?.user?.email) { toast.error("Session expired"); setPasswordLoading(false); return; }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: session.user.email,
-      password: currentPass,
-    });
-
-    if (signInError) {
-      toast.error("Current password is incorrect");
-      setPasswordLoading(false);
-      return;
-    }
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email: session.user.email, password: currentPass });
+    if (signInError) { toast.error("Current password is incorrect"); setPasswordLoading(false); return; }
 
     const { error } = await supabase.auth.updateUser({ password: newPass });
     setPasswordLoading(false);
-
-    if (error) {
-      toast.error(error.message);
-    } else {
+    if (error) toast.error(error.message);
+    else {
       toast.success("Password updated successfully");
       setPasswordForm({ current: "", new: "", confirm: "" });
       setShowChangePassword(false);
@@ -169,23 +204,10 @@ const Dashboard = () => {
   const handleDeleteAccount = async () => {
     setDeleteLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      toast.error("Session expired");
-      setDeleteLoading(false);
-      return;
-    }
+    if (!session) { toast.error("Session expired"); setDeleteLoading(false); return; }
 
-    // Delete profile row (cascade or manual)
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .delete()
-      .eq("id", session.user.id);
-
-    if (profileError) {
-      toast.error("Failed to delete account data");
-      setDeleteLoading(false);
-      return;
-    }
+    const { error: profileError } = await supabase.from("profiles").delete().eq("id", session.user.id);
+    if (profileError) { toast.error("Failed to delete account data"); setDeleteLoading(false); return; }
 
     await supabase.auth.signOut();
     setDeleteLoading(false);
@@ -193,288 +215,427 @@ const Dashboard = () => {
     navigate("/");
   };
 
+  const copyReferralCode = () => {
+    if (profile?.referral_code) {
+      navigator.clipboard.writeText(profile.referral_code);
+      toast.success("Referral code copied!");
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0a0a" }}>
         <div className="text-muted-foreground">Loading...</div>
       </div>
     );
   }
 
+  // Derived values
+  const creditsRemaining = (profile?.credits_total ?? 0) - (profile?.credits_used ?? 0);
+  const creditsTotal = profile?.credits_total ?? 0;
+  const isFinished = creditsRemaining <= 0;
+
+  const today = new Date().toISOString().split("T")[0];
+  const isToday = profile?.last_reset_date === today;
+  const usedToday = isToday ? (profile?.credits_used_today ?? 0) : 0;
+  const dailyLimit = profile?.daily_credits_limit ?? 100;
+  const dailyLimitReached = usedToday >= dailyLimit;
+
+  const daysLeft = profile?.expiry_date
+    ? Math.max(0, Math.ceil((new Date(profile.expiry_date).getTime() - Date.now()) / 86400000))
+    : 0;
+
+  const disabled = dailyLimitReached || isFinished;
+  const initials = (profile?.name || profile?.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+
   return (
-    <div className="min-h-screen">
-      <nav className="glass border-b border-border/30 sticky top-0 z-50">
-        <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <Link to="/" className="text-xl font-bold gradient-text">ToolzBazzar</Link>
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 border-b" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
+        <div className="container mx-auto flex items-center justify-between h-14 px-4">
+          <Link to="/" className="text-lg font-bold text-foreground">ToolzBazzar</Link>
+          <div className="flex items-center gap-2">
             {profile?.is_admin && (
               <Button variant="ghost" size="sm" asChild>
-                <Link to="/admin" className="flex items-center gap-1"><Shield className="h-4 w-4" /> Admin</Link>
+                <Link to="/admin" className="flex items-center gap-1 text-accent"><Shield className="h-4 w-4" /> Admin</Link>
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" /> Logout
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
+              <LogOut className="h-4 w-4 mr-1" /> Logout
             </Button>
           </div>
         </div>
       </nav>
 
-      <div className="container mx-auto px-4 py-12 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        {/* Welcome */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Welcome back, <span className="gradient-text">{profile?.name || "User"}</span>!
+          </h1>
+          <div className="flex items-center gap-3">
+            <span
+              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
+              style={{
+                background: "linear-gradient(135deg, hsla(174, 72%, 46%, 0.15), hsla(150, 60%, 50%, 0.15))",
+                borderColor: "hsla(174, 72%, 46%, 0.3)",
+                color: "hsl(174 72% 56%)",
+                boxShadow: "0 0 20px hsla(174, 72%, 46%, 0.1)",
+              }}
+            >
+              {profile?.plan || "Free"} Plan
+            </span>
+            {profile?.expiry_date && (
+              <span className="text-xs text-muted-foreground">
+                Expires in <span className="text-foreground font-medium">{daysLeft} days</span>
+              </span>
+            )}
+          </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Credits Card */}
-          {(() => {
-            const creditsRemaining = (profile?.credits_total ?? 0) - (profile?.credits_used ?? 0);
-            const creditsTotal = profile?.credits_total ?? 0;
-            const percentage = creditsTotal > 0 ? (creditsRemaining / creditsTotal) * 100 : 0;
-            const isFinished = creditsRemaining <= 0;
-            return (
-              <div className="glass rounded-xl p-6 md:col-span-2">
-                {isFinished ? (
-                  <>
-                    <h2 className="font-semibold mb-2 text-lg text-destructive">Credits Finished</h2>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      You have used all your credits. Please contact admin to get more credits.
-                    </p>
-                    <Button asChild className="w-full bg-[hsl(142,70%,45%)] hover:bg-[hsl(142,70%,40%)] text-white font-semibold border-0">
-                      <a href="https://wa.me/919448646624" target="_blank" rel="noopener noreferrer">
-                        Contact on WhatsApp
+        {/* Stats Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6"
+        >
+          <StatCard icon={Zap} label="Credits Left" value={creditsRemaining.toLocaleString()} sub={`of ${creditsTotal.toLocaleString()}`} color="accent" />
+          <StatCard icon={CalendarClock} label="Daily Used" value={`${usedToday}`} sub={`of ${dailyLimit} limit`} color="accent" />
+          <StatCard
+            icon={CreditCard}
+            label="Status"
+            value={profile?.subscription_active ? "Active" : "Inactive"}
+            sub={profile?.plan || "—"}
+            color={profile?.subscription_active ? "green" : "red"}
+          />
+          <StatCard icon={Clock} label="Days Left" value={String(daysLeft)} sub="in current plan" color="accent" />
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Left column */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Quick Actions */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="rounded-xl p-6 border"
+              style={{ background: "#111111", borderColor: "#1e1e1e" }}
+            >
+              <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
+              {profile?.subscription_active ? (
+                <div className="space-y-3">
+                  <button
+                    onClick={handleOpenGoogleFlow}
+                    disabled={disabled}
+                    className="w-full h-12 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{
+                      background: disabled ? "#1e1e1e" : "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
+                      color: disabled ? "#666" : "#0a0a0a",
+                      boxShadow: disabled ? "none" : "0 0 30px hsla(174, 72%, 46%, 0.2)",
+                    }}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    {dailyLimitReached ? "Daily Limit Reached" : isFinished ? "No Credits" : "Open Google Flow"}
+                  </button>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {profile?.plan?.toLowerCase() === "basic" ? (
+                      <a
+                        href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Basic-v1%20(1).zip"
+                        download
+                        className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
+                        style={{ borderColor: "#1e1e1e", color: "#999" }}
+                      >
+                        <Download className="h-3.5 w-3.5" /> Basic Extension
                       </a>
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <h2 className="font-semibold mb-4 text-lg">Credits</h2>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-muted-foreground">Remaining</span>
-                      <span className="text-sm font-semibold">{creditsRemaining} / {creditsTotal}</span>
-                    </div>
-                    <Progress value={percentage} className="h-3" />
-                  </>
-                )}
-              </div>
-            );
-          })()}
+                    ) : (
+                      <a
+                        href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Pro-v1.zip"
+                        download
+                        className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
+                        style={{ borderColor: "#1e1e1e", color: "#999" }}
+                      >
+                        <Download className="h-3.5 w-3.5" /> Pro Extension
+                      </a>
+                    )}
+                    <Link
+                      to="/refer"
+                      className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
+                      style={{ borderColor: "#1e1e1e", color: "#999" }}
+                    >
+                      <Gift className="h-3.5 w-3.5" /> Refer & Earn
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Your subscription is inactive. Contact us to activate your plan.
+                  </p>
+                  <a
+                    href="https://wa.me/919448646624"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full h-10 rounded-lg font-semibold text-sm flex items-center justify-center gap-2"
+                    style={{ background: "hsl(142 70% 45%)", color: "#fff" }}
+                  >
+                    Contact on WhatsApp
+                  </a>
+                </div>
+              )}
+            </motion.div>
 
-          {/* Daily Credits Card */}
-          {(() => {
-            const today = new Date().toISOString().split('T')[0];
-            const isToday = profile?.last_reset_date === today;
-            const usedToday = isToday ? (profile?.credits_used_today ?? 0) : 0;
-            const dailyLimit = profile?.daily_credits_limit ?? 100;
-            const dailyPercentage = dailyLimit > 0 ? (usedToday / dailyLimit) * 100 : 0;
-            const dailyLimitReached = usedToday >= dailyLimit;
-            return (
-              <div className="glass rounded-xl p-6 md:col-span-2">
-                {dailyLimitReached ? (
-                  <>
-                    <h2 className="font-semibold mb-2 text-lg text-destructive">Daily Limit Reached</h2>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      You have reached your daily credits limit. Come back tomorrow!
-                    </p>
-                    <Progress value={100} className="h-3" />
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-muted-foreground">Resets at midnight</span>
-                      <span className="text-xs font-semibold text-destructive">{usedToday} / {dailyLimit}</span>
+            {/* Credits Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="rounded-xl p-6 border"
+              style={{ background: "#111111", borderColor: "#1e1e1e" }}
+            >
+              <h2 className="text-lg font-semibold text-foreground mb-6">Credits Overview</h2>
+              <div className="flex flex-col sm:flex-row items-center gap-8">
+                <div className="relative">
+                  <CircularProgress
+                    value={creditsRemaining}
+                    max={creditsTotal}
+                    size={140}
+                    strokeWidth={10}
+                    label={creditsRemaining.toLocaleString()}
+                    sublabel="remaining"
+                  />
+                </div>
+                <div className="flex-1 w-full space-y-5">
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs text-muted-foreground">Total Credits</span>
+                      <span className="text-xs font-medium text-foreground">{(profile?.credits_used ?? 0).toLocaleString()} / {creditsTotal.toLocaleString()}</span>
                     </div>
-                  </>
-                ) : (
-                  <>
-                    <h2 className="font-semibold mb-4 text-lg">Daily Credits</h2>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-muted-foreground">Used Today</span>
-                      <span className="text-sm font-semibold">{usedToday} / {dailyLimit}</span>
+                    <Progress value={creditsTotal > 0 ? ((profile?.credits_used ?? 0) / creditsTotal) * 100 : 0} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs text-muted-foreground">Daily Usage</span>
+                      <span className="text-xs font-medium text-foreground">{usedToday} / {dailyLimit}</span>
                     </div>
-                    <Progress value={dailyPercentage} className="h-3" />
-                    <p className="text-xs text-muted-foreground mt-2">Resets every midnight automatically</p>
-                  </>
-                )}
+                    <Progress value={dailyLimit > 0 ? (usedToday / dailyLimit) * 100 : 0} className="h-2" />
+                    <p className="text-[10px] text-muted-foreground mt-1">Resets at midnight</p>
+                  </div>
+                  {isFinished && (
+                    <div className="rounded-lg p-3 border" style={{ background: "#1a0a0a", borderColor: "#331111" }}>
+                      <p className="text-xs text-[#f87171] font-medium">Credits finished — contact admin for more.</p>
+                    </div>
+                  )}
+                  {dailyLimitReached && !isFinished && (
+                    <div className="rounded-lg p-3 border" style={{ background: "#1a1500", borderColor: "#332200" }}>
+                      <p className="text-xs text-[#fbbf24] font-medium">Daily limit reached — come back tomorrow!</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            );
-          })()}
-
-          {/* Subscription Card */}
-          <div className="glass rounded-xl p-6">
-            <h2 className="font-semibold mb-4 text-lg">Subscription</h2>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Status</span>
-                <Badge variant={profile?.subscription_active ? "default" : "destructive"} className={profile?.subscription_active ? "gradient-btn border-0 text-primary-foreground" : ""}>
-                  {profile?.subscription_active ? "Active" : "Inactive"}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Plan</span>
-                <span className="text-sm font-medium">{profile?.plan || "None"}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Expires</span>
-                <span className="text-sm font-medium">{profile?.expiry_date || "N/A"}</span>
-              </div>
-            </div>
+            </motion.div>
           </div>
 
-          {/* Profile Card */}
-          <div className="glass rounded-xl p-6">
-            <h2 className="font-semibold mb-4 text-lg flex items-center gap-2">
-              <User className="h-5 w-5" /> Profile
-            </h2>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Name</span>
-                <span className="text-sm font-medium">{profile?.name || "—"}</span>
+          {/* Right column */}
+          <div className="space-y-4">
+            {/* Profile Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="rounded-xl p-6 border"
+              style={{ background: "#111111", borderColor: "#1e1e1e" }}
+            >
+              <div className="flex items-center gap-3 mb-5">
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border"
+                  style={{
+                    background: "linear-gradient(135deg, hsla(174, 72%, 46%, 0.15), hsla(150, 60%, 50%, 0.15))",
+                    borderColor: "hsla(174, 72%, 46%, 0.3)",
+                    color: "hsl(174 72% 56%)",
+                  }}
+                >
+                  {initials}
+                </div>
+                <div>
+                  <div className="font-semibold text-foreground">{profile?.name || "User"}</div>
+                  <div className="text-xs text-muted-foreground">{profile?.email}</div>
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Email</span>
-                <span className="text-sm font-medium">{profile?.email}</span>
+
+              <div className="space-y-2.5 mb-5">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Plan</span>
+                  <span className="font-medium text-foreground">{profile?.plan || "—"}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Status</span>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    profile?.subscription_active
+                      ? "bg-[#0d3320] text-[#34d399]"
+                      : "bg-[#331111] text-[#f87171]"
+                  }`}>
+                    {profile?.subscription_active ? "Active" : "Inactive"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Expiry</span>
+                  <span className="font-medium text-foreground">{profile?.expiry_date || "N/A"}</span>
+                </div>
               </div>
-            </div>
 
-            <div className="border-t border-border/30 mt-4 pt-4 space-y-3">
-              {/* Change Password */}
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full border-border/50"
-                onClick={() => setShowChangePassword(!showChangePassword)}
-              >
-                <KeyRound className="h-4 w-4 mr-2" /> Change Password
-              </Button>
+              <div className="border-t pt-4 space-y-2" style={{ borderColor: "#1e1e1e" }}>
+                <button
+                  onClick={() => setShowChangePassword(!showChangePassword)}
+                  className="w-full h-9 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
+                  style={{ borderColor: "#1e1e1e", color: "#999" }}
+                >
+                  <KeyRound className="h-3.5 w-3.5" /> Change Password
+                </button>
 
-              {showChangePassword && (
-                <div className="space-y-3 p-3 rounded-lg bg-muted/30">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="current-password" className="text-xs">Current Password</Label>
-                    <Input
-                      id="current-password"
-                      type="password"
-                      value={passwordForm.current}
-                      onChange={(e) => setPasswordForm((p) => ({ ...p, current: e.target.value }))}
-                      maxLength={128}
-                    />
+                {showChangePassword && (
+                  <div className="space-y-2.5 p-3 rounded-lg" style={{ background: "#0a0a0a" }}>
+                    <div>
+                      <Label htmlFor="current-password" className="text-[10px] text-muted-foreground">Current Password</Label>
+                      <Input id="current-password" type="password" value={passwordForm.current} onChange={(e) => setPasswordForm((p) => ({ ...p, current: e.target.value }))} maxLength={128} className="h-8 text-xs bg-[#111] border-[#1e1e1e]" />
+                    </div>
+                    <div>
+                      <Label htmlFor="new-password" className="text-[10px] text-muted-foreground">New Password</Label>
+                      <Input id="new-password" type="password" value={passwordForm.new} onChange={(e) => setPasswordForm((p) => ({ ...p, new: e.target.value }))} maxLength={128} className="h-8 text-xs bg-[#111] border-[#1e1e1e]" />
+                    </div>
+                    <div>
+                      <Label htmlFor="confirm-password" className="text-[10px] text-muted-foreground">Confirm Password</Label>
+                      <Input id="confirm-password" type="password" value={passwordForm.confirm} onChange={(e) => setPasswordForm((p) => ({ ...p, confirm: e.target.value }))} maxLength={128} className="h-8 text-xs bg-[#111] border-[#1e1e1e]" />
+                    </div>
+                    <button
+                      className="w-full h-8 rounded-lg text-xs font-semibold transition-all"
+                      style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
+                      onClick={handleChangePassword}
+                      disabled={passwordLoading}
+                    >
+                      {passwordLoading ? "Saving..." : "Save Password"}
+                    </button>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="new-password" className="text-xs">New Password</Label>
-                    <Input
-                      id="new-password"
-                      type="password"
-                      value={passwordForm.new}
-                      onChange={(e) => setPasswordForm((p) => ({ ...p, new: e.target.value }))}
-                      maxLength={128}
-                    />
+                )}
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button className="w-full h-9 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors bg-[#1a0a0a] text-[#f87171] hover:bg-[#2a1111] border border-[#331111]">
+                      <Trash2 className="h-3.5 w-3.5" /> Delete Account
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="border-[#1e1e1e]" style={{ background: "#111111" }}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-foreground">Delete your account?</AlertDialogTitle>
+                      <AlertDialogDescription>This action cannot be undone. Your account and all data will be permanently deleted.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="bg-[#1e1e1e] border-[#2a2a2a] text-foreground hover:bg-[#2a2a2a]">Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteAccount} disabled={deleteLoading} className="bg-[#7f1d1d] text-[#fca5a5] hover:bg-[#991b1b]">
+                        {deleteLoading ? "Deleting..." : "Delete"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </motion.div>
+
+            {/* Refer & Earn Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="rounded-xl p-6 border relative overflow-hidden"
+              style={{
+                background: "#111111",
+                borderColor: "hsla(174, 72%, 46%, 0.2)",
+                boxShadow: "0 0 40px hsla(174, 72%, 46%, 0.05)",
+              }}
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10" style={{ background: "radial-gradient(circle, hsl(174 72% 46%), transparent)" }} />
+              <h3 className="text-sm font-semibold text-foreground mb-1 flex items-center gap-2">
+                <Gift className="h-4 w-4 text-accent" /> Refer & Earn
+              </h3>
+              <p className="text-[11px] text-muted-foreground mb-4">Earn 200 credits for every friend who joins</p>
+
+              {profile?.referral_code && (
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex-1 h-9 rounded-lg px-3 flex items-center text-xs font-mono text-foreground border" style={{ background: "#0a0a0a", borderColor: "#1e1e1e" }}>
+                    {profile.referral_code}
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="confirm-password" className="text-xs">Confirm New Password</Label>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      value={passwordForm.confirm}
-                      onChange={(e) => setPasswordForm((p) => ({ ...p, confirm: e.target.value }))}
-                      maxLength={128}
-                    />
-                  </div>
-                  <Button
-                    size="sm"
-                    className="w-full gradient-btn border-0 text-primary-foreground font-semibold"
-                    onClick={handleChangePassword}
-                    disabled={passwordLoading}
+                  <button
+                    onClick={copyReferralCode}
+                    className="h-9 w-9 rounded-lg flex items-center justify-center border hover:bg-[#1a1a1a] transition-colors"
+                    style={{ borderColor: "#1e1e1e", color: "#999" }}
                   >
-                    {passwordLoading ? "Saving..." : "Save Password"}
-                  </Button>
+                    <Copy className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               )}
 
-              {/* Delete Account */}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm" className="w-full">
-                    <Trash2 className="h-4 w-4 mr-2" /> Delete Account
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure you want to delete your account?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. Your account and all associated data will be permanently deleted.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeleteAccount}
-                      disabled={deleteLoading}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      {deleteLoading ? "Deleting..." : "Delete"}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </div>
-
-          {/* Actions / Inactive Message */}
-          <div className="glass rounded-xl p-6">
-            {profile?.subscription_active ? (
-              <>
-                <h2 className="font-semibold mb-4 text-lg">Quick Actions</h2>
-                <div className="space-y-3">
-                  {(() => {
-                    const today = new Date().toISOString().split('T')[0];
-                    const isToday = profile?.last_reset_date === today;
-                    const usedToday = isToday ? (profile?.credits_used_today ?? 0) : 0;
-                    const dailyLimit = profile?.daily_credits_limit ?? 100;
-                    const dailyLimitReached = usedToday >= dailyLimit;
-                    const creditsRemaining = (profile?.credits_total ?? 0) - (profile?.credits_used ?? 0);
-                    const disabled = dailyLimitReached || creditsRemaining <= 0;
-                    return (
-                      <Button
-                        className="w-full gradient-btn border-0 text-primary-foreground font-semibold"
-                        onClick={handleOpenGoogleFlow}
-                        disabled={disabled}
-                      >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        {dailyLimitReached ? "Daily Limit Reached" : creditsRemaining <= 0 ? "No Credits" : "Open Google Flow"}
-                      </Button>
-                    );
-                  })()}
-                  {profile?.plan?.toLowerCase() === "basic" ? (
-                    <Button variant="outline" className="w-full border-border/50" asChild>
-                      <a href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Basic-v1%20(1).zip" download>
-                        <Download className="h-4 w-4 mr-2" /> Download Basic Extension
-                      </a>
-                    </Button>
-                  ) : (
-                    <Button variant="outline" className="w-full border-border/50" asChild>
-                      <a href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Pro-v1.zip" download>
-                        <Download className="h-4 w-4 mr-2" /> Download Pro Extension
-                      </a>
-                    </Button>
-                  )}
-                  <Button variant="outline" className="w-full border-border/50" asChild>
-                    <Link to="/refer">
-                      <Gift className="h-4 w-4 mr-2" /> Refer & Earn 200 Credits
-                    </Link>
-                  </Button>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-lg p-3 text-center" style={{ background: "#0a0a0a" }}>
+                  <div className="text-lg font-bold text-foreground">{referralCount}</div>
+                  <div className="text-[10px] text-muted-foreground">Friends Referred</div>
                 </div>
-              </>
-            ) : (
-              <>
-                <h2 className="font-semibold mb-4 text-lg text-destructive">Subscription Inactive</h2>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Your subscription is inactive. Please contact us on WhatsApp to activate your plan.
-                </p>
-                <Button asChild className="w-full bg-[hsl(142,70%,45%)] hover:bg-[hsl(142,70%,40%)] text-white font-semibold border-0">
-                  <a href="https://wa.me/919448646624" target="_blank" rel="noopener noreferrer">
-                    Contact on WhatsApp
-                  </a>
-                </Button>
-              </>
-            )}
+                <div className="rounded-lg p-3 text-center" style={{ background: "#0a0a0a" }}>
+                  <div className="text-lg font-bold gradient-text">{referralCredits}</div>
+                  <div className="text-[10px] text-muted-foreground">Credits Earned</div>
+                </div>
+              </div>
+
+              <Link
+                to="/refer"
+                className="mt-4 w-full h-9 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border hover:bg-[#1a1a1a] transition-colors"
+                style={{ borderColor: "hsla(174, 72%, 46%, 0.3)", color: "hsl(174 72% 56%)" }}
+              >
+                View Referral Page <ChevronRight className="h-3 w-3" />
+              </Link>
+            </motion.div>
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+/* ─── Stat Card ─── */
+const StatCard = ({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  color,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  sub: string;
+  color: string;
+}) => {
+  const colorMap: Record<string, string> = {
+    accent: "hsl(174 72% 46%)",
+    green: "#34d399",
+    red: "#f87171",
+  };
+  const c = colorMap[color] || colorMap.accent;
+
+  return (
+    <div className="rounded-xl p-4 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: `${c}15` }}>
+          <Icon className="h-3.5 w-3.5" style={{ color: c }} />
+        </div>
+        <span className="text-[11px] text-muted-foreground">{label}</span>
+      </div>
+      <div className="text-xl font-bold text-foreground">{value}</div>
+      <div className="text-[10px] text-muted-foreground mt-0.5">{sub}</div>
     </div>
   );
 };
