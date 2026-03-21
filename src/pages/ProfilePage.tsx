@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { LogOut, Shield, ArrowLeft, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -169,7 +170,7 @@ const ProfilePage = () => {
                 onChange={(e) => setForm((f) => ({ ...f, mobile_number: e.target.value.replace(/[^0-9+\- ]/g, "") }))}
                 maxLength={20}
                 className="bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent"
-                placeholder="+91 9876543210"
+                placeholder="Enter your WhatsApp number"
               />
             </div>
 
@@ -197,13 +198,16 @@ const ProfilePage = () => {
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1.5 block">State</Label>
-                <Input
-                  value={form.state}
-                  onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))}
-                  maxLength={100}
-                  className="bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent"
-                  placeholder="State"
-                />
+                <Select value={form.state} onValueChange={(v) => setForm((f) => ({ ...f, state: v }))}>
+                  <SelectTrigger className="bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent">
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Delhi","Jammu & Kashmir","Ladakh","Puducherry","Chandigarh"].map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -220,13 +224,16 @@ const ProfilePage = () => {
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1.5 block">Country</Label>
-                <Input
-                  value={form.country}
-                  onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
-                  maxLength={100}
-                  className="bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent"
-                  placeholder="India"
-                />
+                <Select value={form.country} onValueChange={(v) => setForm((f) => ({ ...f, country: v }))}>
+                  <SelectTrigger className="bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent">
+                    <SelectValue placeholder="Select country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["India","United States","United Kingdom","Canada","Australia","UAE","Saudi Arabia","Singapore","Malaysia","Other"].map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
