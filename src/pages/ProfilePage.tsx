@@ -198,13 +198,16 @@ const ProfilePage = () => {
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1.5 block">State</Label>
-                <Input
-                  value={form.state}
-                  onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))}
-                  maxLength={100}
-                  className="bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent"
-                  placeholder="State"
-                />
+                <Select value={form.state} onValueChange={(v) => setForm((f) => ({ ...f, state: v }))}>
+                  <SelectTrigger className="bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent">
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Delhi","Jammu & Kashmir","Ladakh","Puducherry","Chandigarh"].map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
