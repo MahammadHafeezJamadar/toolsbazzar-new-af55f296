@@ -259,7 +259,7 @@ const Admin = () => {
         <div className="p-6">
           <Link to="/" className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-accent" />
-            <span className="text-lg font-bold text-foreground">ToolzBazzar</span>
+            <span className="text-lg font-bold text-foreground">FlowBazzar</span>
           </Link>
           <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
         </div>

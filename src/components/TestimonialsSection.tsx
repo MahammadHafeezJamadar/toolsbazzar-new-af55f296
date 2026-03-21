@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 
 const testimonials = [
-  { name: "Arjun Mehta", role: "Content Creator", text: "ToolzBazzar completely transformed my video workflow. What used to take hours now takes minutes. The AI quality is unreal!", initials: "AM" },
-  { name: "Priya Sharma", role: "Marketing Lead", text: "We use ToolzBazzar for all our social media video content. The ROI has been incredible — 3x engagement since switching.", initials: "PS" },
-  { name: "Rahul Verma", role: "Freelance Editor", text: "The pricing is unbeatable for the quality you get. I've tried every AI video tool out there, and ToolzBazzar is the best.", initials: "RV" },
+  { name: "Arjun Mehta", role: "Content Creator", text: "FlowBazzar completely transformed my video workflow. What used to take hours now takes minutes. The AI quality is unreal!", initials: "AM" },
+  { name: "Priya Sharma", role: "Marketing Lead", text: "We use FlowBazzar for all our social media video content. The ROI has been incredible — 3x engagement since switching.", initials: "PS" },
+  { name: "Rahul Verma", role: "Freelance Editor", text: "The pricing is unbeatable for the quality you get. I've tried every AI video tool out there, and FlowBazzar is the best.", initials: "RV" },
 ];
 
 const TestimonialsSection = () => (

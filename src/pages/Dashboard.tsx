@@ -159,7 +159,7 @@ const Dashboard = () => {
           { action: "openGoogleFlow", access_token: accessToken },
           (response: any) => {
             const lastErr = (window as any).chrome?.runtime?.lastError;
-            if (lastErr) toast.error("Extension not found. Please install the ToolzBazzar extension.");
+            if (lastErr) toast.error("Extension not found. Please install the FlowBazzar extension.");
           }
         );
       } catch {
@@ -253,7 +253,7 @@ const Dashboard = () => {
       {/* Desktop Nav */}
       <nav className="sticky top-0 z-50 border-b hidden md:block" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
-          <Link to="/" className="text-lg font-bold text-foreground">ToolzBazzar</Link>
+          <Link to="/" className="text-lg font-bold text-foreground">FlowBazzar</Link>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild>
               <Link to="/profile" className="flex items-center gap-1 text-muted-foreground hover:text-foreground"><User className="h-4 w-4" /> My Profile</Link>
@@ -273,7 +273,7 @@ const Dashboard = () => {
       {/* Mobile Top Bar */}
       <nav className="sticky top-0 z-50 border-b md:hidden" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="flex items-center justify-between h-14 px-4">
-          <Link to="/" className="text-lg font-bold text-foreground">ToolzBazzar</Link>
+          <Link to="/" className="text-lg font-bold text-foreground">FlowBazzar</Link>
           <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
             <LogOut className="h-4 w-4" />
           </Button>
@@ -382,7 +382,7 @@ const Dashboard = () => {
                   <div className="grid grid-cols-2 gap-3">
                     {profile?.plan?.toLowerCase() === "basic" ? (
                       <a
-                        href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Basic-v1%20(1).zip"
+                        href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/FlowBazzar-Basic-v1%20(1).zip"
                         download
                         className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
                         style={{ borderColor: "#1e1e1e", color: "#999" }}
@@ -391,7 +391,7 @@ const Dashboard = () => {
                       </a>
                     ) : (
                       <a
-                        href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Pro-v1.zip"
+                        href="https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/FlowBazzar-Pro-v1.zip"
                         download
                         className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
                         style={{ borderColor: "#1e1e1e", color: "#999" }}
