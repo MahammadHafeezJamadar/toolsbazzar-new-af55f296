@@ -622,13 +622,13 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <Link
-                to="/refer"
+              <button
+                onClick={() => navigate("/refer")}
                 className="mt-4 w-full h-9 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border hover:bg-[#1a1a1a] transition-colors"
                 style={{ borderColor: "hsla(174, 72%, 46%, 0.3)", color: "hsl(174 72% 56%)" }}
               >
                 View Referral Page <ChevronRight className="h-3 w-3" />
-              </Link>
+              </button>
             </motion.div>
           </div>
         </div>
