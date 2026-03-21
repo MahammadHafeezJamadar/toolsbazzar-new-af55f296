@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   LogOut, Shield, KeyRound, Trash2, ExternalLink, Download, Gift,
-  Zap, CalendarClock, CreditCard, Clock, Copy, Users, ChevronRight,
+  Zap, CalendarClock, CreditCard, Clock, Copy, Users, ChevronRight, User,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
