@@ -224,13 +224,16 @@ const ProfilePage = () => {
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1.5 block">Country</Label>
-                <Input
-                  value={form.country}
-                  onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
-                  maxLength={100}
-                  className="bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent"
-                  placeholder="India"
-                />
+                <Select value={form.country} onValueChange={(v) => setForm((f) => ({ ...f, country: v }))}>
+                  <SelectTrigger className="bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent">
+                    <SelectValue placeholder="Select country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["India","United States","United Kingdom","Canada","Australia","UAE","Saudi Arabia","Singapore","Malaysia","Other"].map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
