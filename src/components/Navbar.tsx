@@ -37,6 +37,13 @@ const Navbar = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
@@ -75,34 +82,46 @@ const Navbar = () => {
             </>
           )}
         </div>
-        <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
+        <button className="md:hidden text-foreground p-2 -mr-2" onClick={() => setOpen(!open)}>
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
+      {/* Full screen mobile menu */}
       {open && (
-        <div className="md:hidden bg-card border-t border-border p-4 flex flex-col gap-3">
-          {navLinks.map((l) => (
-            <a key={l.label} href={l.href} className="text-muted-foreground hover:text-foreground py-2" onClick={() => setOpen(false)}>
-              {l.label}
-            </a>
-          ))}
-          {isAdmin && (
-            <Link to="/admin" className="text-accent hover:text-foreground py-2 flex items-center gap-1" onClick={() => setOpen(false)}>
-              <Shield className="h-3.5 w-3.5" /> Admin
-            </Link>
-          )}
-          <div className="flex gap-2 pt-2">
+        <div className="md:hidden fixed inset-0 top-16 z-50 bg-background flex flex-col">
+          <div className="flex-1 flex flex-col items-center justify-center gap-6 p-6">
+            {navLinks.map((l) => (
+              <a
+                key={l.label}
+                href={l.href}
+                className="text-lg font-medium text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setOpen(false)}
+              >
+                {l.label}
+              </a>
+            ))}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="text-lg font-medium text-accent hover:text-foreground transition-colors flex items-center gap-2"
+                onClick={() => setOpen(false)}
+              >
+                <Shield className="h-4 w-4" /> Admin
+              </Link>
+            )}
+          </div>
+          <div className="p-6 space-y-3 border-t border-border">
             {loggedIn ? (
-              <Button size="sm" className="gradient-btn border-0 font-semibold flex-1" asChild>
-                <Link to="/dashboard">Dashboard</Link>
+              <Button size="lg" className="gradient-btn border-0 font-semibold w-full h-12" asChild>
+                <Link to="/dashboard" onClick={() => setOpen(false)}>Dashboard</Link>
               </Button>
             ) : (
               <>
-                <Button variant="ghost" size="sm" asChild className="flex-1">
-                  <Link to="/login">Login</Link>
+                <Button variant="outline" size="lg" className="w-full h-12" asChild>
+                  <Link to="/login" onClick={() => setOpen(false)}>Login</Link>
                 </Button>
-                <Button size="sm" className="gradient-btn border-0 font-semibold flex-1" asChild>
-                  <Link to="/register">Get Started</Link>
+                <Button size="lg" className="gradient-btn border-0 font-semibold w-full h-12" asChild>
+                  <Link to="/register" onClick={() => setOpen(false)}>Get Started</Link>
                 </Button>
               </>
             )}

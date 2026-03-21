@@ -7,10 +7,10 @@ const columns = [
 ];
 
 const Footer = () => (
-  <footer id="about" className="border-t border-border py-16">
+  <footer id="about" className="border-t border-border py-12 md:py-16">
     <div className="container mx-auto px-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-        <div className="col-span-2 md:col-span-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="sm:col-span-2 md:col-span-1">
           <span className="text-lg font-bold text-foreground">ToolzBazzar</span>
           <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
             AI-powered video generation for the modern creator.
@@ -37,7 +37,7 @@ const Footer = () => (
           </div>
         ))}
       </div>
-      <div className="border-t border-border mt-12 pt-8 text-center text-xs text-muted-foreground">
+      <div className="border-t border-border mt-10 md:mt-12 pt-6 md:pt-8 text-center text-xs text-muted-foreground">
         © {new Date().getFullYear()} ToolzBazzar. All rights reserved.
       </div>
     </div>
