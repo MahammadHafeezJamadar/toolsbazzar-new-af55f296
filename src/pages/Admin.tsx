@@ -513,6 +513,7 @@ const UserRow = ({
   const [creditsTotal, setCreditsTotal] = useState(String(user.credits_total ?? 1000));
   const [dailyLimit, setDailyLimit] = useState(String(user.daily_credits_limit ?? 100));
   const [credOpen, setCredOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const [sessions, setSessions] = useState<DeviceSession[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(false);
