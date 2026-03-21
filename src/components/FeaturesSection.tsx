@@ -1,30 +1,30 @@
 import { motion } from "framer-motion";
-import { Zap, Video, ShieldCheck, Bolt } from "lucide-react";
+import { Video, Zap, IndianRupee, HeadphonesIcon } from "lucide-react";
 
 const features = [
   {
-    icon: Zap,
-    title: "v3.1 Access",
-    desc: "Get exclusive access to the latest AI model versions for superior output quality.",
-    points: ["Veo 3.1 Fast & Quality modes", "Priority queue access", "Latest model updates"],
-  },
-  {
     icon: Video,
     title: "AI Video Generation",
-    desc: "Create stunning videos from text prompts with our state-of-the-art AI pipeline.",
+    desc: "Create Hollywood-quality videos in seconds using Google's latest Veo 3.1 AI model",
     points: ["Text-to-video in seconds", "HD video downloads", "Multiple output formats"],
   },
   {
-    icon: Bolt,
-    title: "Lightning Fast",
-    desc: "Generate videos in seconds, not minutes. Optimized infrastructure for speed.",
-    points: ["Sub-minute generation", "Parallel processing", "Global CDN delivery"],
+    icon: Zap,
+    title: "Instant Access",
+    desc: "Get started in minutes with our simple Chrome extension. No technical skills required",
+    points: ["One-click Chrome extension", "Easy setup wizard", "No coding needed"],
   },
   {
-    icon: ShieldCheck,
-    title: "Secure & Reliable",
-    desc: "Enterprise-grade security with 99.9% uptime guarantee and encrypted storage.",
-    points: ["End-to-end encryption", "99.9% uptime SLA", "24/7 monitoring"],
+    icon: IndianRupee,
+    title: "Affordable Plans",
+    desc: "Premium AI access at Indian prices. Plans starting at just ₹299 per month",
+    points: ["Starting at ₹299/mo", "Flexible credit system", "Cancel anytime"],
+  },
+  {
+    icon: HeadphonesIcon,
+    title: "24/7 Support",
+    desc: "Dedicated WhatsApp support for all your queries. We are always here to help",
+    points: ["WhatsApp support", "Quick response time", "Dedicated assistance"],
   },
 ];
 
@@ -33,10 +33,10 @@ const FeaturesSection = () => (
     <div className="container mx-auto px-4">
       <div className="text-center mb-10 md:mb-16">
         <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">
-          Powerful Features
+          Why Creators Choose ToolzBazzar
         </h2>
         <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto">
-          Everything you need to create professional AI-generated videos.
+          Everything you need to unleash your creativity
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto">

@@ -13,7 +13,7 @@ const Footer = () => (
         <div className="sm:col-span-2 md:col-span-1">
           <span className="text-lg font-bold text-foreground">ToolsBazzar</span>
           <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-            AI-powered video generation for the modern creator.
+            India's #1 Affordable AI Video Platform
           </p>
         </div>
         {columns.map((c) => (
