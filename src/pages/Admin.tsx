@@ -686,6 +686,53 @@ const UserRow = ({
       </td>
       <td className="p-4">
         <div className="flex flex-wrap items-center gap-1.5">
+          {/* View Profile */}
+          <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+            <DialogTrigger asChild>
+              <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#0d2818] text-[#34d399] hover:bg-[#164e36] transition-colors flex items-center gap-1">
+                <Eye className="h-3 w-3" /> Profile
+              </button>
+            </DialogTrigger>
+            <DialogContent className="border-[#1e1e1e] max-w-lg max-h-[80vh] overflow-y-auto" style={{ background: "#111111" }}>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-foreground">
+                  <Eye className="h-4 w-4 text-accent" /> Profile — {user.name || user.email}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-5 pt-2">
+                <div>
+                  <h4 className="text-xs font-semibold text-accent uppercase tracking-wider mb-3">Basic Info</h4>
+                  <div className="space-y-2">
+                    <ProfileRow label="Full Name" value={user.name} />
+                    <ProfileRow label="Email" value={user.email} />
+                    <ProfileRow label="Mobile (WhatsApp)" value={(user as any).mobile_number} />
+                    <ProfileRow label="Plan" value={user.plan} />
+                    <ProfileRow label="Status" value={user.subscription_active ? "Active" : "Inactive"} isStatus statusActive={user.subscription_active} />
+                  </div>
+                </div>
+                <div className="border-t pt-4" style={{ borderColor: "#1e1e1e" }}>
+                  <h4 className="text-xs font-semibold text-accent uppercase tracking-wider mb-3">Address</h4>
+                  <div className="space-y-2">
+                    <ProfileRow label="Street" value={(user as any).street_address} />
+                    <ProfileRow label="City" value={(user as any).city} />
+                    <ProfileRow label="State" value={(user as any).state} />
+                    <ProfileRow label="PIN Code" value={(user as any).pin_code} />
+                    <ProfileRow label="Country" value={(user as any).country} />
+                  </div>
+                </div>
+                <div className="border-t pt-4" style={{ borderColor: "#1e1e1e" }}>
+                  <h4 className="text-xs font-semibold text-accent uppercase tracking-wider mb-3">Account</h4>
+                  <div className="space-y-2">
+                    <ProfileRow label="Credits" value={`${user.credits_used ?? 0} / ${user.credits_total ?? 0} used`} />
+                    <ProfileRow label="Daily Limit" value={`${user.credits_used_today ?? 0} / ${user.daily_credits_limit ?? 0}`} />
+                    <ProfileRow label="Expiry" value={user.expiry_date} />
+                    <ProfileRow label="Registered" value={(user as any).created_at ? new Date((user as any).created_at).toLocaleDateString() : null} />
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
           {/* Set Credentials */}
           <Dialog open={credOpen} onOpenChange={setCredOpen}>
             <DialogTrigger asChild>
