@@ -249,9 +249,9 @@ const Dashboard = () => {
   const initials = (profile?.name || profile?.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
 
   return (
-    <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
+    <div className="min-h-screen pb-16 md:pb-0" style={{ background: "#0a0a0a" }}>
+      {/* Desktop Nav */}
+      <nav className="sticky top-0 z-50 border-b hidden md:block" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
           <Link to="/" className="text-lg font-bold text-foreground">ToolzBazzar</Link>
           <div className="flex items-center gap-2">
@@ -269,6 +269,38 @@ const Dashboard = () => {
           </div>
         </div>
       </nav>
+
+      {/* Mobile Top Bar */}
+      <nav className="sticky top-0 z-50 border-b md:hidden" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
+        <div className="flex items-center justify-between h-14 px-4">
+          <Link to="/" className="text-lg font-bold text-foreground">ToolzBazzar</Link>
+          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
+      </nav>
+
+      {/* Mobile Bottom Nav */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t md:hidden flex items-center justify-around h-14" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
+        <Link to="/dashboard" className="flex flex-col items-center gap-0.5 text-accent">
+          <Zap className="h-5 w-5" />
+          <span className="text-[10px]">Home</span>
+        </Link>
+        <Link to="/profile" className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground">
+          <User className="h-5 w-5" />
+          <span className="text-[10px]">Profile</span>
+        </Link>
+        <Link to="/refer" className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground">
+          <Gift className="h-5 w-5" />
+          <span className="text-[10px]">Refer</span>
+        </Link>
+        {profile?.is_admin && (
+          <Link to="/admin" className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground">
+            <Shield className="h-5 w-5" />
+            <span className="text-[10px]">Admin</span>
+          </Link>
+        )}
+      </div>
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Welcome */}
