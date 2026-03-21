@@ -15,7 +15,9 @@ import {
 import {
   LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2, Globe,
   Users, CreditCard, Zap, TrendingUp, LayoutDashboard, Settings, ChevronUp, ChevronDown, Eye,
+  Phone, MapPin, Calendar, Clock,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
   Dialog,
