@@ -883,4 +883,17 @@ const UserRow = ({
   );
 };
 
+const ProfileRow = ({ label, value, isStatus, statusActive }: { label: string; value: string | null | undefined; isStatus?: boolean; statusActive?: boolean }) => (
+  <div className="flex items-center justify-between text-sm">
+    <span className="text-muted-foreground text-xs">{label}</span>
+    {isStatus ? (
+      <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${statusActive ? "bg-[#0d3320] text-[#34d399]" : "bg-[#331111] text-[#f87171]"}`}>
+        {value || "—"}
+      </span>
+    ) : (
+      <span className="text-xs font-medium text-foreground">{value || "—"}</span>
+    )}
+  </div>
+);
+
 export default Admin;
