@@ -11,7 +11,7 @@ const Footer = () => (
     <div className="container mx-auto px-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
         <div className="sm:col-span-2 md:col-span-1">
-          <span className="text-lg font-bold text-foreground">FlowBazzar</span>
+          <span className="text-lg font-bold text-foreground">ToolsBazzar</span>
           <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
             AI-powered video generation for the modern creator.
           </p>
@@ -38,7 +38,7 @@ const Footer = () => (
         ))}
       </div>
       <div className="border-t border-border mt-10 md:mt-12 pt-6 md:pt-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} FlowBazzar. All rights reserved.
+        © {new Date().getFullYear()} ToolsBazzar. All rights reserved.
       </div>
     </div>
   </footer>
