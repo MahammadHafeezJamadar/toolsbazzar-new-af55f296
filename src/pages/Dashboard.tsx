@@ -559,6 +559,13 @@ const Dashboard = () => {
                         >
                           <Gift className="h-3.5 w-3.5" /> Refer & Earn
                         </button>
+                        <button
+                          onClick={handleDownloadInvoice}
+                          className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors col-span-2"
+                          style={{ borderColor: "#1e1e1e", color: "#999" }}
+                        >
+                          <FileText className="h-3.5 w-3.5" /> Download Invoice
+                        </button>
                       </div>
                     );
                   })()}
