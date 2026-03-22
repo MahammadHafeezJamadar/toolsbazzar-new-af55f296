@@ -27,7 +27,7 @@ const UpiPaymentModal = ({ open, onClose, planName, amount, userEmail }: UpiPaym
     const msg = encodeURIComponent(
       `Hi! I have made payment for ${planName} plan - ₹${amount}. Please activate my account. Email: ${userEmail || "N/A"}`
     );
-    window.open(`https://wa.me/919448646620?text=${msg}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/919448646624?text=${msg}`, "_blank", "noopener,noreferrer");
   };
 
   return (
