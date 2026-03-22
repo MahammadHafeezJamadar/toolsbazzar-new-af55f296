@@ -15,7 +15,7 @@ import {
 import {
   LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2, Globe,
   Users, CreditCard, Zap, TrendingUp, LayoutDashboard, Settings, ChevronUp, ChevronDown, Eye,
-  Phone, MapPin, Calendar, Clock,
+  Phone, MapPin, Calendar, Clock, Search, UserCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -76,11 +76,12 @@ interface DeviceSession {
   is_active: boolean;
 }
 
-type AdminTab = "dashboard" | "users" | "settings";
+type AdminTab = "dashboard" | "users" | "user-details" | "settings";
 
 const sidebarItems: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "users", label: "Users", icon: Users },
+  { id: "user-details", label: "User Details", icon: UserCheck },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
@@ -385,6 +386,9 @@ const Admin = () => {
               deleteUser={deleteUser}
               loadSessionCounts={loadSessionCounts}
             />
+          )}
+          {activeTab === "user-details" && (
+            <UserDetailsTab users={users} referralCounts={referralCounts} />
           )}
           {activeTab === "settings" && (
             <SettingsTab
@@ -981,6 +985,189 @@ const UserCard = ({
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+};
+
+/* ─── User Details Tab ─── */
+const UserDetailsTab = ({
+  users,
+  referralCounts,
+}: {
+  users: UserProfile[];
+  referralCounts: Record<string, number>;
+}) => {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "complete" | "incomplete">("all");
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+
+  const isComplete = (u: UserProfile) => !!(u.name && u.mobile_number && u.city);
+  const completeCount = users.filter(isComplete).length;
+  const incompleteCount = users.length - completeCount;
+
+  const filtered = users.filter((u) => {
+    const q = search.toLowerCase();
+    const matchesSearch = !q || u.email.toLowerCase().includes(q) || (u.name || "").toLowerCase().includes(q) || (u.mobile_number || "").toLowerCase().includes(q);
+    const matchesFilter = filter === "all" || (filter === "complete" && isComplete(u)) || (filter === "incomplete" && !isComplete(u));
+    return matchesSearch && matchesFilter;
+  });
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-4">User Details</h1>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="text-lg font-bold text-foreground">{users.length}</div>
+          <div className="text-[10px] text-muted-foreground">Total Users</div>
+        </div>
+        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="text-lg font-bold text-[#34d399]">{completeCount}</div>
+          <div className="text-[10px] text-muted-foreground">Complete</div>
+        </div>
+        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="text-lg font-bold text-[#fbbf24]">{incompleteCount}</div>
+          <div className="text-[10px] text-muted-foreground">Incomplete</div>
+        </div>
+      </div>
+
+      {/* Search + Filter */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, email, or mobile..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-9 pl-9 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent text-sm"
+          />
+        </div>
+        <div className="flex gap-1.5">
+          {(["all", "complete", "incomplete"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`h-9 px-3 rounded-lg text-xs font-medium transition-colors ${
+                filter === f ? "bg-accent/10 text-accent border border-accent/30" : "bg-[#111] border border-[#1e1e1e] text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {f === "all" ? "All" : f === "complete" ? "✅ Complete" : "❌ Incomplete"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {filtered.map((u) => {
+          const complete = isComplete(u);
+          const initials = (u.name || u.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+          const pc = planColors[u.plan] || planColors.Basic;
+          return (
+            <div
+              key={u.id}
+              onClick={() => setSelectedUser(u)}
+              className="rounded-xl border p-4 cursor-pointer transition-all duration-200 hover:border-accent/30"
+              style={{ background: "#111111", borderColor: "#1e1e1e" }}
+            >
+              <div className="flex items-start gap-3 mb-3">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, hsla(174, 72%, 46%, 0.2), hsla(150, 60%, 50%, 0.2))",
+                    color: "hsl(174 72% 56%)",
+                    border: "1px solid hsla(174, 72%, 46%, 0.3)",
+                  }}
+                >
+                  {initials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-foreground truncate">
+                    {u.name || <span className="text-[#f87171]">Not filled</span>}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground truncate">{u.email}</div>
+                  <div className="text-[11px] mt-0.5">
+                    {u.mobile_number ? (
+                      <span className="text-muted-foreground flex items-center gap-1"><Phone className="h-3 w-3" />{u.mobile_number}</span>
+                    ) : (
+                      <span className="text-[#f87171]">Mobile not filled</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: pc.bg, color: pc.text }}>
+                  {u.plan || "—"}
+                </span>
+                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${u.subscription_active ? "bg-[#0d3320] text-[#34d399]" : "bg-[#331111] text-[#f87171]"}`}>
+                  {u.subscription_active ? "Active" : "Inactive"}
+                </span>
+                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${complete ? "bg-[#0d3320] text-[#34d399]" : "bg-[#331111] text-[#f87171]"}`}>
+                  {complete ? "✅" : "❌"}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+        {filtered.length === 0 && (
+          <div className="col-span-full text-center text-muted-foreground py-12 text-sm">No users found</div>
+        )}
+      </div>
+
+      {/* Detail Modal */}
+      <Dialog open={!!selectedUser} onOpenChange={(open) => { if (!open) setSelectedUser(null); }}>
+        <DialogContent className="border-[#1e1e1e] max-w-lg max-h-[85vh] overflow-y-auto" style={{ background: "#111111" }}>
+          {selectedUser && (() => {
+            const u = selectedUser;
+            const initials = (u.name || u.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-3 text-foreground">
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
+                      style={{
+                        background: "linear-gradient(135deg, hsla(174, 72%, 46%, 0.2), hsla(150, 60%, 50%, 0.2))",
+                        color: "hsl(174 72% 56%)",
+                        border: "1px solid hsla(174, 72%, 46%, 0.3)",
+                      }}
+                    >
+                      {initials}
+                    </div>
+                    {u.name || u.email}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-2">
+                  <Section title="Personal Details">
+                    <InfoRow label="Full Name" value={u.name} />
+                    <InfoRow label="Email" value={u.email} />
+                    <InfoRow label="WhatsApp" value={u.mobile_number} />
+                    <InfoRow label="Street Address" value={u.street_address} />
+                    <InfoRow label="City" value={u.city} />
+                    <InfoRow label="State" value={u.state} />
+                    <InfoRow label="PIN Code" value={u.pin_code} />
+                    <InfoRow label="Country" value={u.country} />
+                  </Section>
+                  <Section title="Account Details">
+                    <InfoRow label="Plan" value={u.plan} />
+                    <InfoRow label="Status" value={u.subscription_active ? "Active" : "Inactive"} isStatus active={u.subscription_active} />
+                    <InfoRow label="Credits" value={`${u.credits_used ?? 0} / ${u.credits_total ?? 0}`} />
+                    <InfoRow label="Daily Limit" value={String(u.daily_credits_limit ?? 0)} />
+                    <InfoRow label="Expiry" value={u.expiry_date} />
+                    <InfoRow label="Registered" value={u.created_at ? new Date(u.created_at).toLocaleDateString() : null} />
+                  </Section>
+                  <Section title="Referral Details">
+                    <InfoRow label="Referral Code" value={u.referral_code} />
+                    <InfoRow label="Total Referrals" value={String(referralCounts[u.id] || 0)} />
+                    <InfoRow label="Referred By" value={u.referred_by || "None"} />
+                  </Section>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
