@@ -45,6 +45,17 @@ const Navbar = () => {
           <span>ToolsBazzar</span>
         </Link>
 
+        {/* Mobile admin button - top right */}
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className="md:hidden flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold"
+            style={{ backgroundColor: 'rgba(6,182,212,0.15)', color: '#22d3ee' }}
+          >
+            <Shield className="h-3.5 w-3.5" /> Admin
+          </Link>
+        )}
+
         {/* Desktop nav only */}
         <div className="hidden md:flex items-center gap-6">
           {navLinks.map((l) => (
