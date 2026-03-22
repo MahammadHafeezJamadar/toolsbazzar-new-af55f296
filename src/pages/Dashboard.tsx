@@ -331,6 +331,7 @@ const Dashboard = () => {
   };
 
 
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0a0a" }}>
         <div className="text-muted-foreground">Loading...</div>
