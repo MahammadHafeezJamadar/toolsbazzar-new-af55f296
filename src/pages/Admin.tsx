@@ -795,7 +795,7 @@ const UserCard = ({
                     setPlan(value);
                     const { error } = await supabase.from("profiles").update({ plan: value, credits_total: 0, credits_used: 0, daily_credits_limit: 0 }).eq("id", user.id);
                     if (error) toast.error("Update failed");
-                    else { setCreditsTotal(String(newCredits)); toast.success(`Plan → ${value}`); }
+                    else { setCreditsTotal("0"); setDailyLimit("0"); toast.success(`Plan → ${value}`); }
                   }}>
                     <SelectTrigger className="h-8 flex-1 text-xs bg-[#0a0a0a] border-[#1e1e1e]">
                       <SelectValue placeholder="Plan" />
