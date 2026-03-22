@@ -34,7 +34,7 @@ const Login = () => {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
       <div className="w-full max-w-md glass rounded-2xl p-8 relative z-10">
         <div className="text-center mb-8">
-          <Link to="/" className="text-2xl font-bold gradient-text">ToolzBazzar</Link>
+          <Link to="/" className="text-2xl font-bold gradient-text">ToolsBazzar</Link>
           <h1 className="text-xl font-semibold mt-4">Welcome back</h1>
           <p className="text-sm text-muted-foreground mt-1">Sign in to your account</p>
         </div>

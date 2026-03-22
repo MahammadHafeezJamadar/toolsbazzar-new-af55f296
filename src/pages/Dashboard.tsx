@@ -176,7 +176,7 @@ const Dashboard = () => {
           { action: "openGoogleFlow", access_token: accessToken },
           (response: any) => {
             const lastErr = (window as any).chrome?.runtime?.lastError;
-            if (lastErr) toast.error("Extension not found. Please install the ToolzBazzar extension.");
+            if (lastErr) toast.error("Extension not found. Please install the ToolsBazzar extension.");
           }
         );
       } catch {
@@ -256,7 +256,7 @@ const Dashboard = () => {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
     doc.setFont("helvetica", "bold");
-    doc.text("ToolzBazzar", 20, 26);
+    doc.text("ToolsBazzar", 20, 26);
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text("AI Video Platform", 20, 34);
@@ -327,9 +327,9 @@ const Dashboard = () => {
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(150, 150, 150);
-    doc.text("ToolzBazzar — India's #1 Affordable AI Video Platform", w / 2, y, { align: "center" });
+    doc.text("ToolsBazzar — India's #1 Affordable AI Video Platform", w / 2, y, { align: "center" });
 
-    doc.save(`ToolzBazzar-Invoice-${invoiceNo}.pdf`);
+    doc.save(`ToolsBazzar-Invoice-${invoiceNo}.pdf`);
     toast.success("Invoice downloaded!");
   };
 
@@ -365,7 +365,7 @@ const Dashboard = () => {
       {/* Desktop Nav */}
       <nav className="sticky top-0 z-50 border-b hidden md:block" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
-          <button onClick={() => navigate("/")} className="text-lg font-bold text-foreground bg-transparent border-0 cursor-pointer">ToolzBazzar</button>
+          <button onClick={() => navigate("/")} className="text-lg font-bold text-foreground bg-transparent border-0 cursor-pointer">ToolsBazzar</button>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate("/profile")} className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
               <User className="h-4 w-4" /> My Profile
@@ -385,7 +385,7 @@ const Dashboard = () => {
       {/* Mobile Top Bar */}
       <nav className="sticky top-0 z-50 border-b md:hidden" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="flex items-center justify-between h-14 px-4">
-          <button onClick={() => navigate("/")} className="text-lg font-bold text-foreground bg-transparent border-0 cursor-pointer">ToolzBazzar</button>
+          <button onClick={() => navigate("/")} className="text-lg font-bold text-foreground bg-transparent border-0 cursor-pointer">ToolsBazzar</button>
           <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
             <LogOut className="h-4 w-4" />
           </Button>
@@ -537,10 +537,10 @@ const Dashboard = () => {
                           onClick={() => {
                             const plan = profile?.plan?.toLowerCase();
                             const url = plan === "ultra"
-                              ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Ultra-FINAL.zip"
+                              ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolsBazzar-Ultra-FINAL.zip"
                               : plan === "pro"
-                              ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Pro-FINAL.zip"
-                              : "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Basic-FINAL.zip";
+                              ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolsBazzar-Pro-FINAL.zip"
+                              : "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolsBazzar-Basic-FINAL.zip";
                             const a = document.createElement("a");
                             a.href = url;
                             a.download = "";
