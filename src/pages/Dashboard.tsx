@@ -379,36 +379,59 @@ const Dashboard = () => {
                     {dailyLimitReached ? "Daily Limit Reached" : isFinished ? "No Credits" : "Open Google Flow"}
                   </button>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => {
-                        const plan = profile?.plan?.toLowerCase();
-                        const url = plan === "ultra"
-                          ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Ultra-FINAL.zip"
-                          : plan === "pro"
-                          ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Pro-FINAL.zip"
-                          : "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Basic-FINAL.zip";
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = "";
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        toast.success("Download started!");
-                      }}
-                      className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
-                      style={{ borderColor: "#1e1e1e", color: "#999" }}
-                    >
-                      <Download className="h-3.5 w-3.5" /> {profile?.plan?.toLowerCase() === "ultra" ? "Ultra" : profile?.plan?.toLowerCase() === "pro" ? "Pro" : "Basic"} Extension
-                    </button>
-                    <button
-                      onClick={() => navigate("/refer")}
-                      className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
-                      style={{ borderColor: "#1e1e1e", color: "#999" }}
-                    >
-                      <Gift className="h-3.5 w-3.5" /> Refer & Earn
-                    </button>
-                  </div>
+                  {(() => {
+                    const profileComplete = !!(profile?.name && profile?.mobile_number && profile?.city);
+                    if (!profileComplete) {
+                      return (
+                        <div className="rounded-lg border p-4" style={{ background: "#1a1a00", borderColor: "#3d3d00" }}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-lg">⚠️</span>
+                            <span className="text-sm font-semibold" style={{ color: "#fbbf24" }}>Please complete your profile first!</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-3">Fill in your Full Name, Mobile Number, and City to download the extension.</p>
+                          <button
+                            onClick={() => navigate("/profile")}
+                            className="w-full h-9 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
+                            style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
+                          >
+                            Complete Profile
+                          </button>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          onClick={() => {
+                            const plan = profile?.plan?.toLowerCase();
+                            const url = plan === "ultra"
+                              ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Ultra-FINAL.zip"
+                              : plan === "pro"
+                              ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Pro-FINAL.zip"
+                              : "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Basic-FINAL.zip";
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = "";
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            toast.success("Download started!");
+                          }}
+                          className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
+                          style={{ borderColor: "#1e1e1e", color: "#999" }}
+                        >
+                          <Download className="h-3.5 w-3.5" /> {profile?.plan?.toLowerCase() === "ultra" ? "Ultra" : profile?.plan?.toLowerCase() === "pro" ? "Pro" : "Basic"} Extension
+                        </button>
+                        <button
+                          onClick={() => navigate("/refer")}
+                          className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
+                          style={{ borderColor: "#1e1e1e", color: "#999" }}
+                        >
+                          <Gift className="h-3.5 w-3.5" /> Refer & Earn
+                        </button>
+                      </div>
+                    );
+                  })()}
                 </div>
               ) : (
                 <div>
