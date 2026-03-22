@@ -62,6 +62,8 @@ interface UserProfile {
   state: string | null;
   pin_code: string | null;
   country: string | null;
+  referral_code: string | null;
+  referred_by: string | null;
 }
 
 interface DeviceSession {
