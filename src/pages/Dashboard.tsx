@@ -140,6 +140,15 @@ const Dashboard = () => {
         setReferralCredits(refs.reduce((s, r) => s + (r.credits_awarded ?? 0), 0));
       }
 
+      // Load announcement
+      const { data: annData } = await supabase
+        .from("announcements")
+        .select("message")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (annData && annData.length > 0) setAnnouncement((annData[0] as any).message);
+
       setLoading(false);
     };
     getProfile();
