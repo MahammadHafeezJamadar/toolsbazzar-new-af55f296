@@ -62,6 +62,8 @@ interface UserProfile {
   state: string | null;
   pin_code: string | null;
   country: string | null;
+  referral_code: string | null;
+  referred_by: string | null;
 }
 
 interface DeviceSession {
@@ -86,6 +88,7 @@ const Admin = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [sessionCounts, setSessionCounts] = useState<Record<string, number>>({});
+  const [referralCounts, setReferralCounts] = useState<Record<string, number>>({});
   const [globalCookiesOpen, setGlobalCookiesOpen] = useState(false);
   const [globalCookies, setGlobalCookies] = useState("");
   const [globalCookiesLoading, setGlobalCookiesLoading] = useState(false);
@@ -113,6 +116,7 @@ const Admin = () => {
       await loadUsers();
       await loadSessionCounts();
       await loadLiveUsers();
+      await loadReferralCounts();
     };
     checkAdmin();
 
@@ -125,7 +129,7 @@ const Admin = () => {
   const loadUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country")
+      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by")
       .order("email");
     if (error) toast.error("Failed to load users");
     else setUsers(data || []);
@@ -160,6 +164,18 @@ const Admin = () => {
       setLiveUsersToday(uniqueUsers.size);
     }
   };
+
+  const loadReferralCounts = async () => {
+    const { data } = await supabase.from("referrals").select("referrer_id");
+    if (data) {
+      const counts: Record<string, number> = {};
+      data.forEach((r: any) => {
+        counts[r.referrer_id] = (counts[r.referrer_id] || 0) + 1;
+      });
+      setReferralCounts(counts);
+    }
+  };
+
   const toggleSubscription = async (userId: string, current: boolean) => {
     const { error } = await supabase
       .from("profiles")
@@ -363,6 +379,7 @@ const Admin = () => {
             <UsersTab
               users={users}
               sessionCounts={sessionCounts}
+              referralCounts={referralCounts}
               toggleSubscription={toggleSubscription}
               updateField={updateField}
               deleteUser={deleteUser}
@@ -444,6 +461,7 @@ const DashboardTab = ({
 const UsersTab = ({
   users,
   sessionCounts,
+  referralCounts,
   toggleSubscription,
   updateField,
   deleteUser,
@@ -451,28 +469,82 @@ const UsersTab = ({
 }: {
   users: UserProfile[];
   sessionCounts: Record<string, number>;
+  referralCounts: Record<string, number>;
   toggleSubscription: (id: string, current: boolean) => void;
   updateField: (id: string, field: string, value: any) => void;
   deleteUser: (id: string) => Promise<void>;
   loadSessionCounts: () => void;
-}) => (
-  <div>
-    <h1 className="text-2xl font-bold text-foreground mb-6">User Management</h1>
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-      {users.map((u) => (
-        <UserCard
-          key={u.id}
-          user={u}
-          toggleSubscription={toggleSubscription}
-          updateField={updateField}
-          activeDevices={sessionCounts[u.id] || 0}
-          onSessionRevoked={loadSessionCounts}
-          onDeleteUser={deleteUser}
+}) => {
+  const [search, setSearch] = useState("");
+
+  const isProfileComplete = (u: UserProfile) => !!(u.name && u.mobile_number && u.city);
+  const profileCompleteCount = users.filter(isProfileComplete).length;
+  const profileIncompleteCount = users.length - profileCompleteCount;
+
+  const filtered = users.filter((u) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      u.email.toLowerCase().includes(q) ||
+      (u.name || "").toLowerCase().includes(q) ||
+      (u.mobile_number || "").toLowerCase().includes(q)
+    );
+  });
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-4">User Management</h1>
+
+      {/* Mini Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="text-lg font-bold text-foreground">{users.length}</div>
+          <div className="text-[10px] text-muted-foreground">Total Users</div>
+        </div>
+        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="text-lg font-bold text-foreground">{users.filter(u => u.subscription_active).length}</div>
+          <div className="text-[10px] text-muted-foreground">Active Subs</div>
+        </div>
+        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="text-lg font-bold text-[#34d399]">{profileCompleteCount}</div>
+          <div className="text-[10px] text-muted-foreground">Profile Complete</div>
+        </div>
+        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="text-lg font-bold text-[#fbbf24]">{profileIncompleteCount}</div>
+          <div className="text-[10px] text-muted-foreground">Incomplete</div>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="mb-4">
+        <Input
+          placeholder="Search by name, email, or mobile..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-9 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent text-sm"
         />
-      ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        {filtered.map((u) => (
+          <UserCard
+            key={u.id}
+            user={u}
+            toggleSubscription={toggleSubscription}
+            updateField={updateField}
+            activeDevices={sessionCounts[u.id] || 0}
+            onSessionRevoked={loadSessionCounts}
+            onDeleteUser={deleteUser}
+            referralCount={referralCounts[u.id] || 0}
+          />
+        ))}
+        {filtered.length === 0 && (
+          <div className="col-span-full text-center text-muted-foreground py-8 text-sm">No users found</div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /* ─── Settings Tab ─── */
 const SettingsTab = ({
@@ -543,6 +615,7 @@ const UserCard = ({
   activeDevices,
   onSessionRevoked,
   onDeleteUser,
+  referralCount,
 }: {
   user: UserProfile;
   toggleSubscription: (id: string, current: boolean) => void;
@@ -550,6 +623,7 @@ const UserCard = ({
   activeDevices: number;
   onSessionRevoked: () => void;
   onDeleteUser: (id: string) => Promise<void>;
+  referralCount: number;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [plan, setPlan] = useState(user.plan);
@@ -643,13 +717,23 @@ const UserCard = ({
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2 mt-3">
+        <div className="flex items-center gap-1.5 flex-wrap mt-3">
           <span className="text-[11px] font-medium px-2 py-0.5 rounded-full" style={{ background: pc.bg, color: pc.text }}>
             {user.plan || "—"}
           </span>
           <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${user.subscription_active ? "bg-[#0d3320] text-[#34d399]" : "bg-[#331111] text-[#f87171]"}`}>
             {user.subscription_active ? "Active" : "Inactive"}
           </span>
+          <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
+            !!(user.name && user.mobile_number && user.city) ? "bg-[#0d3320] text-[#34d399]" : "bg-[#332200] text-[#fbbf24]"
+          }`}>
+            {!!(user.name && user.mobile_number && user.city) ? "✅ Profile" : "❌ Incomplete"}
+          </span>
+          {referralCount > 0 && (
+            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#1a1a3e] text-[#818cf8]">
+              {referralCount} referral{referralCount > 1 ? "s" : ""}
+            </span>
+          )}
           <span className="text-[11px] text-muted-foreground ml-auto flex items-center gap-1">
             <Monitor className="h-3 w-3" /> {activeDevices}
           </span>
@@ -700,6 +784,8 @@ const UserCard = ({
                 <InfoItem label="Devices" value={`${activeDevices} connected`} />
                 <InfoItem label="Location" value={[user.city, user.state, user.country].filter(Boolean).join(", ") || "—"} />
                 <InfoItem label="Registered" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"} />
+                <InfoItem label="Referrals" value={`${referralCount} referred`} />
+                <InfoItem label="Referred By" value={user.referred_by || "—"} />
               </div>
 
               {/* Action: Set Plan */}
