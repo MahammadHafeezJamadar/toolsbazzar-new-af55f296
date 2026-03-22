@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import UpiPaymentModal from "@/components/UpiPaymentModal";
 
 const plans = [
   {
@@ -30,6 +30,7 @@ const plans = [
 
 const PricingSection = () => {
   const [yearly, setYearly] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{ name: string; amount: number } | null>(null);
 
   return (
     <section id="pricing" className="py-16 md:py-28">
@@ -95,14 +96,21 @@ const PricingSection = () => {
                   p.popular ? "gradient-btn border-0" : "border-border"
                 }`}
                 variant={p.popular ? "default" : "outline"}
-                asChild
+                onClick={() => setSelectedPlan({ name: p.name, amount: yearly ? p.yearly : p.monthly })}
               >
-                <Link to="/register">Get Started</Link>
+                Buy Now
               </Button>
             </motion.div>
           ))}
         </div>
       </div>
+
+      <UpiPaymentModal
+        open={!!selectedPlan}
+        onClose={() => setSelectedPlan(null)}
+        planName={selectedPlan?.name || ""}
+        amount={selectedPlan?.amount || 0}
+      />
     </section>
   );
 };
