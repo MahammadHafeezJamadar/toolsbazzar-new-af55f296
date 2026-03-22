@@ -162,6 +162,18 @@ const Admin = () => {
       setLiveUsersToday(uniqueUsers.size);
     }
   };
+
+  const loadReferralCounts = async () => {
+    const { data } = await supabase.from("referrals").select("referrer_id");
+    if (data) {
+      const counts: Record<string, number> = {};
+      data.forEach((r: any) => {
+        counts[r.referrer_id] = (counts[r.referrer_id] || 0) + 1;
+      });
+      setReferralCounts(counts);
+    }
+  };
+
   const toggleSubscription = async (userId: string, current: boolean) => {
     const { error } = await supabase
       .from("profiles")
