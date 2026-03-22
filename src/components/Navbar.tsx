@@ -114,7 +114,7 @@ const Navbar = () => {
               <a
                 key={l.label}
                 href={l.href}
-                className="text-base font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors px-5 py-3.5 border-b border-border"
+                className="text-base font-medium text-white hover:text-white hover:bg-[#1e1e1e] transition-colors px-5 py-3.5 border-b border-border"
                 onClick={() => setOpen(false)}
               >
                 {l.label}
@@ -123,7 +123,7 @@ const Navbar = () => {
             {isAdmin && (
               <Link
                 to="/admin"
-                className="text-base font-medium text-accent hover:text-foreground hover:bg-secondary/50 transition-colors px-5 py-3.5 border-b border-border flex items-center gap-2"
+                className="text-base font-medium text-white hover:text-white hover:bg-[#1e1e1e] transition-colors px-5 py-3.5 border-b border-border flex items-center gap-2"
                 onClick={() => setOpen(false)}
               >
                 <Shield className="h-4 w-4" /> Admin
