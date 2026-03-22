@@ -552,10 +552,10 @@ const Dashboard = () => {
                           onClick={() => {
                             const plan = profile?.plan?.toLowerCase();
                             const url = plan === "ultra"
-                              ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolsBazzar-Ultra-FINAL.zip"
+                              ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Ultra-v3.zip"
                               : plan === "pro"
-                              ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolsBazzar-Pro-FINAL.zip"
-                              : "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolsBazzar-Basic-FINAL.zip";
+                              ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Pro-v3.zip"
+                              : "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Basic-v3.zip";
                             const a = document.createElement("a");
                             a.href = url;
                             a.download = "";
