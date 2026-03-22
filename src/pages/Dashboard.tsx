@@ -115,6 +115,7 @@ const Dashboard = () => {
   const [referralCredits, setReferralCredits] = useState(0);
   const [announcement, setAnnouncement] = useState<string | null>(null);
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
