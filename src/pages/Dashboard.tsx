@@ -382,9 +382,12 @@ const Dashboard = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => {
-                        const url = profile?.plan?.toLowerCase() === "basic"
-                          ? "https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Basic-v1%20(1).zip"
-                          : "https://github.com/MahammadHafeezJamadar/toolbazzar-extesion/raw/main/ToolzBazzar-Pro-v1.zip";
+                        const plan = profile?.plan?.toLowerCase();
+                        const url = plan === "ultra"
+                          ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Ultra-FINAL.zip"
+                          : plan === "pro"
+                          ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Pro-FINAL.zip"
+                          : "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Basic-FINAL.zip";
                         const a = document.createElement("a");
                         a.href = url;
                         a.download = "";
@@ -396,7 +399,7 @@ const Dashboard = () => {
                       className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
                       style={{ borderColor: "#1e1e1e", color: "#999" }}
                     >
-                      <Download className="h-3.5 w-3.5" /> {profile?.plan?.toLowerCase() === "basic" ? "Basic" : "Pro"} Extension
+                      <Download className="h-3.5 w-3.5" /> {profile?.plan?.toLowerCase() === "ultra" ? "Ultra" : profile?.plan?.toLowerCase() === "pro" ? "Pro" : "Basic"} Extension
                     </button>
                     <button
                       onClick={() => navigate("/refer")}
