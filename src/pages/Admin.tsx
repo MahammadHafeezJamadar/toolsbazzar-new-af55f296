@@ -459,6 +459,7 @@ const DashboardTab = ({
 const UsersTab = ({
   users,
   sessionCounts,
+  referralCounts,
   toggleSubscription,
   updateField,
   deleteUser,
@@ -466,28 +467,82 @@ const UsersTab = ({
 }: {
   users: UserProfile[];
   sessionCounts: Record<string, number>;
+  referralCounts: Record<string, number>;
   toggleSubscription: (id: string, current: boolean) => void;
   updateField: (id: string, field: string, value: any) => void;
   deleteUser: (id: string) => Promise<void>;
   loadSessionCounts: () => void;
-}) => (
-  <div>
-    <h1 className="text-2xl font-bold text-foreground mb-6">User Management</h1>
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-      {users.map((u) => (
-        <UserCard
-          key={u.id}
-          user={u}
-          toggleSubscription={toggleSubscription}
-          updateField={updateField}
-          activeDevices={sessionCounts[u.id] || 0}
-          onSessionRevoked={loadSessionCounts}
-          onDeleteUser={deleteUser}
+}) => {
+  const [search, setSearch] = useState("");
+
+  const isProfileComplete = (u: UserProfile) => !!(u.name && u.mobile_number && u.city);
+  const profileCompleteCount = users.filter(isProfileComplete).length;
+  const profileIncompleteCount = users.length - profileCompleteCount;
+
+  const filtered = users.filter((u) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      u.email.toLowerCase().includes(q) ||
+      (u.name || "").toLowerCase().includes(q) ||
+      (u.mobile_number || "").toLowerCase().includes(q)
+    );
+  });
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-4">User Management</h1>
+
+      {/* Mini Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="text-lg font-bold text-foreground">{users.length}</div>
+          <div className="text-[10px] text-muted-foreground">Total Users</div>
+        </div>
+        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="text-lg font-bold text-foreground">{users.filter(u => u.subscription_active).length}</div>
+          <div className="text-[10px] text-muted-foreground">Active Subs</div>
+        </div>
+        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="text-lg font-bold text-[#34d399]">{profileCompleteCount}</div>
+          <div className="text-[10px] text-muted-foreground">Profile Complete</div>
+        </div>
+        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="text-lg font-bold text-[#fbbf24]">{profileIncompleteCount}</div>
+          <div className="text-[10px] text-muted-foreground">Incomplete</div>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="mb-4">
+        <Input
+          placeholder="Search by name, email, or mobile..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-9 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent text-sm"
         />
-      ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        {filtered.map((u) => (
+          <UserCard
+            key={u.id}
+            user={u}
+            toggleSubscription={toggleSubscription}
+            updateField={updateField}
+            activeDevices={sessionCounts[u.id] || 0}
+            onSessionRevoked={loadSessionCounts}
+            onDeleteUser={deleteUser}
+            referralCount={referralCounts[u.id] || 0}
+          />
+        ))}
+        {filtered.length === 0 && (
+          <div className="col-span-full text-center text-muted-foreground py-8 text-sm">No users found</div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /* ─── Settings Tab ─── */
 const SettingsTab = ({
