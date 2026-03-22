@@ -16,7 +16,7 @@ const CTASection = () => (
           Ready to Create Amazing Videos?
         </h2>
         <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto mb-8">
-          Join ToolzBazzar today and get access to Google Flow AI
+          Join ToolsBazzar today and get access to Google Flow AI
         </p>
         <Button size="lg" className="gradient-btn border-0 font-semibold px-8 h-12 rounded-lg w-full sm:w-auto" asChild>
           <Link to="/register">

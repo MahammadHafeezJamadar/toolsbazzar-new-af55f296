@@ -33,7 +33,7 @@ const FeaturesSection = () => (
     <div className="container mx-auto px-4">
       <div className="text-center mb-10 md:mb-16">
         <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">
-          Why Creators Choose ToolzBazzar
+          Why Creators Choose ToolsBazzar
         </h2>
         <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto">
           Everything you need to unleash your creativity
