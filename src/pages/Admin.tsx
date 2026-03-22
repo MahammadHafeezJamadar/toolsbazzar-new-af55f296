@@ -613,6 +613,7 @@ const UserCard = ({
   activeDevices,
   onSessionRevoked,
   onDeleteUser,
+  referralCount,
 }: {
   user: UserProfile;
   toggleSubscription: (id: string, current: boolean) => void;
@@ -620,6 +621,7 @@ const UserCard = ({
   activeDevices: number;
   onSessionRevoked: () => void;
   onDeleteUser: (id: string) => Promise<void>;
+  referralCount: number;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [plan, setPlan] = useState(user.plan);
