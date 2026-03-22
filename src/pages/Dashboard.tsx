@@ -37,6 +37,8 @@ interface Profile {
   credits_used_today: number;
   last_reset_date: string | null;
   referral_code: string | null;
+  mobile_number: string | null;
+  city: string | null;
 }
 
 /* ─── Circular Progress ─── */
