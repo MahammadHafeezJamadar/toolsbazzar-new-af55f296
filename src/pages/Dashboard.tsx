@@ -165,26 +165,11 @@ const Dashboard = () => {
 
   const EXTENSION_ID = "nkjkofpphngekmnjkdfjhakaegmgcddi";
 
-  const handleOpenGoogleFlow = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { toast.error("Please log in first"); return; }
-
-      const accessToken = session.access_token;
-      try {
-        (window as any).chrome.runtime.sendMessage(
-          EXTENSION_ID,
-          { action: "openGoogleFlow", access_token: accessToken },
-          (response: any) => {
-            const lastErr = (window as any).chrome?.runtime?.lastError;
-            if (lastErr) toast.error("Extension not found. Please install the ToolsBazzar extension.");
-          }
-        );
-      } catch {
-        toast.error("Chrome extension not detected. Please use Chrome and install the extension.");
-      }
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+  const handleOpenGoogleFlow = () => {
+    if (profile?.subscription_active) {
+      setFlowMessage("active");
+    } else {
+      setFlowMessage("inactive");
     }
   };
 
