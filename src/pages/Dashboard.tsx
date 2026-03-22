@@ -236,7 +236,101 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) {
+  const handleDownloadInvoice = () => {
+    if (!profile) return;
+    const planPrices: Record<string, number> = { Basic: 299, Pro: 499, Ultra: 799 };
+    const amount = planPrices[profile.plan] || 0;
+    const invoiceNo = `TB-${Date.now().toString(36).toUpperCase()}`;
+    const activationDate = profile.created_at ? new Date(profile.created_at).toLocaleDateString("en-IN") : new Date().toLocaleDateString("en-IN");
+    const expiryDate = profile.expiry_date || "N/A";
+
+    const doc = new jsPDF();
+    const w = doc.internal.pageSize.getWidth();
+
+    // Header gradient bar
+    doc.setFillColor(0, 180, 160);
+    doc.rect(0, 0, w, 40, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text("ToolzBazzar", 20, 26);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("AI Video Platform", 20, 34);
+
+    // Invoice title
+    doc.setTextColor(50, 50, 50);
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("INVOICE", w - 20, 60, { align: "right" });
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Invoice No: ${invoiceNo}`, w - 20, 68, { align: "right" });
+    doc.text(`Date: ${new Date().toLocaleDateString("en-IN")}`, w - 20, 74, { align: "right" });
+
+    // Customer info
+    let y = 90;
+    doc.setTextColor(50, 50, 50);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Bill To:", 20, y);
+    y += 8;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(profile.name || "User", 20, y); y += 6;
+    doc.text(profile.email, 20, y); y += 12;
+
+    // Table header
+    doc.setFillColor(240, 240, 240);
+    doc.rect(20, y, w - 40, 10, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(50, 50, 50);
+    doc.text("Description", 25, y + 7);
+    doc.text("Amount", w - 25, y + 7, { align: "right" });
+    y += 14;
+
+    // Table row
+    doc.setFont("helvetica", "normal");
+    doc.text(`${profile.plan} Plan Subscription`, 25, y + 5);
+    doc.text(`₹${amount}`, w - 25, y + 5, { align: "right" });
+    y += 10;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(20, y, w - 20, y);
+    y += 8;
+
+    // Total
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Total:", w - 70, y + 5);
+    doc.text(`₹${amount}`, w - 25, y + 5, { align: "right" });
+    y += 20;
+
+    // Details
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Plan: ${profile.plan}`, 20, y); y += 6;
+    doc.text(`Activation Date: ${activationDate}`, 20, y); y += 6;
+    doc.text(`Expiry Date: ${expiryDate}`, 20, y); y += 16;
+
+    // Thank you
+    doc.setFontSize(14);
+    doc.setTextColor(0, 180, 160);
+    doc.setFont("helvetica", "bold");
+    doc.text("Thank you for your purchase!", w / 2, y, { align: "center" });
+    y += 8;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(150, 150, 150);
+    doc.text("ToolzBazzar — India's #1 Affordable AI Video Platform", w / 2, y, { align: "center" });
+
+    doc.save(`ToolzBazzar-Invoice-${invoiceNo}.pdf`);
+    toast.success("Invoice downloaded!");
+  };
+
+
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0a0a" }}>
         <div className="text-muted-foreground">Loading...</div>
