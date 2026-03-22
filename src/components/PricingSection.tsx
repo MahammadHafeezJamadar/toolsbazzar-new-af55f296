@@ -38,7 +38,7 @@ const PricingSection = () => {
         <div className="text-center mb-10 md:mb-12">
           <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">Simple, Transparent Pricing</h2>
           <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto mb-8">
-            No hidden charges. Cancel anytime.
+            No hidden charges.
           </p>
           <div className="inline-flex items-center bg-card border border-border rounded-lg p-1">
             <button
