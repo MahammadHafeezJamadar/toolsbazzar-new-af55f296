@@ -377,6 +377,7 @@ const Admin = () => {
             <UsersTab
               users={users}
               sessionCounts={sessionCounts}
+              referralCounts={referralCounts}
               toggleSubscription={toggleSubscription}
               updateField={updateField}
               deleteUser={deleteUser}
