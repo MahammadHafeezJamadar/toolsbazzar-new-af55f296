@@ -76,12 +76,13 @@ interface DeviceSession {
   is_active: boolean;
 }
 
-type AdminTab = "dashboard" | "users" | "user-details" | "settings";
+type AdminTab = "dashboard" | "users" | "user-details" | "announcements" | "settings";
 
 const sidebarItems: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "users", label: "Users", icon: Users },
   { id: "user-details", label: "User Details", icon: UserCheck },
+  { id: "announcements", label: "Announcements", icon: Megaphone },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
