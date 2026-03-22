@@ -573,14 +573,25 @@ const Dashboard = () => {
                   })()}
                 </div>
               ) : (
-                <div>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Your subscription is inactive. Contact us to activate your plan.
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Your subscription is inactive. Purchase a plan to get started.
                   </p>
                   <button
+                    onClick={() => setPaymentModalOpen(true)}
+                    className="w-full h-12 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all"
+                    style={{
+                      background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
+                      color: "#0a0a0a",
+                      boxShadow: "0 0 30px hsla(174, 72%, 46%, 0.2)",
+                    }}
+                  >
+                    <CreditCard className="h-4 w-4" /> Upgrade Plan
+                  </button>
+                  <button
                     onClick={() => window.open("https://wa.me/919448646624", "_blank", "noopener,noreferrer")}
-                    className="w-full h-10 rounded-lg font-semibold text-sm flex items-center justify-center gap-2"
-                    style={{ background: "hsl(142 70% 45%)", color: "#fff" }}
+                    className="w-full h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-2 hover:bg-[#1a1a1a] transition-colors"
+                    style={{ borderColor: "#1e1e1e", color: "#999" }}
                   >
                     Contact on WhatsApp
                   </button>
