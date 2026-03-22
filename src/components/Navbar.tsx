@@ -151,7 +151,7 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Button variant="outline" size="lg" className="w-full min-h-[44px]" asChild>
+                <Button variant="outline" size="lg" className="w-full min-h-[44px]" style={{ color: 'white', borderColor: '#333' }} asChild>
                   <Link to="/login" onClick={() => setOpen(false)}>Login</Link>
                 </Button>
                 <Button size="lg" className="gradient-btn border-0 font-semibold w-full min-h-[44px]" asChild>
