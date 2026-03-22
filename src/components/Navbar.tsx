@@ -124,7 +124,8 @@ const Navbar = () => {
             {isAdmin && (
               <Link
                 to="/admin"
-                className="text-base font-medium text-white hover:text-white hover:bg-[#1e1e1e] transition-colors px-5 py-3.5 border-b border-border flex items-center gap-2"
+                className="text-base font-medium hover:bg-[#1e1e1e] transition-colors px-5 py-3.5 border-b border-border flex items-center gap-2"
+                style={{ color: 'white', backgroundColor: '#111' }}
                 onClick={() => setOpen(false)}
               >
                 <Shield className="h-4 w-4" /> Admin
