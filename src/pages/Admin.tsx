@@ -86,6 +86,7 @@ const Admin = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [sessionCounts, setSessionCounts] = useState<Record<string, number>>({});
+  const [referralCounts, setReferralCounts] = useState<Record<string, number>>({});
   const [globalCookiesOpen, setGlobalCookiesOpen] = useState(false);
   const [globalCookies, setGlobalCookies] = useState("");
   const [globalCookiesLoading, setGlobalCookiesLoading] = useState(false);
