@@ -654,7 +654,30 @@ const UserCard = ({
             <Monitor className="h-3 w-3" /> {activeDevices}
           </span>
         </div>
-      </div>
+
+        {/* Credit Usage Progress */}
+        {(() => {
+          const used = user.credits_used ?? 0;
+          const total = user.credits_total ?? 1;
+          const pct = Math.min((used / total) * 100, 100);
+          const barColor = pct < 50 ? "#34d399" : pct < 80 ? "#fbbf24" : "#f87171";
+          return (
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] text-muted-foreground">Credits Used</span>
+                <span className="text-[10px] font-medium text-foreground">
+                  {used.toLocaleString()} / {(user.credits_total ?? 0).toLocaleString()}
+                </span>
+              </div>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#1e1e1e" }}>
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%`, background: barColor }}
+                />
+              </div>
+            </div>
+          );
+        })()}
 
       {/* Expanded Content */}
       <AnimatePresence>
