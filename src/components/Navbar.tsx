@@ -143,6 +143,7 @@ const Navbar = () => {
                   variant="outline"
                   size="lg"
                   className="w-full min-h-[44px]"
+                  style={{ color: 'white', borderColor: '#333' }}
                   onClick={handleLogout}
                 >
                   Logout
