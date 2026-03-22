@@ -148,6 +148,18 @@ const Admin = () => {
     }
   };
 
+  const loadLiveUsers = async () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const { data } = await supabase
+      .from("user_sessions")
+      .select("user_id")
+      .gte("last_active_time", today.toISOString());
+    if (data) {
+      const uniqueUsers = new Set(data.map((s: any) => s.user_id));
+      setLiveUsersToday(uniqueUsers.size);
+    }
+  };
   const toggleSubscription = async (userId: string, current: boolean) => {
     const { error } = await supabase
       .from("profiles")
