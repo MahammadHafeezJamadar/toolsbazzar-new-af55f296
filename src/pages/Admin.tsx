@@ -678,6 +678,7 @@ const UserCard = ({
             </div>
           );
         })()}
+      </div>
 
       {/* Expanded Content */}
       <AnimatePresence>
