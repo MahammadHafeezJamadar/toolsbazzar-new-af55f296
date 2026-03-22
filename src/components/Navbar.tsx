@@ -11,6 +11,8 @@ const navLinks = [
   { label: "About", href: "#about" },
 ];
 
+const ADMIN_EMAIL = "hafeezjamadar295@gmail.com";
+
 const Navbar = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -20,17 +22,12 @@ const Navbar = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       setLoggedIn(true);
-      const { data } = await supabase
-        .from("profiles")
-        .select("is_admin")
-        .eq("id", session.user.id)
-        .single();
-      if (data?.is_admin) setIsAdmin(true);
+      setIsAdmin(session.user.email === ADMIN_EMAIL);
     };
     check();
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setLoggedIn(!!session);
-      if (!session) setIsAdmin(false);
+      setIsAdmin(session?.user?.email === ADMIN_EMAIL);
     });
     return () => subscription.unsubscribe();
   }, []);
