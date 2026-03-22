@@ -715,13 +715,23 @@ const UserCard = ({
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2 mt-3">
+        <div className="flex items-center gap-1.5 flex-wrap mt-3">
           <span className="text-[11px] font-medium px-2 py-0.5 rounded-full" style={{ background: pc.bg, color: pc.text }}>
             {user.plan || "—"}
           </span>
           <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${user.subscription_active ? "bg-[#0d3320] text-[#34d399]" : "bg-[#331111] text-[#f87171]"}`}>
             {user.subscription_active ? "Active" : "Inactive"}
           </span>
+          <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
+            !!(user.name && user.mobile_number && user.city) ? "bg-[#0d3320] text-[#34d399]" : "bg-[#332200] text-[#fbbf24]"
+          }`}>
+            {!!(user.name && user.mobile_number && user.city) ? "✅ Profile" : "❌ Incomplete"}
+          </span>
+          {referralCount > 0 && (
+            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#1a1a3e] text-[#818cf8]">
+              {referralCount} referral{referralCount > 1 ? "s" : ""}
+            </span>
+          )}
           <span className="text-[11px] text-muted-foreground ml-auto flex items-center gap-1">
             <Monitor className="h-3 w-3" /> {activeDevices}
           </span>
