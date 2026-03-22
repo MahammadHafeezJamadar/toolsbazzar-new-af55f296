@@ -420,19 +420,22 @@ const DashboardTab = ({
   activeSubscriptions,
   totalCreditsUsed,
   monthlyRevenue,
+  liveUsersToday,
 }: {
   totalUsers: number;
   activeSubscriptions: number;
   totalCreditsUsed: number;
   monthlyRevenue: number;
+  liveUsersToday: number;
 }) => (
   <div>
     <h1 className="text-2xl font-bold text-foreground mb-6">Dashboard</h1>
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <StatCard icon={Users} label="Total Users" value={String(totalUsers)} trend="+12%" />
-      <StatCard icon={CreditCard} label="Active Subscriptions" value={String(activeSubscriptions)} trend="+8%" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <StatCard icon={Users} label="Total Users" value={String(totalUsers)} />
+      <StatCard icon={CreditCard} label="Active Subscriptions" value={String(activeSubscriptions)} />
+      <StatCard icon={TrendingUp} label="Revenue (est.)" value={`₹${monthlyRevenue.toLocaleString()}`} />
       <StatCard icon={Zap} label="Total Credits Used" value={totalCreditsUsed.toLocaleString()} />
-      <StatCard icon={TrendingUp} label="Revenue (est.)" value={`₹${monthlyRevenue.toLocaleString()}`} trend="+15%" />
+      <StatCard icon={Clock} label="Active Today" value={String(liveUsersToday)} trend="live" />
     </div>
   </div>
 );
