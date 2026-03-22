@@ -784,6 +784,8 @@ const UserCard = ({
                 <InfoItem label="Devices" value={`${activeDevices} connected`} />
                 <InfoItem label="Location" value={[user.city, user.state, user.country].filter(Boolean).join(", ") || "—"} />
                 <InfoItem label="Registered" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"} />
+                <InfoItem label="Referrals" value={`${referralCount} referred`} />
+                <InfoItem label="Referred By" value={user.referred_by || "—"} />
               </div>
 
               {/* Action: Set Plan */}
