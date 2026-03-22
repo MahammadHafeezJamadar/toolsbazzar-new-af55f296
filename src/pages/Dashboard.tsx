@@ -116,6 +116,7 @@ const Dashboard = () => {
   const [announcement, setAnnouncement] = useState<string | null>(null);
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [flowMessage, setFlowMessage] = useState<"active" | "inactive" | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
