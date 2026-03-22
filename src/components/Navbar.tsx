@@ -108,7 +108,7 @@ const Navbar = () => {
 
       {/* Mobile dropdown menu */}
       {open && (
-        <div className="md:hidden fixed inset-x-0 top-16 bottom-0 z-50 bg-[#111] overflow-y-auto">
+        <div className="md:hidden fixed inset-x-0 top-16 bottom-0 z-50 overflow-y-auto" style={{ backgroundColor: '#0f0f0f' }}>
           <div className="flex flex-col">
             {navLinks.map((l) => (
               <a
