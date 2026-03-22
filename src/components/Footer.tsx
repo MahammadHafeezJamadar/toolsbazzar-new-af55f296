@@ -11,7 +11,10 @@ const Footer = () => (
     <div className="container mx-auto px-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
         <div className="sm:col-span-2 md:col-span-1">
-          <span className="text-lg font-bold text-foreground">ToolzBazzar</span>
+          <span className="text-lg font-bold text-foreground flex items-center gap-2">
+            <img src="/logo.png" alt="ToolzBazzar" className="h-8 w-8 rounded" />
+            ToolzBazzar
+          </span>
           <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
             India's #1 Affordable AI Video Platform
           </p>
