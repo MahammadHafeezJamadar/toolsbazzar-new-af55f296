@@ -413,6 +413,26 @@ const Dashboard = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
+        {/* Announcement Banner */}
+        {announcement && !announcementDismissed && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 rounded-xl p-4 flex items-center justify-between"
+            style={{
+              background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
+              color: "#0a0a0a",
+            }}
+          >
+            <div className="flex items-center gap-2 font-medium text-sm">
+              <span>📢</span> {announcement}
+            </div>
+            <button onClick={() => setAnnouncementDismissed(true)} className="ml-3 flex-shrink-0 hover:opacity-70 transition-opacity">
+              <X className="h-4 w-4" />
+            </button>
+          </motion.div>
+        )}
+
         {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
