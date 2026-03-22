@@ -108,13 +108,14 @@ const Navbar = () => {
 
       {/* Mobile dropdown menu */}
       {open && (
-        <div className="md:hidden fixed inset-x-0 top-16 bottom-0 z-50 bg-[#111] overflow-y-auto">
+        <div className="md:hidden fixed inset-x-0 top-16 bottom-0 z-50 overflow-y-auto" style={{ backgroundColor: '#0f0f0f' }}>
           <div className="flex flex-col">
             {navLinks.map((l) => (
               <a
                 key={l.label}
                 href={l.href}
-                className="text-base font-medium text-white hover:text-white hover:bg-[#1e1e1e] transition-colors px-5 py-3.5 border-b border-border"
+                className="text-base font-medium hover:bg-[#1e1e1e] transition-colors px-5 py-3.5 border-b border-border"
+                style={{ color: 'white', backgroundColor: '#111' }}
                 onClick={() => setOpen(false)}
               >
                 {l.label}
@@ -123,7 +124,8 @@ const Navbar = () => {
             {isAdmin && (
               <Link
                 to="/admin"
-                className="text-base font-medium text-white hover:text-white hover:bg-[#1e1e1e] transition-colors px-5 py-3.5 border-b border-border flex items-center gap-2"
+                className="text-base font-medium hover:bg-[#1e1e1e] transition-colors px-5 py-3.5 border-b border-border flex items-center gap-2"
+                style={{ color: 'white', backgroundColor: '#111' }}
                 onClick={() => setOpen(false)}
               >
                 <Shield className="h-4 w-4" /> Admin
@@ -141,6 +143,7 @@ const Navbar = () => {
                   variant="outline"
                   size="lg"
                   className="w-full min-h-[44px]"
+                  style={{ color: 'white', borderColor: '#333' }}
                   onClick={handleLogout}
                 >
                   Logout
@@ -148,7 +151,7 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Button variant="outline" size="lg" className="w-full min-h-[44px]" asChild>
+                <Button variant="outline" size="lg" className="w-full min-h-[44px]" style={{ color: 'white', borderColor: '#333' }} asChild>
                   <Link to="/login" onClick={() => setOpen(false)}>Login</Link>
                 </Button>
                 <Button size="lg" className="gradient-btn border-0 font-semibold w-full min-h-[44px]" asChild>
