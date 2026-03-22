@@ -112,6 +112,7 @@ const Admin = () => {
 
       await loadUsers();
       await loadSessionCounts();
+      await loadLiveUsers();
     };
     checkAdmin();
 
