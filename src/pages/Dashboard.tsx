@@ -40,6 +40,7 @@ interface Profile {
   referral_code: string | null;
   mobile_number: string | null;
   city: string | null;
+  created_at: string | null;
 }
 
 /* ─── Circular Progress ─── */
