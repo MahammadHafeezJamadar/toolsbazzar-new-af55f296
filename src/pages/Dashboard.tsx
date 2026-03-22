@@ -497,6 +497,35 @@ const Dashboard = () => {
                     {dailyLimitReached ? "Daily Limit Reached" : isFinished ? "No Credits" : "Open Google Flow"}
                   </button>
 
+                  {flowMessage === "active" && (
+                    <div className="rounded-lg border p-3 mt-1" style={{ background: "rgba(34,197,94,0.08)", borderColor: "rgba(34,197,94,0.25)" }}>
+                      <p className="text-xs font-medium" style={{ color: "#22c55e" }}>
+                        ✅ Your plan is active!
+                      </p>
+                      <p className="text-xs mt-1" style={{ color: "#22c55e", opacity: 0.8 }}>
+                        Open the ToolsBazzar extension popup and click 'Open Google Flow' button there.
+                      </p>
+                    </div>
+                  )}
+
+                  {flowMessage === "inactive" && (
+                    <div className="rounded-lg border p-3 mt-1" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.25)" }}>
+                      <p className="text-xs font-medium" style={{ color: "#f97316" }}>
+                        ❌ No active plan!
+                      </p>
+                      <p className="text-xs mt-1" style={{ color: "#f97316", opacity: 0.8 }}>
+                        Please purchase a plan first.
+                      </p>
+                      <button
+                        onClick={() => { navigate("/"); setTimeout(() => document.querySelector("#pricing")?.scrollIntoView({ behavior: "smooth" }), 300); }}
+                        className="mt-2 w-full h-8 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
+                        style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
+                      >
+                        <CreditCard className="h-3.5 w-3.5" /> Buy Plan
+                      </button>
+                    </div>
+                  )}
+
                   {(() => {
                     const profileComplete = !!(profile?.name && profile?.mobile_number && profile?.city);
                     if (!profileComplete) {
