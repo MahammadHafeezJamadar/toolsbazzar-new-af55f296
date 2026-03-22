@@ -387,6 +387,9 @@ const Admin = () => {
               loadSessionCounts={loadSessionCounts}
             />
           )}
+          {activeTab === "user-details" && (
+            <UserDetailsTab users={users} referralCounts={referralCounts} />
+          )}
           {activeTab === "settings" && (
             <SettingsTab
               globalCookiesOpen={globalCookiesOpen}
