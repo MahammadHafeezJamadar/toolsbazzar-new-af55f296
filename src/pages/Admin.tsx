@@ -356,6 +356,7 @@ const Admin = () => {
               activeSubscriptions={activeSubscriptions}
               totalCreditsUsed={totalCreditsUsed}
               monthlyRevenue={monthlyRevenue}
+              liveUsersToday={liveUsersToday}
             />
           )}
           {activeTab === "users" && (
