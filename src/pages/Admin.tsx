@@ -391,6 +391,7 @@ const Admin = () => {
           {activeTab === "user-details" && (
             <UserDetailsTab users={users} referralCounts={referralCounts} />
           )}
+          {activeTab === "announcements" && <AnnouncementsTab />}
           {activeTab === "settings" && (
             <SettingsTab
               globalCookiesOpen={globalCookiesOpen}
