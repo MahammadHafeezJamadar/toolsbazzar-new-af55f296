@@ -90,6 +90,7 @@ const Admin = () => {
   const [globalCookies, setGlobalCookies] = useState("");
   const [globalCookiesLoading, setGlobalCookiesLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
+  const [liveUsersToday, setLiveUsersToday] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
