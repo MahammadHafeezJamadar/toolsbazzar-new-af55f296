@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import jsPDF from "jspdf";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   LogOut, Shield, KeyRound, Trash2, ExternalLink, Download, Gift,
-  Zap, CalendarClock, CreditCard, Clock, Copy, Users, ChevronRight, User,
+  Zap, CalendarClock, CreditCard, Clock, Copy, Users, ChevronRight, User, X, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -39,6 +40,7 @@ interface Profile {
   referral_code: string | null;
   mobile_number: string | null;
   city: string | null;
+  created_at: string | null;
 }
 
 /* ─── Circular Progress ─── */
@@ -110,6 +112,8 @@ const Dashboard = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [referralCount, setReferralCount] = useState(0);
   const [referralCredits, setReferralCredits] = useState(0);
+  const [announcement, setAnnouncement] = useState<string | null>(null);
+  const [announcementDismissed, setAnnouncementDismissed] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -119,7 +123,7 @@ const Dashboard = () => {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, referral_code, mobile_number, city")
+        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, referral_code, mobile_number, city, created_at")
         .eq("id", session.user.id)
         .single();
 
@@ -136,6 +140,15 @@ const Dashboard = () => {
         setReferralCount(refs.length);
         setReferralCredits(refs.reduce((s, r) => s + (r.credits_awarded ?? 0), 0));
       }
+
+      // Load announcement
+      const { data: annData } = await supabase
+        .from("announcements")
+        .select("message")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (annData && annData.length > 0) setAnnouncement((annData[0] as any).message);
 
       setLoading(false);
     };
@@ -224,6 +237,101 @@ const Dashboard = () => {
     }
   };
 
+  const handleDownloadInvoice = () => {
+    if (!profile) return;
+    const planPrices: Record<string, number> = { Basic: 299, Pro: 499, Ultra: 799 };
+    const amount = planPrices[profile.plan] || 0;
+    const invoiceNo = `TB-${Date.now().toString(36).toUpperCase()}`;
+    const activationDate = profile.created_at ? new Date(profile.created_at).toLocaleDateString("en-IN") : new Date().toLocaleDateString("en-IN");
+    const expiryDate = profile.expiry_date || "N/A";
+
+    const doc = new jsPDF();
+    const w = doc.internal.pageSize.getWidth();
+
+    // Header gradient bar
+    doc.setFillColor(0, 180, 160);
+    doc.rect(0, 0, w, 40, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text("ToolzBazzar", 20, 26);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("AI Video Platform", 20, 34);
+
+    // Invoice title
+    doc.setTextColor(50, 50, 50);
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("INVOICE", w - 20, 60, { align: "right" });
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Invoice No: ${invoiceNo}`, w - 20, 68, { align: "right" });
+    doc.text(`Date: ${new Date().toLocaleDateString("en-IN")}`, w - 20, 74, { align: "right" });
+
+    // Customer info
+    let y = 90;
+    doc.setTextColor(50, 50, 50);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Bill To:", 20, y);
+    y += 8;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(profile.name || "User", 20, y); y += 6;
+    doc.text(profile.email, 20, y); y += 12;
+
+    // Table header
+    doc.setFillColor(240, 240, 240);
+    doc.rect(20, y, w - 40, 10, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(50, 50, 50);
+    doc.text("Description", 25, y + 7);
+    doc.text("Amount", w - 25, y + 7, { align: "right" });
+    y += 14;
+
+    // Table row
+    doc.setFont("helvetica", "normal");
+    doc.text(`${profile.plan} Plan Subscription`, 25, y + 5);
+    doc.text(`₹${amount}`, w - 25, y + 5, { align: "right" });
+    y += 10;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(20, y, w - 20, y);
+    y += 8;
+
+    // Total
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Total:", w - 70, y + 5);
+    doc.text(`₹${amount}`, w - 25, y + 5, { align: "right" });
+    y += 20;
+
+    // Details
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Plan: ${profile.plan}`, 20, y); y += 6;
+    doc.text(`Activation Date: ${activationDate}`, 20, y); y += 6;
+    doc.text(`Expiry Date: ${expiryDate}`, 20, y); y += 16;
+
+    // Thank you
+    doc.setFontSize(14);
+    doc.setTextColor(0, 180, 160);
+    doc.setFont("helvetica", "bold");
+    doc.text("Thank you for your purchase!", w / 2, y, { align: "center" });
+    y += 8;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(150, 150, 150);
+    doc.text("ToolzBazzar — India's #1 Affordable AI Video Platform", w / 2, y, { align: "center" });
+
+    doc.save(`ToolzBazzar-Invoice-${invoiceNo}.pdf`);
+    toast.success("Invoice downloaded!");
+  };
+
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0a0a" }}>
@@ -305,6 +413,26 @@ const Dashboard = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
+        {/* Announcement Banner */}
+        {announcement && !announcementDismissed && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 rounded-xl p-4 flex items-center justify-between"
+            style={{
+              background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
+              color: "#0a0a0a",
+            }}
+          >
+            <div className="flex items-center gap-2 font-medium text-sm">
+              <span>📢</span> {announcement}
+            </div>
+            <button onClick={() => setAnnouncementDismissed(true)} className="ml-3 flex-shrink-0 hover:opacity-70 transition-opacity">
+              <X className="h-4 w-4" />
+            </button>
+          </motion.div>
+        )}
+
         {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -430,6 +558,13 @@ const Dashboard = () => {
                           style={{ borderColor: "#1e1e1e", color: "#999" }}
                         >
                           <Gift className="h-3.5 w-3.5" /> Refer & Earn
+                        </button>
+                        <button
+                          onClick={handleDownloadInvoice}
+                          className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors col-span-2"
+                          style={{ borderColor: "#1e1e1e", color: "#999" }}
+                        >
+                          <FileText className="h-3.5 w-3.5" /> Download Invoice
                         </button>
                       </div>
                     );

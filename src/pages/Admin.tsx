@@ -15,7 +15,7 @@ import {
 import {
   LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2, Globe,
   Users, CreditCard, Zap, TrendingUp, LayoutDashboard, Settings, ChevronUp, ChevronDown, Eye,
-  Phone, MapPin, Calendar, Clock, Search, UserCheck,
+  Phone, MapPin, Calendar, Clock, Search, UserCheck, Megaphone,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -76,12 +76,13 @@ interface DeviceSession {
   is_active: boolean;
 }
 
-type AdminTab = "dashboard" | "users" | "user-details" | "settings";
+type AdminTab = "dashboard" | "users" | "user-details" | "announcements" | "settings";
 
 const sidebarItems: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "users", label: "Users", icon: Users },
   { id: "user-details", label: "User Details", icon: UserCheck },
+  { id: "announcements", label: "Announcements", icon: Megaphone },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
@@ -390,6 +391,7 @@ const Admin = () => {
           {activeTab === "user-details" && (
             <UserDetailsTab users={users} referralCounts={referralCounts} />
           )}
+          {activeTab === "announcements" && <AnnouncementsTab />}
           {activeTab === "settings" && (
             <SettingsTab
               globalCookiesOpen={globalCookiesOpen}
@@ -1168,6 +1170,119 @@ const UserDetailsTab = ({
           })()}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+};
+
+/* ─── Announcements Tab ─── */
+const AnnouncementsTab = () => {
+  const [message, setMessage] = useState("");
+  const [announcements, setAnnouncements] = useState<{ id: string; message: string; is_active: boolean; created_at: string }[]>([]);
+  const [publishing, setPublishing] = useState(false);
+
+  useEffect(() => {
+    loadAnnouncements();
+  }, []);
+
+  const loadAnnouncements = async () => {
+    const { data } = await supabase
+      .from("announcements")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (data) setAnnouncements(data);
+  };
+
+  const publish = async () => {
+    if (!message.trim()) { toast.error("Enter a message"); return; }
+    setPublishing(true);
+    // Deactivate all existing
+    await supabase.from("announcements").update({ is_active: false } as any).eq("is_active", true);
+    const { error } = await supabase.from("announcements").insert({ message: message.trim(), is_active: true } as any);
+    setPublishing(false);
+    if (error) toast.error("Failed to publish");
+    else { toast.success("Announcement published!"); setMessage(""); loadAnnouncements(); }
+  };
+
+  const toggleActive = async (id: string, current: boolean) => {
+    if (!current) {
+      // Deactivate all others first
+      await supabase.from("announcements").update({ is_active: false } as any).eq("is_active", true);
+    }
+    await supabase.from("announcements").update({ is_active: !current } as any).eq("id", id);
+    loadAnnouncements();
+    toast.success("Updated");
+  };
+
+  const deleteAnnouncement = async (id: string) => {
+    await supabase.from("announcements").delete().eq("id", id);
+    loadAnnouncements();
+    toast.success("Deleted");
+  };
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Announcements</h1>
+
+      {/* New Announcement */}
+      <div className="rounded-xl border p-6 max-w-2xl mb-6" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+            <Megaphone className="h-4 w-4 text-accent" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">New Announcement</h3>
+            <p className="text-xs text-muted-foreground">This will be shown as a banner on all user dashboards</p>
+          </div>
+        </div>
+        <Textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="min-h-[100px] border-[#1e1e1e] bg-[#0a0a0a] focus:border-accent text-sm"
+          placeholder="Type your announcement message..."
+        />
+        <Button
+          className="mt-4 gradient-btn border-0 font-semibold"
+          onClick={publish}
+          disabled={publishing}
+        >
+          <Megaphone className="h-4 w-4 mr-2" /> {publishing ? "Publishing..." : "Publish Announcement"}
+        </Button>
+      </div>
+
+      {/* Past Announcements */}
+      <div className="max-w-2xl space-y-3">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">History</h3>
+        {announcements.map((a) => (
+          <div key={a.id} className="rounded-xl border p-4 flex items-start justify-between gap-3" style={{ background: "#111111", borderColor: a.is_active ? "hsla(174, 72%, 46%, 0.3)" : "#1e1e1e" }}>
+            <div className="flex-1">
+              <p className="text-sm text-foreground">{a.message}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-[10px] text-muted-foreground">{new Date(a.created_at).toLocaleString()}</span>
+                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${a.is_active ? "bg-[#0d3320] text-[#34d399]" : "bg-[#1e1e1e] text-muted-foreground"}`}>
+                  {a.is_active ? "Active" : "Inactive"}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => toggleActive(a.id, a.is_active)}
+                className={`h-7 px-2.5 rounded text-[11px] font-medium transition-colors ${a.is_active ? "bg-[#332200] text-[#fbbf24] hover:bg-[#4a3300]" : "bg-[#0d3320] text-[#34d399] hover:bg-[#164e36]"}`}
+              >
+                {a.is_active ? "Deactivate" : "Activate"}
+              </button>
+              <button
+                onClick={() => deleteAnnouncement(a.id)}
+                className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+        ))}
+        {announcements.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-8">No announcements yet</p>
+        )}
+      </div>
     </div>
   );
 };
