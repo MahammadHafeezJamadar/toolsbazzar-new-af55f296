@@ -90,6 +90,7 @@ const Admin = () => {
   const [globalCookies, setGlobalCookies] = useState("");
   const [globalCookiesLoading, setGlobalCookiesLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
+  const [liveUsersToday, setLiveUsersToday] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -111,6 +112,7 @@ const Admin = () => {
 
       await loadUsers();
       await loadSessionCounts();
+      await loadLiveUsers();
     };
     checkAdmin();
 
@@ -146,6 +148,18 @@ const Admin = () => {
     }
   };
 
+  const loadLiveUsers = async () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const { data } = await supabase
+      .from("user_sessions")
+      .select("user_id")
+      .gte("last_active_time", today.toISOString());
+    if (data) {
+      const uniqueUsers = new Set(data.map((s: any) => s.user_id));
+      setLiveUsersToday(uniqueUsers.size);
+    }
+  };
   const toggleSubscription = async (userId: string, current: boolean) => {
     const { error } = await supabase
       .from("profiles")
@@ -342,6 +356,7 @@ const Admin = () => {
               activeSubscriptions={activeSubscriptions}
               totalCreditsUsed={totalCreditsUsed}
               monthlyRevenue={monthlyRevenue}
+              liveUsersToday={liveUsersToday}
             />
           )}
           {activeTab === "users" && (
@@ -405,19 +420,22 @@ const DashboardTab = ({
   activeSubscriptions,
   totalCreditsUsed,
   monthlyRevenue,
+  liveUsersToday,
 }: {
   totalUsers: number;
   activeSubscriptions: number;
   totalCreditsUsed: number;
   monthlyRevenue: number;
+  liveUsersToday: number;
 }) => (
   <div>
     <h1 className="text-2xl font-bold text-foreground mb-6">Dashboard</h1>
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <StatCard icon={Users} label="Total Users" value={String(totalUsers)} trend="+12%" />
-      <StatCard icon={CreditCard} label="Active Subscriptions" value={String(activeSubscriptions)} trend="+8%" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <StatCard icon={Users} label="Total Users" value={String(totalUsers)} />
+      <StatCard icon={CreditCard} label="Active Subscriptions" value={String(activeSubscriptions)} />
+      <StatCard icon={TrendingUp} label="Revenue (est.)" value={`₹${monthlyRevenue.toLocaleString()}`} />
       <StatCard icon={Zap} label="Total Credits Used" value={totalCreditsUsed.toLocaleString()} />
-      <StatCard icon={TrendingUp} label="Revenue (est.)" value={`₹${monthlyRevenue.toLocaleString()}`} trend="+15%" />
+      <StatCard icon={Clock} label="Active Today" value={String(liveUsersToday)} trend="live" />
     </div>
   </div>
 );
@@ -636,6 +654,30 @@ const UserCard = ({
             <Monitor className="h-3 w-3" /> {activeDevices}
           </span>
         </div>
+
+        {/* Credit Usage Progress */}
+        {(() => {
+          const used = user.credits_used ?? 0;
+          const total = user.credits_total ?? 1;
+          const pct = Math.min((used / total) * 100, 100);
+          const barColor = pct < 50 ? "#34d399" : pct < 80 ? "#fbbf24" : "#f87171";
+          return (
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] text-muted-foreground">Credits Used</span>
+                <span className="text-[10px] font-medium text-foreground">
+                  {used.toLocaleString()} / {(user.credits_total ?? 0).toLocaleString()}
+                </span>
+              </div>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#1e1e1e" }}>
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%`, background: barColor }}
+                />
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Expanded Content */}
