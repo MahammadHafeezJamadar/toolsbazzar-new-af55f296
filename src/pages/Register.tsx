@@ -51,6 +51,13 @@ const Register = () => {
       }
     }
 
+    // Send WhatsApp notification to admin
+    const now = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+    const msg = encodeURIComponent(
+      `🆕 New User Registered!\n\nName: ${name}\nEmail: ${email}\nTime: ${now}\nPlan: Not selected yet`
+    );
+    window.open(`https://wa.me/919448646624?text=${msg}`, "_blank", "noopener,noreferrer");
+
     setLoading(false);
     toast.success("Account created successfully!");
     navigate("/dashboard");
