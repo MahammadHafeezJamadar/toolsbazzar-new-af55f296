@@ -41,7 +41,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] border-b border-border" style={{ backgroundColor: 'rgba(10,10,10,0.95)', backdropFilter: 'blur(12px)' }}>
+    <nav className="fixed top-0 left-0 right-0 z-[100] border-b border-border overflow-hidden" style={{ backgroundColor: 'rgba(10,10,10,0.95)', backdropFilter: 'blur(12px)' }}>
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <Link to="/" className="text-lg font-bold text-white flex items-center gap-2 shrink-0">
           <img src="/logo.png" alt="ToolsBazzar" className="h-8 w-8 rounded" />
