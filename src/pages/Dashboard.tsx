@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import jsPDF from "jspdf";
-import UpiPaymentModal from "@/components/UpiPaymentModal";
+import PlanSelectionModal from "@/components/PlanSelectionModal";
 import {
   AlertDialog,
   AlertDialogAction,
