@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import jsPDF from "jspdf";
-import UpiPaymentModal from "@/components/UpiPaymentModal";
+import PlanSelectionModal from "@/components/PlanSelectionModal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -517,7 +517,7 @@ const Dashboard = () => {
                         Please purchase a plan first.
                       </p>
                       <button
-                        onClick={() => { navigate("/"); setTimeout(() => document.querySelector("#pricing")?.scrollIntoView({ behavior: "smooth" }), 300); }}
+                        onClick={() => setPaymentModalOpen(true)}
                         className="mt-2 w-full h-8 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
                         style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
                       >
@@ -825,12 +825,10 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* UPI Payment Modal */}
-      <UpiPaymentModal
+      {/* Plan Selection Modal */}
+      <PlanSelectionModal
         open={paymentModalOpen}
         onClose={() => setPaymentModalOpen(false)}
-        planName={profile?.plan || "Basic"}
-        amount={{ Basic: 299, Pro: 499, Ultra: 799 }[profile?.plan || "Basic"] || 299}
         userEmail={profile?.email}
       />
     </div>
