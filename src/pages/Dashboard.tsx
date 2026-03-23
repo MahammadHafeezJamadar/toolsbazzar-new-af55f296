@@ -825,12 +825,10 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* UPI Payment Modal */}
-      <UpiPaymentModal
+      {/* Plan Selection Modal */}
+      <PlanSelectionModal
         open={paymentModalOpen}
         onClose={() => setPaymentModalOpen(false)}
-        planName={profile?.plan || "Basic"}
-        amount={{ Basic: 299, Pro: 499, Ultra: 799 }[profile?.plan || "Basic"] || 299}
         userEmail={profile?.email}
       />
     </div>
