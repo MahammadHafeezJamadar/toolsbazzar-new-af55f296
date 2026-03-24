@@ -70,11 +70,6 @@ const Navbar = () => {
               {l.label}
             </button>
           ))}
-          {isAdmin && (
-            <Link to="/admin" className="text-sm text-cyan-400 hover:text-white transition-colors flex items-center gap-1">
-              <Shield className="h-3.5 w-3.5" /> Admin
-            </Link>
-          )}
           {loggedIn ? (
             <>
               <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold border-0" asChild>
