@@ -33,7 +33,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         <MobileBottomNav />
-        <FloatingHomeButton />
+        
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
