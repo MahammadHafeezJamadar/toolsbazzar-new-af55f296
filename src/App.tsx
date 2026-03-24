@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MobileBottomNav from "./components/MobileBottomNav";
+import FloatingHomeButton from "./components/FloatingHomeButton";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         <MobileBottomNav />
+        <FloatingHomeButton />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
