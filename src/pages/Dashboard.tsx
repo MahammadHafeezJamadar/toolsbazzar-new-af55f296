@@ -157,10 +157,30 @@ const Dashboard = () => {
     };
     getProfile();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) navigate("/login");
     });
-    return () => subscription.unsubscribe();
+
+    // Realtime profile updates
+    let profileChannel: ReturnType<typeof supabase.channel> | null = null;
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      if (!s) return;
+      profileChannel = supabase
+        .channel('profile-changes')
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${s.user.id}` },
+          (payload) => {
+            setProfile((prev) => prev ? { ...prev, ...payload.new } as Profile : prev);
+          }
+        )
+        .subscribe();
+    });
+
+    return () => {
+      authSub.unsubscribe();
+      if (profileChannel) supabase.removeChannel(profileChannel);
+    };
   }, [navigate]);
 
   const EXTENSION_ID = "nkjkofpphngekmnjkdfjhakaegmgcddi";
