@@ -26,6 +26,9 @@ const MobileBottomNav = () => {
     { label: "Profile", icon: User, path: "/profile" },
   ];
 
+  // Hide on admin pages — admin has its own bottom nav
+  if (location.pathname.startsWith("/admin")) return null;
+
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
     if (path.startsWith("/#")) return location.pathname === "/" && location.hash === path.replace("/", "");
