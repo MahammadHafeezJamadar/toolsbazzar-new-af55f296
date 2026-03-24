@@ -546,43 +546,66 @@ const Dashboard = () => {
                         </div>
                       );
                     }
+
+                    const planKey = profile?.plan?.toLowerCase() || "basic";
+                    const extensionUrls: Record<string, string> = {
+                      basic: "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Basic.zip",
+                      pro: "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Pro.zip",
+                      ultra: "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Ultra.zip",
+                    };
+                    const planLabel = planKey.charAt(0).toUpperCase() + planKey.slice(1);
+
                     return (
                       <div className="grid grid-cols-2 gap-3">
-                        <button
-                          onClick={() => {
-                            const plan = profile?.plan?.toLowerCase();
-                            const url = plan === "ultra"
-                               ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Ultra.zip"
-                               : plan === "pro"
-                               ? "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Pro.zip"
-                               : "https://github.com/MahammadHafeezJamadar/toolsbazzar/raw/main/ToolzBazzar-Basic.zip";
-                            const a = document.createElement("a");
-                            a.href = url;
-                            a.download = "";
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            toast.success("Download started!");
-                          }}
-                          className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
-                          style={{ borderColor: "#1e1e1e", color: "#999" }}
-                        >
-                          <Download className="h-3.5 w-3.5" /> {profile?.plan?.toLowerCase() === "ultra" ? "Ultra" : profile?.plan?.toLowerCase() === "pro" ? "Pro" : "Basic"} Extension
-                        </button>
-                        <button
-                          onClick={() => navigate("/refer")}
-                          className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
-                          style={{ borderColor: "#1e1e1e", color: "#999" }}
-                        >
-                          <Gift className="h-3.5 w-3.5" /> Refer & Earn
-                        </button>
-                        <button
-                          onClick={handleDownloadInvoice}
-                          className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors col-span-2"
-                          style={{ borderColor: "#1e1e1e", color: "#999" }}
-                        >
-                          <FileText className="h-3.5 w-3.5" /> Download Invoice
-                        </button>
+                        {profile?.subscription_active ? (
+                          <button
+                            onClick={() => {
+                              const url = extensionUrls[planKey] || extensionUrls.basic;
+                              const a = document.createElement("a");
+                              a.href = url;
+                              a.download = "";
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              toast.success("Download started!");
+                            }}
+                            className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
+                            style={{ borderColor: "#1e1e1e", color: "#999" }}
+                          >
+                            <Download className="h-3.5 w-3.5" /> Download {planLabel} Extension
+                          </button>
+                        ) : (
+                          <div className="col-span-2 rounded-lg border p-3" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.25)" }}>
+                            <p className="text-xs font-medium" style={{ color: "#f97316" }}>
+                              ❌ Buy a Plan to get Extension
+                            </p>
+                            <button
+                              onClick={() => setPaymentModalOpen(true)}
+                              className="mt-2 w-full h-8 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
+                              style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
+                            >
+                              <CreditCard className="h-3.5 w-3.5" /> Buy Plan
+                            </button>
+                          </div>
+                        )}
+                        {profile?.subscription_active && (
+                          <>
+                            <button
+                              onClick={() => navigate("/refer")}
+                              className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
+                              style={{ borderColor: "#1e1e1e", color: "#999" }}
+                            >
+                              <Gift className="h-3.5 w-3.5" /> Refer & Earn
+                            </button>
+                            <button
+                              onClick={handleDownloadInvoice}
+                              className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors col-span-2"
+                              style={{ borderColor: "#1e1e1e", color: "#999" }}
+                            >
+                              <FileText className="h-3.5 w-3.5" /> Download Invoice
+                            </button>
+                          </>
+                        )}
                       </div>
                     );
                   })()}
