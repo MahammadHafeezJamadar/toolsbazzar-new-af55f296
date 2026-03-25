@@ -70,6 +70,9 @@ interface DeviceSession {
   id: string;
   device_id: string;
   device_info: string;
+  device_name: string;
+  device_type: string;
+  login_count: number;
   ip_address: string | null;
   login_time: string;
   last_active_time: string;
