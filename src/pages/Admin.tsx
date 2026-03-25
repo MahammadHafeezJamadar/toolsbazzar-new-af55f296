@@ -15,7 +15,7 @@ import {
 import {
   LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2, Globe,
   Users, CreditCard, Zap, TrendingUp, LayoutDashboard, Settings, ChevronUp, ChevronDown, Eye,
-  Phone, MapPin, Calendar, Clock, Search, UserCheck, Megaphone,
+  Phone, MapPin, Calendar, Clock, Search, UserCheck, Megaphone, AlertTriangle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -883,96 +883,13 @@ const UserCard = ({
                         <Monitor className="h-3 w-3" /> Devices
                       </button>
                     </DialogTrigger>
-                    <DialogContent className="border-[#1e1e1e] max-w-2xl max-h-[80vh] overflow-y-auto" style={{ background: "#111111" }}>
+                    <DialogContent className="border-[#1e1e1e] max-w-3xl max-h-[80vh] overflow-y-auto" style={{ background: "#111111" }}>
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-foreground">
-                          <Monitor className="h-4 w-4 text-accent" /> Sessions — {user.email}
+                          <Monitor className="h-4 w-4 text-accent" /> Device Sessions — {user.email}
                         </DialogTitle>
                       </DialogHeader>
-                      {sessionsLoading ? (
-                        <div className="text-center text-muted-foreground py-8">Loading...</div>
-                      ) : sessions.length === 0 ? (
-                        <div className="text-center text-muted-foreground py-8">No sessions</div>
-                      ) : (
-                        <div className="space-y-2">
-                          {/* Table header */}
-                          <div className="hidden sm:grid grid-cols-[1fr_80px_1fr_1fr_60px_60px] gap-2 px-3 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                            <span>Device</span>
-                            <span>Type</span>
-                            <span>First Login</span>
-                            <span>Last Login</span>
-                            <span className="text-center">Count</span>
-                            <span className="text-right">Action</span>
-                          </div>
-                          {sessions.map((s) => {
-                            const isNew = s.login_count <= 1;
-                            return (
-                              <div key={s.id} className="rounded-lg p-3" style={{ background: "#0a0a0a" }}>
-                                {/* Desktop row */}
-                                <div className="hidden sm:grid grid-cols-[1fr_80px_1fr_1fr_60px_60px] gap-2 items-center">
-                                  <div>
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="text-xs font-medium text-foreground">{s.device_name || s.device_info}</span>
-                                      {isNew && (
-                                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#332200] text-[#fbbf24] font-medium">NEW</span>
-                                      )}
-                                    </div>
-                                    <div className="text-[10px] text-muted-foreground">{s.device_info} · {s.ip_address || "—"}</div>
-                                  </div>
-                                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full text-center ${
-                                    s.device_type === "Mobile" ? "bg-[#1a1a3e] text-[#818cf8]" :
-                                    s.device_type === "Tablet" ? "bg-[#2d1a3e] text-[#c084fc]" :
-                                    "bg-[#0d2332] text-[#22d3ee]"
-                                  }`}>
-                                    {s.device_type || "—"}
-                                  </span>
-                                  <span className="text-[11px] text-muted-foreground">{formatDate(s.login_time)}</span>
-                                  <span className="text-[11px] text-muted-foreground">{formatDate(s.last_active_time)}</span>
-                                  <span className="text-xs font-bold text-foreground text-center">{s.login_count ?? 1}</span>
-                                  <div className="text-right">
-                                    {s.is_active ? (
-                                      <button className="h-6 px-2 rounded text-[10px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors" onClick={() => revokeSession(s.id)}>
-                                        Revoke
-                                      </button>
-                                    ) : (
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#1e1e1e] text-muted-foreground">Revoked</span>
-                                    )}
-                                  </div>
-                                </div>
-                                {/* Mobile card */}
-                                <div className="sm:hidden">
-                                  <div className="flex items-center justify-between mb-1.5">
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="text-xs font-medium text-foreground">{s.device_name || s.device_info}</span>
-                                      {isNew && (
-                                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#332200] text-[#fbbf24] font-medium">NEW</span>
-                                      )}
-                                    </div>
-                                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                                      s.device_type === "Mobile" ? "bg-[#1a1a3e] text-[#818cf8]" :
-                                      s.device_type === "Tablet" ? "bg-[#2d1a3e] text-[#c084fc]" :
-                                      "bg-[#0d2332] text-[#22d3ee]"
-                                    }`}>
-                                      {s.device_type || "—"}
-                                    </span>
-                                  </div>
-                                  <div className="text-[10px] text-muted-foreground mb-1">{s.device_info} · {s.ip_address || "—"}</div>
-                                  <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                                    <span>First: {formatDate(s.login_time)}</span>
-                                    <span>Last: {formatDate(s.last_active_time)}</span>
-                                    <span className="font-bold text-foreground">{s.login_count ?? 1}×</span>
-                                  </div>
-                                  {s.is_active && (
-                                    <button className="mt-2 h-6 px-2 rounded text-[10px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors w-full" onClick={() => revokeSession(s.id)}>
-                                      Revoke
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                      <DeviceSessionsSection sessions={sessions} sessionsLoading={sessionsLoading} userPlan={user.plan} revokeSession={revokeSession} />
                     </DialogContent>
                   </Dialog>
 
@@ -1052,6 +969,154 @@ const UserCard = ({
   );
 };
 
+/* ─── Device Sessions Section (shared) ─── */
+const PLAN_DEVICE_LIMITS: Record<string, number> = { Basic: 1, Pro: 2, Ultra: 2 };
+
+const getDeviceNick = (sessions: DeviceSession[]): Map<string, string> => {
+  const sorted = [...sessions].sort((a, b) => new Date(a.login_time).getTime() - new Date(b.login_time).getTime());
+  const nickMap = new Map<string, string>();
+  const counters = { mobile: 0, laptop: 0, tablet: 0 };
+  sorted.forEach((s) => {
+    const info = (s.device_info || "").toLowerCase();
+    const isMobile = /android|ios|iphone|ipad/i.test(info) || s.device_type === "Mobile" || s.device_type === "Tablet";
+    const isTablet = /ipad|tablet/i.test(info) || s.device_type === "Tablet";
+    let emoji: string, label: string;
+    if (isTablet) { counters.tablet++; emoji = "📱"; label = `Tablet #${counters.tablet}`; }
+    else if (isMobile) { counters.mobile++; emoji = "📱"; label = `Mobile #${counters.mobile}`; }
+    else { counters.laptop++; emoji = "💻"; label = `Laptop #${counters.laptop}`; }
+    nickMap.set(s.id, `${emoji} ${label}`);
+  });
+  return nickMap;
+};
+
+const formatSessionDate = (dateStr: string) => {
+  const d = new Date(dateStr);
+  const day = d.getDate();
+  const mon = d.toLocaleString("en", { month: "short" });
+  const time = d.toLocaleString("en", { hour: "numeric", minute: "2-digit", hour12: true });
+  return `${day} ${mon}, ${time}`;
+};
+
+const DeviceSessionsSection = ({
+  sessions,
+  sessionsLoading,
+  userPlan,
+  revokeSession,
+}: {
+  sessions: DeviceSession[];
+  sessionsLoading: boolean;
+  userPlan: string;
+  revokeSession?: (id: string) => void;
+}) => {
+  if (sessionsLoading) return <div className="text-center text-muted-foreground py-8">Loading...</div>;
+  if (sessions.length === 0) return <div className="text-center text-muted-foreground py-8">No devices found</div>;
+
+  const nickMap = getDeviceNick(sessions);
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const deviceLimit = PLAN_DEVICE_LIMITS[userPlan] ?? 1;
+  const activeThisWeek = sessions.filter(s => new Date(s.last_active_time) >= sevenDaysAgo).length;
+
+  // Sort by login_time ascending so we can identify "over-limit" devices
+  const sortedByFirst = [...sessions].sort((a, b) => new Date(a.login_time).getTime() - new Date(b.login_time).getTime());
+  const overLimitIds = new Set(sortedByFirst.slice(deviceLimit).map(s => s.id));
+
+  return (
+    <div>
+      {/* Summary line */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground mb-3 px-1">
+        <span>{sessions.length} device{sessions.length !== 1 ? "s" : ""} registered</span>
+        <span>·</span>
+        <span>{activeThisWeek} active this week</span>
+        <span>·</span>
+        <span>Plan allows <span className="font-semibold text-foreground">{deviceLimit}</span> device{deviceLimit !== 1 ? "s" : ""}</span>
+        {sessions.length > deviceLimit && (
+          <>
+            <span>·</span>
+            <span className="text-[#f87171] font-medium flex items-center gap-0.5"><AlertTriangle className="h-3 w-3" /> {sessions.length - deviceLimit} over limit</span>
+          </>
+        )}
+      </div>
+
+      {/* Scrollable table */}
+      <div className="overflow-x-auto -mx-1">
+        <table className="w-full min-w-[700px] text-left">
+          <thead>
+            <tr className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider border-b" style={{ borderColor: "#1e1e1e" }}>
+              <th className="px-3 py-2">Device ID</th>
+              <th className="px-3 py-2">Browser / OS</th>
+              <th className="px-3 py-2">Device Nick</th>
+              <th className="px-3 py-2">First Login</th>
+              <th className="px-3 py-2">Last Login</th>
+              <th className="px-3 py-2 text-center">Count</th>
+              <th className="px-3 py-2 text-center">Status</th>
+              {revokeSession && <th className="px-3 py-2 text-right">Action</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {sessions.map((s) => {
+              const isOverLimit = overLimitIds.has(s.id);
+              const isActiveRecently = new Date(s.last_active_time) >= sevenDaysAgo;
+              const isNew = new Date(s.login_time) >= twentyFourHoursAgo;
+              const nick = nickMap.get(s.id) || "Unknown";
+              const shortId = `dev_${s.device_id.slice(0, 6)}`;
+
+              return (
+                <tr
+                  key={s.id}
+                  className="border-b transition-colors"
+                  style={{
+                    borderColor: "#1a1a1a",
+                    background: isOverLimit ? "rgba(239, 68, 68, 0.08)" : "transparent",
+                  }}
+                >
+                  <td className="px-3 py-2.5">
+                    <div className="flex items-center gap-1.5">
+                      {isOverLimit && <AlertTriangle className="h-3 w-3 text-[#f87171] flex-shrink-0" />}
+                      <code className="text-[11px] text-muted-foreground font-mono">{shortId}</code>
+                    </div>
+                  </td>
+                  <td className="px-3 py-2.5 text-[11px] text-foreground">{s.device_info || "—"}</td>
+                  <td className="px-3 py-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-medium text-foreground">{nick}</span>
+                      {isNew && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#332200] text-[#fbbf24] font-medium whitespace-nowrap">🆕 NEW</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2.5 text-[11px] text-muted-foreground whitespace-nowrap">{formatSessionDate(s.login_time)}</td>
+                  <td className="px-3 py-2.5 text-[11px] text-muted-foreground whitespace-nowrap">{formatSessionDate(s.last_active_time)}</td>
+                  <td className="px-3 py-2.5 text-xs font-bold text-foreground text-center">{s.login_count ?? 1}</td>
+                  <td className="px-3 py-2.5 text-center">
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                      isActiveRecently ? "bg-[#0d3320] text-[#34d399]" : "bg-[#1e1e1e] text-muted-foreground"
+                    }`}>
+                      {isActiveRecently ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  {revokeSession && (
+                    <td className="px-3 py-2.5 text-right">
+                      {s.is_active ? (
+                        <button className="h-6 px-2 rounded text-[10px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors" onClick={() => revokeSession(s.id)}>
+                          Revoke
+                        </button>
+                      ) : (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#1e1e1e] text-muted-foreground">Revoked</span>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
 /* ─── User Details Tab ─── */
 const UserDetailsTab = ({
   users,
@@ -1063,6 +1128,19 @@ const UserDetailsTab = ({
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "complete" | "incomplete">("all");
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [detailSessions, setDetailSessions] = useState<DeviceSession[]>([]);
+  const [detailSessionsLoading, setDetailSessionsLoading] = useState(false);
+
+  const loadDetailSessions = async (userId: string) => {
+    setDetailSessionsLoading(true);
+    const { data } = await supabase
+      .from("user_sessions")
+      .select("id, device_id, device_info, device_name, device_type, login_count, ip_address, login_time, last_active_time, is_active")
+      .eq("user_id", userId)
+      .order("last_active_time", { ascending: false });
+    setDetailSessions(data || []);
+    setDetailSessionsLoading(false);
+  };
 
   const isComplete = (u: UserProfile) => !!(u.name && u.mobile_number && u.city);
   const completeCount = users.filter(isComplete).length;
@@ -1130,7 +1208,7 @@ const UserDetailsTab = ({
           return (
             <div
               key={u.id}
-              onClick={() => setSelectedUser(u)}
+              onClick={() => { setSelectedUser(u); loadDetailSessions(u.id); }}
               className="rounded-xl border p-4 cursor-pointer transition-all duration-200 hover:border-accent/30"
               style={{ background: "#111111", borderColor: "#1e1e1e" }}
             >
@@ -1179,8 +1257,8 @@ const UserDetailsTab = ({
       </div>
 
       {/* Detail Modal */}
-      <Dialog open={!!selectedUser} onOpenChange={(open) => { if (!open) setSelectedUser(null); }}>
-        <DialogContent className="border-[#1e1e1e] max-w-lg max-h-[85vh] overflow-y-auto" style={{ background: "#111111" }}>
+      <Dialog open={!!selectedUser} onOpenChange={(open) => { if (!open) { setSelectedUser(null); setDetailSessions([]); } }}>
+        <DialogContent className="border-[#1e1e1e] max-w-3xl max-h-[85vh] overflow-y-auto" style={{ background: "#111111" }}>
           {selectedUser && (() => {
             const u = selectedUser;
             const initials = (u.name || u.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
@@ -1224,6 +1302,9 @@ const UserDetailsTab = ({
                     <InfoRow label="Referral Code" value={u.referral_code} />
                     <InfoRow label="Total Referrals" value={String(referralCounts[u.id] || 0)} />
                     <InfoRow label="Referred By" value={u.referred_by || "None"} />
+                  </Section>
+                  <Section title="Device Sessions">
+                    <DeviceSessionsSection sessions={detailSessions} sessionsLoading={detailSessionsLoading} userPlan={u.plan} />
                   </Section>
                 </div>
               </>
