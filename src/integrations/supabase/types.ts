@@ -191,33 +191,42 @@ export type Database = {
         Row: {
           device_id: string
           device_info: string
+          device_name: string
+          device_type: string
           email: string
           id: string
           ip_address: string | null
           is_active: boolean
           last_active_time: string
+          login_count: number
           login_time: string
           user_id: string
         }
         Insert: {
           device_id: string
           device_info: string
+          device_name?: string
+          device_type?: string
           email: string
           id?: string
           ip_address?: string | null
           is_active?: boolean
           last_active_time?: string
+          login_count?: number
           login_time?: string
           user_id: string
         }
         Update: {
           device_id?: string
           device_info?: string
+          device_name?: string
+          device_type?: string
           email?: string
           id?: string
           ip_address?: string | null
           is_active?: boolean
           last_active_time?: string
+          login_count?: number
           login_time?: string
           user_id?: string
         }
