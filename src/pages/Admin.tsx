@@ -895,24 +895,82 @@ const UserCard = ({
                         <div className="text-center text-muted-foreground py-8">No sessions</div>
                       ) : (
                         <div className="space-y-2">
-                          {sessions.map((s) => (
-                            <div key={s.id} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#0a0a0a" }}>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs font-medium text-foreground">{s.device_info}</span>
-                                  <span className={`text-[10px] px-1.5 rounded-full font-medium ${s.is_active ? "bg-[#0d3320] text-[#34d399]" : "bg-[#1e1e1e] text-muted-foreground"}`}>
-                                    {s.is_active ? "Active" : "Revoked"}
+                          {/* Table header */}
+                          <div className="hidden sm:grid grid-cols-[1fr_80px_1fr_1fr_60px_60px] gap-2 px-3 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                            <span>Device</span>
+                            <span>Type</span>
+                            <span>First Login</span>
+                            <span>Last Login</span>
+                            <span className="text-center">Count</span>
+                            <span className="text-right">Action</span>
+                          </div>
+                          {sessions.map((s) => {
+                            const isNew = s.login_count <= 1;
+                            return (
+                              <div key={s.id} className="rounded-lg p-3" style={{ background: "#0a0a0a" }}>
+                                {/* Desktop row */}
+                                <div className="hidden sm:grid grid-cols-[1fr_80px_1fr_1fr_60px_60px] gap-2 items-center">
+                                  <div>
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-xs font-medium text-foreground">{s.device_name || s.device_info}</span>
+                                      {isNew && (
+                                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#332200] text-[#fbbf24] font-medium">NEW</span>
+                                      )}
+                                    </div>
+                                    <div className="text-[10px] text-muted-foreground">{s.device_info} · {s.ip_address || "—"}</div>
+                                  </div>
+                                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full text-center ${
+                                    s.device_type === "Mobile" ? "bg-[#1a1a3e] text-[#818cf8]" :
+                                    s.device_type === "Tablet" ? "bg-[#2d1a3e] text-[#c084fc]" :
+                                    "bg-[#0d2332] text-[#22d3ee]"
+                                  }`}>
+                                    {s.device_type || "—"}
                                   </span>
+                                  <span className="text-[11px] text-muted-foreground">{formatDate(s.login_time)}</span>
+                                  <span className="text-[11px] text-muted-foreground">{formatDate(s.last_active_time)}</span>
+                                  <span className="text-xs font-bold text-foreground text-center">{s.login_count ?? 1}</span>
+                                  <div className="text-right">
+                                    {s.is_active ? (
+                                      <button className="h-6 px-2 rounded text-[10px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors" onClick={() => revokeSession(s.id)}>
+                                        Revoke
+                                      </button>
+                                    ) : (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#1e1e1e] text-muted-foreground">Revoked</span>
+                                    )}
+                                  </div>
                                 </div>
-                                <div className="text-[10px] text-muted-foreground mt-0.5">{s.ip_address || "—"} · {formatDate(s.last_active_time)}</div>
+                                {/* Mobile card */}
+                                <div className="sm:hidden">
+                                  <div className="flex items-center justify-between mb-1.5">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-xs font-medium text-foreground">{s.device_name || s.device_info}</span>
+                                      {isNew && (
+                                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#332200] text-[#fbbf24] font-medium">NEW</span>
+                                      )}
+                                    </div>
+                                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                                      s.device_type === "Mobile" ? "bg-[#1a1a3e] text-[#818cf8]" :
+                                      s.device_type === "Tablet" ? "bg-[#2d1a3e] text-[#c084fc]" :
+                                      "bg-[#0d2332] text-[#22d3ee]"
+                                    }`}>
+                                      {s.device_type || "—"}
+                                    </span>
+                                  </div>
+                                  <div className="text-[10px] text-muted-foreground mb-1">{s.device_info} · {s.ip_address || "—"}</div>
+                                  <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                                    <span>First: {formatDate(s.login_time)}</span>
+                                    <span>Last: {formatDate(s.last_active_time)}</span>
+                                    <span className="font-bold text-foreground">{s.login_count ?? 1}×</span>
+                                  </div>
+                                  {s.is_active && (
+                                    <button className="mt-2 h-6 px-2 rounded text-[10px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors w-full" onClick={() => revokeSession(s.id)}>
+                                      Revoke
+                                    </button>
+                                  )}
+                                </div>
                               </div>
-                              {s.is_active && (
-                                <button className="h-6 px-2 rounded text-[10px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors" onClick={() => revokeSession(s.id)}>
-                                  Revoke
-                                </button>
-                              )}
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
                     </DialogContent>
