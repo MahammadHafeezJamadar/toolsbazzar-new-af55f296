@@ -657,7 +657,7 @@ const UserCard = ({
     setSessionsLoading(true);
     const { data, error } = await supabase
       .from("user_sessions")
-      .select("id, device_id, device_info, ip_address, login_time, last_active_time, is_active")
+      .select("id, device_id, device_info, device_name, device_type, login_count, ip_address, login_time, last_active_time, is_active")
       .eq("user_id", user.id)
       .order("last_active_time", { ascending: false });
     if (error) toast.error("Failed to load sessions");
