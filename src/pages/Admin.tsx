@@ -1257,8 +1257,8 @@ const UserDetailsTab = ({
       </div>
 
       {/* Detail Modal */}
-      <Dialog open={!!selectedUser} onOpenChange={(open) => { if (!open) setSelectedUser(null); }}>
-        <DialogContent className="border-[#1e1e1e] max-w-lg max-h-[85vh] overflow-y-auto" style={{ background: "#111111" }}>
+      <Dialog open={!!selectedUser} onOpenChange={(open) => { if (!open) { setSelectedUser(null); setDetailSessions([]); } }}>
+        <DialogContent className="border-[#1e1e1e] max-w-3xl max-h-[85vh] overflow-y-auto" style={{ background: "#111111" }}>
           {selectedUser && (() => {
             const u = selectedUser;
             const initials = (u.name || u.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
