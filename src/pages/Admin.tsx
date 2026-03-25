@@ -1303,6 +1303,9 @@ const UserDetailsTab = ({
                     <InfoRow label="Total Referrals" value={String(referralCounts[u.id] || 0)} />
                     <InfoRow label="Referred By" value={u.referred_by || "None"} />
                   </Section>
+                  <Section title="Device Sessions">
+                    <DeviceSessionsSection sessions={detailSessions} sessionsLoading={detailSessionsLoading} userPlan={u.plan} />
+                  </Section>
                 </div>
               </>
             );
