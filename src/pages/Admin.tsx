@@ -1128,6 +1128,19 @@ const UserDetailsTab = ({
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "complete" | "incomplete">("all");
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [detailSessions, setDetailSessions] = useState<DeviceSession[]>([]);
+  const [detailSessionsLoading, setDetailSessionsLoading] = useState(false);
+
+  const loadDetailSessions = async (userId: string) => {
+    setDetailSessionsLoading(true);
+    const { data } = await supabase
+      .from("user_sessions")
+      .select("id, device_id, device_info, device_name, device_type, login_count, ip_address, login_time, last_active_time, is_active")
+      .eq("user_id", userId)
+      .order("last_active_time", { ascending: false });
+    setDetailSessions(data || []);
+    setDetailSessionsLoading(false);
+  };
 
   const isComplete = (u: UserProfile) => !!(u.name && u.mobile_number && u.city);
   const completeCount = users.filter(isComplete).length;
