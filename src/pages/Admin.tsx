@@ -1208,7 +1208,7 @@ const UserDetailsTab = ({
           return (
             <div
               key={u.id}
-              onClick={() => setSelectedUser(u)}
+              onClick={() => { setSelectedUser(u); loadDetailSessions(u.id); }}
               className="rounded-xl border p-4 cursor-pointer transition-all duration-200 hover:border-accent/30"
               style={{ background: "#111111", borderColor: "#1e1e1e" }}
             >
