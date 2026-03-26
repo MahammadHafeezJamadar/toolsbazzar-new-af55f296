@@ -77,6 +77,24 @@ interface DeviceSession {
   login_time: string;
   last_active_time: string;
   is_active: boolean;
+  device_brand?: string;
+  stable_fingerprint?: string;
+  device_number?: number;
+  triggered_lockout?: boolean;
+}
+
+interface SecurityEvent {
+  id: string;
+  user_id: string;
+  event: string;
+  old_uuid: string;
+  new_uuid: string;
+  device_info: string;
+  device_brand: string;
+  created_at: string;
+  resolved: boolean;
+  resolved_by: string | null;
+  resolved_at: string | null;
 }
 
 type AdminTab = "dashboard" | "users" | "user-details" | "announcements" | "settings";
