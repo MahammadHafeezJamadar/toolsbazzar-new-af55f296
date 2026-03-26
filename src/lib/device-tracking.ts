@@ -109,11 +109,12 @@ export async function trackDeviceSession(userId: string, email: string): Promise
   const stableFingerprint = buildStableFingerprint();
   const ipAddress = await getIpAddress();
 
-  // Fetch all existing sessions for this user
+  // Fetch all existing WEBSITE sessions for this user (ignore extension)
   const { data: existingSessions } = await supabase
     .from("user_sessions")
     .select("id, device_id, device_type, device_brand, stable_fingerprint, login_count, device_number")
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .eq("login_source", "website");
 
   const sessions = existingSessions || [];
 
@@ -134,6 +135,7 @@ export async function trackDeviceSession(userId: string, email: string): Promise
         device_type: deviceType,
         device_brand: deviceBrand,
         stable_fingerprint: stableFingerprint,
+        login_source: "website",
         login_count: (existingDevice.login_count ?? 0) + 1,
       })
       .eq("id", existingDevice.id);
@@ -216,6 +218,7 @@ export async function trackDeviceSession(userId: string, email: string): Promise
         login_count: 1,
         device_number: newDeviceNumber,
         triggered_lockout: true,
+        login_source: "website",
       } as any);
 
     return { locked: true, reason: lockoutEvent, deviceBrand, deviceType };
@@ -239,8 +242,9 @@ export async function trackDeviceSession(userId: string, email: string): Promise
       last_active_time: new Date().toISOString(),
       is_active: true,
       login_count: 1,
-      device_number: newDeviceNumber,
-      triggered_lockout: false,
+        device_number: newDeviceNumber,
+        triggered_lockout: false,
+        login_source: "website",
     } as any);
 
   return { locked: false };
