@@ -187,11 +187,55 @@ export type Database = {
           },
         ]
       }
+      security_events: {
+        Row: {
+          created_at: string | null
+          device_brand: string | null
+          device_info: string | null
+          event: string | null
+          id: string
+          new_uuid: string | null
+          old_uuid: string | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_brand?: string | null
+          device_info?: string | null
+          event?: string | null
+          id?: string
+          new_uuid?: string | null
+          old_uuid?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_brand?: string | null
+          device_info?: string | null
+          event?: string | null
+          id?: string
+          new_uuid?: string | null
+          old_uuid?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_sessions: {
         Row: {
+          device_brand: string | null
           device_id: string
           device_info: string
           device_name: string
+          device_number: number | null
           device_type: string
           email: string
           id: string
@@ -200,12 +244,16 @@ export type Database = {
           last_active_time: string
           login_count: number
           login_time: string
+          stable_fingerprint: string | null
+          triggered_lockout: boolean | null
           user_id: string
         }
         Insert: {
+          device_brand?: string | null
           device_id: string
           device_info: string
           device_name?: string
+          device_number?: number | null
           device_type?: string
           email: string
           id?: string
@@ -214,12 +262,16 @@ export type Database = {
           last_active_time?: string
           login_count?: number
           login_time?: string
+          stable_fingerprint?: string | null
+          triggered_lockout?: boolean | null
           user_id: string
         }
         Update: {
+          device_brand?: string | null
           device_id?: string
           device_info?: string
           device_name?: string
+          device_number?: number | null
           device_type?: string
           email?: string
           id?: string
@@ -228,6 +280,8 @@ export type Database = {
           last_active_time?: string
           login_count?: number
           login_time?: string
+          stable_fingerprint?: string | null
+          triggered_lockout?: boolean | null
           user_id?: string
         }
         Relationships: []
