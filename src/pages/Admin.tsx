@@ -1431,7 +1431,7 @@ const UserDetailsTab = ({
                     <InfoRow label="Referred By" value={u.referred_by || "None"} />
                   </Section>
                   <Section title="Device Sessions">
-                    <DeviceSessionsSection sessions={detailSessions} sessionsLoading={detailSessionsLoading} userPlan={u.plan} />
+                    <DeviceSessionsSection sessions={detailSessions} sessionsLoading={detailSessionsLoading} userPlan={u.plan} userId={u.id} />
                   </Section>
                 </div>
               </>
