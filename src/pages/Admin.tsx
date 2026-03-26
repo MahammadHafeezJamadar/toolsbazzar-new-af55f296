@@ -907,7 +907,7 @@ const UserCard = ({
                           <Monitor className="h-4 w-4 text-accent" /> Device Sessions — {user.email}
                         </DialogTitle>
                       </DialogHeader>
-                      <DeviceSessionsSection sessions={sessions} sessionsLoading={sessionsLoading} userPlan={user.plan} revokeSession={revokeSession} />
+                      <DeviceSessionsSection sessions={sessions} sessionsLoading={sessionsLoading} userPlan={user.plan} revokeSession={revokeSession} userId={user.id} />
                     </DialogContent>
                   </Dialog>
 
