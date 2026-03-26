@@ -987,21 +987,100 @@ const UserCard = ({
   );
 };
 
+/* ─── Security Alerts Section ─── */
+const SecurityAlertsSection = ({ userId, onRestore }: { userId: string; onRestore?: () => void }) => {
+  const [events, setEvents] = useState<SecurityEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadEvents();
+  }, [userId]);
+
+  const loadEvents = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("security_events" as any)
+      .select("*")
+      .eq("user_id", userId)
+      .eq("resolved", false)
+      .order("created_at", { ascending: false });
+    setEvents((data as any) || []);
+    setLoading(false);
+  };
+
+  const resolveEvent = async (eventId: string, restoreAccess: boolean) => {
+    if (restoreAccess) {
+      await supabase.from("profiles").update({ subscription_active: true }).eq("id", userId);
+    }
+    await supabase
+      .from("security_events" as any)
+      .update({ resolved: true, resolved_by: restoreAccess ? "admin_restored" : "admin_kept_locked", resolved_at: new Date().toISOString() } as any)
+      .eq("id", eventId);
+    toast.success(restoreAccess ? "Access restored" : "Kept locked");
+    loadEvents();
+    onRestore?.();
+  };
+
+  if (loading || events.length === 0) return null;
+
+  return (
+    <div className="space-y-2 mb-4">
+      {events.map((e) => (
+        <div key={e.id} className="rounded-xl border p-4" style={{ background: "rgba(239,68,68,0.08)", borderColor: "#ef4444" }}>
+          <div className="flex items-start gap-2 mb-2">
+            <AlertTriangle className="h-4 w-4 text-[#ef4444] flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-[#ef4444]">⚠️ SECURITY ALERT</div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                {formatSessionDate(e.created_at)} — Browser/App data cleared detected on {e.device_brand} {e.event?.includes("mobile") ? "mobile" : "desktop"}.
+                All sessions were automatically logged out.
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={() => resolveEvent(e.id, true)}
+              className="h-7 px-3 rounded text-[11px] font-medium bg-[#0d3320] text-[#34d399] hover:bg-[#164e36] transition-colors"
+            >
+              ✅ Restore Access
+            </button>
+            <button
+              onClick={() => resolveEvent(e.id, false)}
+              className="h-7 px-3 rounded text-[11px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors"
+            >
+              ❌ Keep Locked
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 /* ─── Device Sessions Section (shared) ─── */
 const PLAN_DEVICE_LIMITS: Record<string, number> = { Basic: 1, Pro: 2, Ultra: 2 };
 
 const getDeviceNick = (sessions: DeviceSession[]): Map<string, string> => {
   const sorted = [...sessions].sort((a, b) => new Date(a.login_time).getTime() - new Date(b.login_time).getTime());
   const nickMap = new Map<string, string>();
-  const counters = { mobile: 0, laptop: 0, tablet: 0 };
+  const counters: Record<string, number> = { mobile: 0, desktop: 0, extension: 0 };
   sorted.forEach((s) => {
-    const info = (s.device_info || "").toLowerCase();
-    const isMobile = /android|ios|iphone|ipad/i.test(info) || s.device_type === "Mobile" || s.device_type === "Tablet";
-    const isTablet = /ipad|tablet/i.test(info) || s.device_type === "Tablet";
+    const brand = (s as any).device_brand || "Unknown";
+    const type = (s.device_type || "").toLowerCase();
     let emoji: string, label: string;
-    if (isTablet) { counters.tablet++; emoji = "📱"; label = `Tablet #${counters.tablet}`; }
-    else if (isMobile) { counters.mobile++; emoji = "📱"; label = `Mobile #${counters.mobile}`; }
-    else { counters.laptop++; emoji = "💻"; label = `Laptop #${counters.laptop}`; }
+    if (type === "extension") {
+      counters.extension++;
+      emoji = "🔌";
+      label = `Extension #${counters.extension}`;
+    } else if (type === "mobile" || /android|ios|iphone|ipad/i.test(s.device_info || "")) {
+      counters.mobile++;
+      emoji = "📱";
+      label = `${brand} #${counters.mobile}`;
+    } else {
+      counters.desktop++;
+      emoji = "💻";
+      label = `${brand} #${counters.desktop}`;
+    }
     nickMap.set(s.id, `${emoji} ${label}`);
   });
   return nickMap;
@@ -1020,15 +1099,39 @@ const DeviceSessionsSection = ({
   sessionsLoading,
   userPlan,
   revokeSession,
+  userId,
 }: {
   sessions: DeviceSession[];
   sessionsLoading: boolean;
   userPlan: string;
   revokeSession?: (id: string) => void;
+  userId?: string;
 }) => {
   if (sessionsLoading) return <div className="text-center text-muted-foreground py-8">Loading...</div>;
-  if (sessions.length === 0) return <div className="text-center text-muted-foreground py-8">No devices found</div>;
 
+  return (
+    <div>
+      {/* Security Alerts */}
+      {userId && <SecurityAlertsSection userId={userId} />}
+
+      {sessions.length === 0 ? (
+        <div className="text-center text-muted-foreground py-8">No devices found</div>
+      ) : (
+        <DeviceSessionsTable sessions={sessions} userPlan={userPlan} revokeSession={revokeSession} />
+      )}
+    </div>
+  );
+};
+
+const DeviceSessionsTable = ({
+  sessions,
+  userPlan,
+  revokeSession,
+}: {
+  sessions: DeviceSession[];
+  userPlan: string;
+  revokeSession?: (id: string) => void;
+}) => {
   const nickMap = getDeviceNick(sessions);
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1036,7 +1139,6 @@ const DeviceSessionsSection = ({
   const deviceLimit = PLAN_DEVICE_LIMITS[userPlan] ?? 1;
   const activeThisWeek = sessions.filter(s => new Date(s.last_active_time) >= sevenDaysAgo).length;
 
-  // Sort by login_time ascending so we can identify "over-limit" devices
   const sortedByFirst = [...sessions].sort((a, b) => new Date(a.login_time).getTime() - new Date(b.login_time).getTime());
   const overLimitIds = new Set(sortedByFirst.slice(deviceLimit).map(s => s.id));
 
@@ -1059,12 +1161,12 @@ const DeviceSessionsSection = ({
 
       {/* Scrollable table */}
       <div className="overflow-x-auto -mx-1">
-        <table className="w-full min-w-[700px] text-left">
+        <table className="w-full min-w-[800px] text-left">
           <thead>
             <tr className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider border-b" style={{ borderColor: "#1e1e1e" }}>
-              <th className="px-3 py-2">Device ID</th>
-              <th className="px-3 py-2">Browser / OS</th>
+              <th className="px-3 py-2">#</th>
               <th className="px-3 py-2">Device Nick</th>
+              <th className="px-3 py-2">Browser / OS</th>
               <th className="px-3 py-2">First Login</th>
               <th className="px-3 py-2">Last Login</th>
               <th className="px-3 py-2 text-center">Count</th>
@@ -1075,27 +1177,29 @@ const DeviceSessionsSection = ({
           <tbody>
             {sessions.map((s) => {
               const isOverLimit = overLimitIds.has(s.id);
-              const isActiveRecently = new Date(s.last_active_time) >= sevenDaysAgo;
-              const isNew = new Date(s.login_time) >= twentyFourHoursAgo;
+              const isActiveRecently = s.is_active && new Date(s.last_active_time) >= sevenDaysAgo;
+              const isLocked = !!(s as any).triggered_lockout;
+              const isNew = new Date(s.login_time) >= twentyFourHoursAgo && s.login_count <= 1;
               const nick = nickMap.get(s.id) || "Unknown";
-              const shortId = `dev_${s.device_id.slice(0, 6)}`;
+              const deviceNum = (s as any).device_number ?? "—";
+
+              let rowBg = "transparent";
+              if (isLocked) rowBg = "rgba(239, 68, 68, 0.12)";
+              else if (isOverLimit) rowBg = "rgba(239, 68, 68, 0.08)";
 
               return (
                 <tr
                   key={s.id}
                   className="border-b transition-colors"
-                  style={{
-                    borderColor: "#1a1a1a",
-                    background: isOverLimit ? "rgba(239, 68, 68, 0.08)" : "transparent",
-                  }}
+                  style={{ borderColor: "#1a1a1a", background: rowBg }}
                 >
                   <td className="px-3 py-2.5">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1">
                       {isOverLimit && <AlertTriangle className="h-3 w-3 text-[#f87171] flex-shrink-0" />}
-                      <code className="text-[11px] text-muted-foreground font-mono">{shortId}</code>
+                      {isLocked && <span className="text-xs">🔒</span>}
+                      <span className="text-[11px] text-muted-foreground font-mono">{deviceNum}</span>
                     </div>
                   </td>
-                  <td className="px-3 py-2.5 text-[11px] text-foreground">{s.device_info || "—"}</td>
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-1.5">
                       <span className="text-[11px] font-medium text-foreground">{nick}</span>
@@ -1104,14 +1208,19 @@ const DeviceSessionsSection = ({
                       )}
                     </div>
                   </td>
+                  <td className="px-3 py-2.5 text-[11px] text-foreground">{s.device_info || "—"}</td>
                   <td className="px-3 py-2.5 text-[11px] text-muted-foreground whitespace-nowrap">{formatSessionDate(s.login_time)}</td>
                   <td className="px-3 py-2.5 text-[11px] text-muted-foreground whitespace-nowrap">{formatSessionDate(s.last_active_time)}</td>
-                  <td className="px-3 py-2.5 text-xs font-bold text-foreground text-center">{s.login_count ?? 1}</td>
+                  <td className="px-3 py-2.5 text-xs font-bold text-foreground text-center">{s.login_count ?? 1}x</td>
                   <td className="px-3 py-2.5 text-center">
                     <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                      isActiveRecently ? "bg-[#0d3320] text-[#34d399]" : "bg-[#1e1e1e] text-muted-foreground"
+                      isLocked
+                        ? "bg-[#331111] text-[#f87171]"
+                        : isActiveRecently
+                        ? "bg-[#0d3320] text-[#34d399]"
+                        : "bg-[#1e1e1e] text-muted-foreground"
                     }`}>
-                      {isActiveRecently ? "Active" : "Inactive"}
+                      {isLocked ? "Locked" : isActiveRecently ? "Active" : "Inactive"}
                     </span>
                   </td>
                   {revokeSession && (
