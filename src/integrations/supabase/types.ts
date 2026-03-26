@@ -243,6 +243,7 @@ export type Database = {
           is_active: boolean
           last_active_time: string
           login_count: number
+          login_source: string | null
           login_time: string
           stable_fingerprint: string | null
           triggered_lockout: boolean | null
@@ -261,6 +262,7 @@ export type Database = {
           is_active?: boolean
           last_active_time?: string
           login_count?: number
+          login_source?: string | null
           login_time?: string
           stable_fingerprint?: string | null
           triggered_lockout?: boolean | null
@@ -279,6 +281,7 @@ export type Database = {
           is_active?: boolean
           last_active_time?: string
           login_count?: number
+          login_source?: string | null
           login_time?: string
           stable_fingerprint?: string | null
           triggered_lockout?: boolean | null
