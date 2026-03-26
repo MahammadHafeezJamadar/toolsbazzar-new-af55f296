@@ -162,7 +162,8 @@ const Admin = () => {
   const loadSessionCounts = async () => {
     const { data, error } = await supabase
       .from("user_sessions")
-      .select("user_id, is_active");
+      .select("user_id, is_active")
+      .eq("login_source", "website");
 
     if (!error && data) {
       const counts: Record<string, number> = {};
@@ -181,6 +182,7 @@ const Admin = () => {
     const { data } = await supabase
       .from("user_sessions")
       .select("user_id")
+      .eq("login_source", "website")
       .gte("last_active_time", today.toISOString());
     if (data) {
       const uniqueUsers = new Set(data.map((s: any) => s.user_id));
@@ -677,6 +679,7 @@ const UserCard = ({
       .from("user_sessions")
       .select("id, device_id, device_info, device_name, device_type, login_count, ip_address, login_time, last_active_time, is_active, device_brand, stable_fingerprint, device_number, triggered_lockout")
       .eq("user_id", user.id)
+      .eq("login_source", "website")
       .order("last_active_time", { ascending: false });
     if (error) toast.error("Failed to load sessions");
     else setSessions((data as any) || []);
@@ -1264,6 +1267,7 @@ const UserDetailsTab = ({
       .from("user_sessions")
       .select("id, device_id, device_info, device_name, device_type, login_count, ip_address, login_time, last_active_time, is_active, device_brand, stable_fingerprint, device_number, triggered_lockout")
       .eq("user_id", userId)
+      .eq("login_source", "website")
       .order("last_active_time", { ascending: false });
     setDetailSessions((data as any) || []);
     setDetailSessionsLoading(false);
