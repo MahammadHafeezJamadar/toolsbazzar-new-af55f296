@@ -1,0 +1,1 @@
+UPDATE public.user_sessions SET login_source = 'extension' WHERE device_info LIKE 'Extension:%' AND (login_source = 'website' OR login_source IS NULL);
