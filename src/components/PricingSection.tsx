@@ -155,7 +155,7 @@ const PricingSection = () => {
                   ))}
                 </ul>
                 <Button
-                  className={`w-full font-semibold h-11 ${p.buttonClass}`}
+                  className={`w-full font-semibold h-11 hover-shine ${p.buttonClass}`}
                   variant={p.buttonStyle}
                   onClick={() => setSelectedPlan({ name: p.name, amount: yearly ? p.yearly : p.monthly })}
                 >
@@ -173,8 +173,8 @@ const PricingSection = () => {
             { icon: Globe, label: "Order Via Website" },
             { icon: MessageCircle, label: "Book on WhatsApp" },
           ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon className="h-4 w-4 text-accent" />
+            <div key={label} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 cursor-default group">
+              <Icon className="h-4 w-4 text-accent group-hover:scale-110 transition-transform duration-300" />
               <span>{label}</span>
             </div>
           ))}
