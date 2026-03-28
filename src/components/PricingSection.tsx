@@ -129,7 +129,7 @@ const PricingSection = () => {
               transition={{ delay: i * 0.12 }}
               whileHover={{ y: -6, scale: 1.02 }}
               className={`relative rounded-2xl p-[1px] bg-gradient-to-b ${p.glowColor} ${
-                (p as any).popular ? "md:scale-105 z-10" : ""
+                (p as any).popular ? "scale-[1.02] md:scale-105 z-10" : ""
               }`}
             >
               <div className={`h-full rounded-2xl bg-card/80 backdrop-blur-xl p-6 md:p-8 border ${p.borderClass} transition-all duration-300`}>
