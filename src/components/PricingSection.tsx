@@ -127,12 +127,12 @@ const PricingSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.12 }}
-              whileHover={{ y: -6, scale: 1.02 }}
+              
               className={`relative rounded-2xl p-[1px] bg-gradient-to-b ${p.glowColor} ${
                 (p as any).popular ? "scale-[1.02] md:scale-105 z-10" : ""
               }`}
             >
-              <div className={`h-full rounded-2xl bg-card/80 backdrop-blur-xl p-6 md:p-8 border ${p.borderClass} transition-all duration-300`}>
+              <div className={`h-full rounded-2xl bg-card/80 backdrop-blur-xl p-6 md:p-8 border border-border`}>
                 {p.badge && (
                   <span className={`absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold ${p.badgeClass}`}>
                     {p.badge}
@@ -155,7 +155,7 @@ const PricingSection = () => {
                   ))}
                 </ul>
                 <Button
-                  className={`w-full font-semibold h-11 hover-shine ${p.buttonClass}`}
+                  className={`w-full font-semibold h-11 ${p.buttonClass}`}
                   variant={p.buttonStyle}
                   onClick={() => setSelectedPlan({ name: p.name, amount: yearly ? p.yearly : p.monthly })}
                 >
@@ -173,8 +173,8 @@ const PricingSection = () => {
             { icon: Globe, label: "Order Via Website" },
             { icon: MessageCircle, label: "Book on WhatsApp" },
           ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 cursor-default group">
-              <Icon className="h-4 w-4 text-accent group-hover:scale-110 transition-transform duration-300" />
+            <div key={label} className="flex items-center gap-2 text-sm text-muted-foreground cursor-default">
+              <Icon className="h-4 w-4 text-accent" />
               <span>{label}</span>
             </div>
           ))}
