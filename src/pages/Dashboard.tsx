@@ -592,7 +592,7 @@ const Dashboard = () => {
                             className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
                             style={{ borderColor: "#1e1e1e", color: "#999" }}
                           >
-                            <Download className="h-3.5 w-3.5" /> Download {planLabel} Extension
+                            <Download className="h-3.5 w-3.5" /> Download Extension
                           </button>
                         ) : (
                           <div className="col-span-2 rounded-lg border p-3" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.25)" }}>
