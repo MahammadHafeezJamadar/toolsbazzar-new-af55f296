@@ -25,12 +25,12 @@ const HeroSection = () => (
           India's most affordable Google Flow access. Generate stunning AI videos with Veo 3.1 technology. Starting at just ₹299/month.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4 sm:px-0">
-          <Button size="lg" className="gradient-btn border-0 font-semibold px-8 h-12 rounded-lg w-full sm:w-auto" asChild>
+          <Button size="lg" className="gradient-btn border-0 font-semibold px-8 h-12 rounded-lg w-full sm:w-auto hover-shine" asChild>
             <Link to="/register">
-              Start Creating Now <ArrowRight className="ml-2 h-4 w-4" />
+              Start Creating Now <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" className="border-border hover:bg-secondary font-semibold h-12 rounded-lg w-full sm:w-auto" asChild>
+          <Button size="lg" variant="outline" className="border-border hover:bg-secondary hover:border-accent/40 font-semibold h-12 rounded-lg w-full sm:w-auto transition-all duration-300" asChild>
             <a href="#pricing">
               <Play className="mr-2 h-4 w-4" /> View Plans
             </a>

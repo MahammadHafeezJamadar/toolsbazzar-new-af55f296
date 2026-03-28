@@ -21,11 +21,11 @@ const TestimonialsSection = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
-            className="bg-card border border-border rounded-xl p-5 md:p-6 hover:border-accent/30 transition-colors"
+            className="bg-card border border-border rounded-xl p-5 md:p-6 hover-lift hover-glow group cursor-default"
           >
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">"{t.text}"</p>
+            <p className="text-sm text-muted-foreground mb-6 leading-relaxed group-hover:text-foreground/70 transition-colors duration-300">"{t.text}"</p>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-accent/10 border border-border flex items-center justify-center text-sm font-semibold text-accent">
+              <div className="w-10 h-10 rounded-full bg-accent/10 border border-border flex items-center justify-center text-sm font-semibold text-accent hover-ring-pulse">
                 {t.initials}
               </div>
               <div>

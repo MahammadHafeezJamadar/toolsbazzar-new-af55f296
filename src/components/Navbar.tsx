@@ -65,7 +65,7 @@ const Navbar = () => {
             <button
               key={l.label}
               onClick={() => handleNavClick(l.href)}
-              className="text-sm text-gray-400 hover:text-white transition-colors bg-transparent border-0 cursor-pointer"
+              className="text-sm text-gray-400 hover:text-white transition-colors bg-transparent border-0 cursor-pointer hover-underline pb-1"
             >
               {l.label}
             </button>
