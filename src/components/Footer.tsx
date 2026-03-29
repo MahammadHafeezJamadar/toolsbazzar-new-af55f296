@@ -11,26 +11,26 @@ const Footer = () => (
     <div className="container mx-auto px-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
         <div className="sm:col-span-2 md:col-span-1">
-          <span className="text-lg font-bold text-foreground flex items-center gap-2">
+          <span className="text-lg font-bold text-foreground flex items-center gap-2 font-display">
             <img src="/logo.png" alt="ToolsBazzar" className="h-8 w-8 rounded" />
             ToolsBazzar
           </span>
-          <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
+          <p className="text-sm mt-3 leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
             India's #1 Affordable AI Video Platform
           </p>
         </div>
         {columns.map((c) => (
           <div key={c.title}>
-            <h4 className="font-medium text-sm mb-4 text-foreground">{c.title}</h4>
+            <h4 className="font-display font-medium text-sm mb-4 text-foreground uppercase" style={{ letterSpacing: '0.08em' }}>{c.title}</h4>
             <ul className="space-y-2.5">
               {c.links.map((l) => (
                 <li key={l.label}>
                   {l.href.startsWith("/") ? (
-                    <Link to={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors hover-underline pb-0.5">
+                    <Link to={l.href} className="text-sm hover:text-foreground transition-colors hover-underline pb-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
                       {l.label}
                     </Link>
                   ) : (
-                    <a href={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors hover-underline pb-0.5">
+                    <a href={l.href} className="text-sm hover:text-foreground transition-colors hover-underline pb-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
                       {l.label}
                     </a>
                   )}
@@ -40,7 +40,7 @@ const Footer = () => (
           </div>
         ))}
       </div>
-      <div className="border-t border-border mt-10 md:mt-12 pt-6 md:pt-8 text-center text-xs text-muted-foreground">
+      <div className="border-t border-border mt-10 md:mt-12 pt-6 md:pt-8 text-center text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
         © {new Date().getFullYear()} ToolsBazzar. All rights reserved.
       </div>
     </div>

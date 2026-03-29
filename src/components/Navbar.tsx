@@ -41,7 +41,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-[100] border-b border-border overflow-hidden" style={{ backgroundColor: 'rgba(10,10,10,0.95)', backdropFilter: 'blur(12px)' }}>
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <div className="flex items-center gap-2 shrink-0">
-          <Link to="/" className="text-lg font-bold text-white flex items-center gap-2">
+          <Link to="/" className="text-lg font-bold text-white flex items-center gap-2 font-display">
             <img src="/logo.png" alt="ToolsBazzar" className="h-8 w-8 rounded" />
             <span>ToolsBazzar</span>
           </Link>
@@ -65,14 +65,15 @@ const Navbar = () => {
             <button
               key={l.label}
               onClick={() => handleNavClick(l.href)}
-              className="text-sm text-gray-400 hover:text-white transition-colors bg-transparent border-0 cursor-pointer hover-underline pb-1"
+              className="text-sm hover:text-white transition-colors bg-transparent border-0 cursor-pointer hover-underline pb-1"
+              style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}
             >
               {l.label}
             </button>
           ))}
           {loggedIn ? (
             <>
-              <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold border-0" asChild>
+              <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold border-0 uppercase" style={{ letterSpacing: '0.04em' }} asChild>
                 <Link to="/dashboard">Dashboard</Link>
               </Button>
               <button
@@ -84,10 +85,10 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white" asChild>
+              <Button variant="ghost" size="sm" className="hover:text-white" style={{ color: 'rgba(255,255,255,0.7)' }} asChild>
                 <Link to="/login">Login</Link>
               </Button>
-              <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold border-0" asChild>
+              <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold border-0 uppercase" style={{ letterSpacing: '0.04em' }} asChild>
                 <Link to="/register">Get Started</Link>
               </Button>
             </>

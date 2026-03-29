@@ -32,10 +32,10 @@ const FeaturesSection = () => (
   <section id="features" className="py-16 md:py-28">
     <div className="container mx-auto px-4">
       <div className="text-center mb-10 md:mb-16">
-        <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">
+        <h2 className="font-display text-2xl md:text-3xl lg:text-5xl font-bold mb-4 gradient-text heading-glow" style={{ letterSpacing: '-0.02em' }}>
           Why Creators Choose ToolsBazzar
         </h2>
-        <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto">
+        <p className="text-sm md:text-base max-w-lg mx-auto" style={{ color: 'rgba(255,255,255,0.6)' }}>
           Everything you need to unleash your creativity
         </p>
       </div>
@@ -52,11 +52,11 @@ const FeaturesSection = () => (
             <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors duration-300">
               <f.icon className="h-5 w-5 text-accent hover-icon-pop" />
             </div>
-            <h3 className="font-semibold text-base md:text-lg mb-2">{f.title}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{f.desc}</p>
+            <h3 className="font-display font-semibold text-base md:text-lg mb-2 text-foreground">{f.title}</h3>
+            <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.65)' }}>{f.desc}</p>
             <ul className="space-y-1.5">
               {f.points.map((p) => (
-                <li key={p} className="text-xs text-muted-foreground flex items-center gap-2">
+                <li key={p} className="text-xs flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.55)' }}>
                   <span className="w-1 h-1 rounded-full bg-accent flex-shrink-0" />
                   {p}
                 </li>

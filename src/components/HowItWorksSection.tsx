@@ -27,7 +27,6 @@ const steps = [
 
 const HowItWorksSection = () => (
   <section className="py-20 md:py-28 relative" style={{ background: "#0a0a0a" }}>
-    {/* Top divider */}
     <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, hsl(174 72% 46% / 0.3), transparent)" }} />
 
     <div className="container mx-auto px-4">
@@ -38,10 +37,10 @@ const HowItWorksSection = () => (
         transition={{ duration: 0.5 }}
         className="text-center mb-14"
       >
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-          How It <span className="gradient-text">Works</span>
+        <h2 className="font-display text-3xl md:text-4xl font-bold mb-3 gradient-text heading-glow">
+          How It Works
         </h2>
-        <p className="text-muted-foreground text-sm md:text-base">
+        <p className="text-sm md:text-base" style={{ color: 'rgba(255,255,255,0.6)' }}>
           Get started in 3 simple steps
         </p>
       </motion.div>
@@ -61,7 +60,6 @@ const HowItWorksSection = () => (
                 backgroundClip: "padding-box",
               }}
             >
-              {/* Gradient border effect */}
               <div
                 className="absolute inset-0 rounded-2xl -z-10 opacity-40 group-hover:opacity-70 transition-opacity duration-300"
                 style={{
@@ -74,9 +72,8 @@ const HowItWorksSection = () => (
                 }}
               />
 
-              {/* Step number circle */}
               <div
-                className="w-14 h-14 rounded-full flex items-center justify-center mb-5 text-xl font-bold mx-auto"
+                className="w-14 h-14 rounded-full flex items-center justify-center mb-5 text-xl font-bold mx-auto font-display"
                 style={{
                   background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 50%))",
                   color: "#0a0a0a",
@@ -85,18 +82,15 @@ const HowItWorksSection = () => (
                 {step.number}
               </div>
 
-              {/* Emoji + title */}
-              <h3 className="text-lg font-semibold text-foreground text-center mb-3">
+              <h3 className="font-display text-lg font-semibold text-foreground text-center mb-3">
                 {step.emoji} {step.title}
               </h3>
 
-              {/* Description */}
-              <p className="text-sm text-muted-foreground text-center leading-relaxed whitespace-pre-line">
+              <p className="text-sm text-center leading-relaxed whitespace-pre-line" style={{ color: 'rgba(255,255,255,0.6)' }}>
                 {step.description}
               </p>
             </motion.div>
 
-            {/* Arrow between cards - desktop only */}
             {i < steps.length - 1 && (
               <div className="hidden md:flex items-center justify-center w-8 flex-shrink-0">
                 <ArrowRight className="h-5 w-5 text-muted-foreground opacity-40" />
@@ -107,7 +101,6 @@ const HowItWorksSection = () => (
       </div>
     </div>
 
-    {/* Bottom divider */}
     <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, hsl(174 72% 46% / 0.3), transparent)" }} />
   </section>
 );
