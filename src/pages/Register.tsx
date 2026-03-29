@@ -17,10 +17,12 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [searchParams] = useSearchParams();
   const [referralCode, setReferralCode] = useState(searchParams.get("ref") || "");
+  const [authError, setAuthError] = useState("");
   const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRegister = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (loading) return;
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -30,35 +32,42 @@ const Register = () => {
       return;
     }
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { name } },
-    });
-    if (error) {
-      setLoading(false);
-      toast.error(error.message);
-      return;
-    }
-
-    // Process referral if code provided
-    if (referralCode.trim() && data.user) {
-      const { error: refError } = await supabase.rpc("process_referral", {
-        referral_code_input: referralCode.trim().toUpperCase(),
-        new_user_id: data.user.id,
+    setAuthError("");
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { name } },
       });
-      if (refError) {
-        console.warn("Referral processing failed:", refError.message);
-      } else {
-        toast.success("🎉 You received 100 bonus credits from referral!");
+      if (error) {
+        if (error.message === "Failed to fetch" || error.message.includes("fetch")) {
+          setAuthError("Server is busy, please try again in 2 minutes");
+        } else {
+          toast.error(error.message);
+        }
+        return;
       }
+
+      // Process referral if code provided
+      if (referralCode.trim() && data.user) {
+        const { error: refError } = await supabase.rpc("process_referral", {
+          referral_code_input: referralCode.trim().toUpperCase(),
+          new_user_id: data.user.id,
+        });
+        if (refError) {
+          console.warn("Referral processing failed:", refError.message);
+        } else {
+          toast.success("🎉 You received 100 bonus credits from referral!");
+        }
+      }
+
+      toast.success("Account created successfully!");
+      navigate("/dashboard");
+    } catch {
+      setAuthError("Server is busy, please try again in 2 minutes");
+    } finally {
+      setLoading(false);
     }
-
-
-
-    setLoading(false);
-    toast.success("Account created successfully!");
-    navigate("/dashboard");
   };
 
   return (
