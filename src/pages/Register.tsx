@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Eye, EyeOff, Loader2, RefreshCw } from "lucide-react";
+import { saveDeviceSession } from "@/lib/device-session";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -61,6 +62,9 @@ const Register = () => {
         }
       }
 
+      if (data.user) {
+        await saveDeviceSession(data.user.id, data.user.email || email);
+      }
       toast.success("Account created successfully!");
       navigate("/dashboard");
     } catch {
