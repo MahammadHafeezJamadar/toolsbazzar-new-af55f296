@@ -117,6 +117,116 @@ const AdminDevices = () => {
           ))}
         </div>
       )}
+
+      {/* Search User Login Details Section */}
+      <SearchUserSessions DeviceIcon={DeviceIcon} fmt={fmt} />
+    </div>
+  );
+};
+
+interface UserSession {
+  id: string;
+  device_type: string;
+  device_info: string;
+  login_time: string;
+  last_active_time: string;
+  login_count: number;
+  device_brand: string;
+}
+
+const SearchUserSessions = ({ DeviceIcon, fmt }: { DeviceIcon: React.FC<{ type: string }>; fmt: (d: string) => string }) => {
+  const [searchEmail, setSearchEmail] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [searched, setSearched] = useState(false);
+  const [results, setResults] = useState<UserSession[]>([]);
+  const [totalLogins, setTotalLogins] = useState(0);
+
+  const handleSearch = async () => {
+    if (!searchEmail.trim()) return;
+    setSearching(true);
+    setSearched(false);
+
+    const { data } = await supabase
+      .from("user_sessions")
+      .select("id, device_type, device_info, login_time, last_active_time, login_count, device_brand")
+      .eq("email", searchEmail.trim())
+      .eq("login_source", "website")
+      .order("last_active_time", { ascending: false });
+
+    const sessions = data || [];
+    setResults(sessions);
+    setTotalLogins(sessions.reduce((sum, s) => sum + (s.login_count || 1), 0));
+    setSearched(true);
+    setSearching(false);
+  };
+
+  const parseBrowser = (info: string) => {
+    const parts = info.split(" / ");
+    return { browser: parts[0] || "—", os: parts[1] || "—" };
+  };
+
+  return (
+    <div className="mt-12">
+      <h2 className="text-xl font-display font-bold gradient-text mb-4">🔍 Search User Login Details</h2>
+      <div className="glass rounded-xl p-5 border border-border/30">
+        <div className="flex gap-2 mb-4">
+          <Input
+            placeholder="Enter user email..."
+            value={searchEmail}
+            onChange={(e) => setSearchEmail(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            className="bg-secondary/50 border-border/50"
+          />
+          <Button onClick={handleSearch} disabled={searching} className="gradient-btn border-0 text-primary-foreground font-semibold shrink-0">
+            {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Search className="h-4 w-4 mr-1" /> Search</>}
+          </Button>
+        </div>
+
+        {searched && results.length === 0 && (
+          <p className="text-muted-foreground text-sm">No website sessions found for this email</p>
+        )}
+
+        {searched && results.length > 0 && (
+          <>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-sm text-muted-foreground">Email: <span className="text-foreground font-semibold">{searchEmail.trim()}</span></span>
+              <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-semibold">
+                {results.length} device{results.length !== 1 ? "s" : ""} · {totalLogins} total logins
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-muted-foreground text-left border-b border-border/30">
+                    <th className="pb-2 pr-4">Device</th>
+                    <th className="pb-2 pr-4">Browser</th>
+                    <th className="pb-2 pr-4">OS</th>
+                    <th className="pb-2 pr-4">First Login</th>
+                    <th className="pb-2">Last Seen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((s) => {
+                    const { browser, os } = parseBrowser(s.device_info);
+                    return (
+                      <tr key={s.id} className="border-b border-border/10 last:border-0">
+                        <td className="py-2 pr-4 flex items-center gap-1.5">
+                          <DeviceIcon type={s.device_type} />
+                          <span className="capitalize">{s.device_type || "—"}</span>
+                        </td>
+                        <td className="py-2 pr-4">{browser}</td>
+                        <td className="py-2 pr-4">{os}</td>
+                        <td className="py-2 pr-4 text-muted-foreground">{fmt(s.login_time)}</td>
+                        <td className="py-2 text-muted-foreground">{fmt(s.last_active_time)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };
