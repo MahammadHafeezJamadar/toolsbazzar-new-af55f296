@@ -10,8 +10,12 @@ const TestimonialsSection = () => (
   <section id="testimonials" className="py-16 md:py-28">
     <div className="container mx-auto px-4">
       <div className="text-center mb-10 md:mb-16">
-        <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 tracking-tight">Trusted by Indian Creators</h2>
-        <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">Join thousands of creators already using ToolsBazzar</p>
+        <h2 className="font-display text-2xl md:text-3xl lg:text-5xl font-bold mb-4 gradient-text heading-glow" style={{ letterSpacing: '-0.02em' }}>
+          Trusted by Indian Creators
+        </h2>
+        <p className="text-sm md:text-base max-w-xl mx-auto" style={{ color: 'rgba(255,255,255,0.6)' }}>
+          Join thousands of creators already using ToolsBazzar
+        </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
         {testimonials.map((t, i) => (
@@ -23,14 +27,14 @@ const TestimonialsSection = () => (
             transition={{ delay: i * 0.1 }}
             className="bg-card border border-border rounded-xl p-5 md:p-6 hover-lift hover-glow group cursor-default"
           >
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed group-hover:text-foreground/70 transition-colors duration-300">"{t.text}"</p>
+            <p className="text-sm mb-6 leading-relaxed group-hover:text-foreground/70 transition-colors duration-300" style={{ color: 'rgba(255,255,255,0.65)' }}>"{t.text}"</p>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-accent/10 border border-border flex items-center justify-center text-sm font-semibold text-accent hover-ring-pulse">
+              <div className="w-10 h-10 rounded-full bg-accent/10 border border-border flex items-center justify-center text-sm font-semibold text-accent hover-ring-pulse font-display">
                 {t.initials}
               </div>
               <div>
                 <div className="font-medium text-sm text-foreground">{t.name}</div>
-                <div className="text-xs text-muted-foreground">{t.role}</div>
+                <div className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{t.role}</div>
               </div>
             </div>
           </motion.div>

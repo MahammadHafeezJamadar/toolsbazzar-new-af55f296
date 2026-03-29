@@ -11,26 +11,26 @@ const HeroSection = () => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
       >
-        <span className="inline-block px-4 py-1.5 mb-6 md:mb-8 rounded-full text-xs font-medium tracking-wider uppercase border border-border text-muted-foreground">
+        <span className="inline-block px-4 py-1.5 mb-6 md:mb-8 rounded-full text-xs font-medium uppercase border border-border text-muted-foreground" style={{ letterSpacing: '0.15em' }}>
           AI-Powered Video Generation
         </span>
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black leading-[0.95] mb-6 md:mb-8 tracking-tight">
+        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-extrabold leading-[0.95] mb-6 md:mb-8 gradient-text heading-glow" style={{ letterSpacing: '-0.02em' }}>
           Create Cinematic
           <br />
           Videos with
           <br />
           <span className="gradient-text">AI</span>
         </h1>
-        <p className="max-w-xl mx-auto text-sm md:text-base text-muted-foreground mb-8 md:mb-12 leading-relaxed px-2">
+        <p className="max-w-xl mx-auto text-sm md:text-base mb-8 md:mb-12 leading-relaxed px-2" style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 300, letterSpacing: '0.02em' }}>
           India's most affordable Google Flow access. Generate stunning AI videos with Veo 3.1 technology. Starting at just ₹299/month.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4 sm:px-0">
-          <Button size="lg" className="gradient-btn border-0 font-semibold px-8 h-12 rounded-lg w-full sm:w-auto hover-shine" asChild>
+          <Button size="lg" className="gradient-btn border-0 font-semibold px-8 h-12 rounded-lg w-full sm:w-auto hover-shine uppercase" style={{ letterSpacing: '0.05em', fontWeight: 600 }} asChild>
             <Link to="/register">
               Start Creating Now <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" className="border-border hover:bg-secondary hover:border-accent/40 font-semibold h-12 rounded-lg w-full sm:w-auto transition-all duration-300" asChild>
+          <Button size="lg" variant="outline" className="border-border hover:bg-secondary hover:border-accent/40 font-semibold h-12 rounded-lg w-full sm:w-auto transition-all duration-300 uppercase" style={{ letterSpacing: '0.05em', fontWeight: 600 }} asChild>
             <a href="#pricing">
               <Play className="mr-2 h-4 w-4" /> View Plans
             </a>

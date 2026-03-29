@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -44,6 +44,9 @@
     --sidebar-accent-foreground: 0 0% 96%;
     --sidebar-border: 0 0% 14%;
     --sidebar-ring: 174 72% 46%;
+
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
   }
 }
 
@@ -53,8 +56,27 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  p {
+    font-family: var(--font-body);
+    font-weight: 400;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  button, a, label, span, li {
+    font-family: var(--font-body);
   }
 }
 
@@ -67,7 +89,14 @@
   }
   .gradient-text {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(174 72% 46%), hsl(174 72% 60%));
+    background-image: linear-gradient(135deg, hsl(174 72% 56%), hsl(0 0% 100%));
+  }
+  .gradient-text-gold {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(45 100% 60%), hsl(0 0% 100%));
+  }
+  .heading-glow {
+    text-shadow: 0 0 40px hsl(174 72% 46% / 0.3), 0 0 80px hsl(174 72% 46% / 0.1);
   }
   .gradient-btn {
     @apply bg-accent text-accent-foreground hover:bg-accent/90;
