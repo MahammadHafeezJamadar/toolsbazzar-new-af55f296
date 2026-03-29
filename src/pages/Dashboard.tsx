@@ -477,8 +477,6 @@ const Dashboard = () => {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-2 gap-3 mb-6"
         >
-          <StatCard icon={Zap} label="Credits Left" value={creditsRemaining.toLocaleString()} sub={`of ${creditsTotal.toLocaleString()}`} color="accent" />
-          <StatCard icon={CalendarClock} label="Daily Used" value={`${usedToday}`} sub={`of ${dailyLimit} limit`} color="accent" />
           <StatCard
             icon={CreditCard}
             label="Status"
