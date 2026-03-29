@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Loader2, RefreshCw } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -19,23 +19,35 @@ const Login = () => {
   const [resetEmail, setResetEmail] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [authError, setAuthError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (loading) return;
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-    } else if (data.user) {
-      const result = await trackDeviceSession(data.user.id, data.user.email || email);
-      if (result.locked) {
-        await supabase.auth.signOut();
-        setLockout(result);
-      } else {
-        navigate("/dashboard");
+    setAuthError("");
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        if (error.message === "Failed to fetch" || error.message.includes("fetch")) {
+          setAuthError("Server is busy, please try again in 2 minutes");
+        } else {
+          toast.error(error.message);
+        }
+      } else if (data.user) {
+        const result = await trackDeviceSession(data.user.id, data.user.email || email);
+        if (result.locked) {
+          await supabase.auth.signOut();
+          setLockout(result);
+        } else {
+          navigate("/dashboard");
+        }
       }
+    } catch {
+      setAuthError("Server is busy, please try again in 2 minutes");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -106,6 +118,14 @@ const Login = () => {
               <h1 className="text-xl font-semibold mt-4">Welcome back</h1>
               <p className="text-sm text-muted-foreground mt-1">Sign in to your account</p>
             </div>
+            {authError && (
+              <div className="rounded-lg p-3 bg-destructive/10 border border-destructive/30 flex items-center justify-between gap-2">
+                <p className="text-sm text-destructive">{authError}</p>
+                <button type="button" onClick={() => handleLogin()} className="flex items-center gap-1 text-xs text-primary hover:underline whitespace-nowrap">
+                  <RefreshCw className="h-3 w-3" /> Retry
+                </button>
+              </div>
+            )}
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <Label htmlFor="email">Email</Label>
@@ -124,7 +144,7 @@ const Login = () => {
                 </button>
               </div>
               <Button type="submit" disabled={loading} className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
-                {loading ? "Signing in..." : "Sign In"}
+                {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Signing in...</> : "Sign In"}
               </Button>
             </form>
             <p className="text-sm text-center text-muted-foreground mt-6">

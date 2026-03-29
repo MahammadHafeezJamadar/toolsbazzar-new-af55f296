@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2, RefreshCw } from "lucide-react";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -17,10 +17,12 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [searchParams] = useSearchParams();
   const [referralCode, setReferralCode] = useState(searchParams.get("ref") || "");
+  const [authError, setAuthError] = useState("");
   const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRegister = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (loading) return;
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -30,35 +32,42 @@ const Register = () => {
       return;
     }
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { name } },
-    });
-    if (error) {
-      setLoading(false);
-      toast.error(error.message);
-      return;
-    }
-
-    // Process referral if code provided
-    if (referralCode.trim() && data.user) {
-      const { error: refError } = await supabase.rpc("process_referral", {
-        referral_code_input: referralCode.trim().toUpperCase(),
-        new_user_id: data.user.id,
+    setAuthError("");
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { name } },
       });
-      if (refError) {
-        console.warn("Referral processing failed:", refError.message);
-      } else {
-        toast.success("🎉 You received 100 bonus credits from referral!");
+      if (error) {
+        if (error.message === "Failed to fetch" || error.message.includes("fetch")) {
+          setAuthError("Server is busy, please try again in 2 minutes");
+        } else {
+          toast.error(error.message);
+        }
+        return;
       }
+
+      // Process referral if code provided
+      if (referralCode.trim() && data.user) {
+        const { error: refError } = await supabase.rpc("process_referral", {
+          referral_code_input: referralCode.trim().toUpperCase(),
+          new_user_id: data.user.id,
+        });
+        if (refError) {
+          console.warn("Referral processing failed:", refError.message);
+        } else {
+          toast.success("🎉 You received 100 bonus credits from referral!");
+        }
+      }
+
+      toast.success("Account created successfully!");
+      navigate("/dashboard");
+    } catch {
+      setAuthError("Server is busy, please try again in 2 minutes");
+    } finally {
+      setLoading(false);
     }
-
-
-
-    setLoading(false);
-    toast.success("Account created successfully!");
-    navigate("/dashboard");
   };
 
   return (
@@ -70,6 +79,14 @@ const Register = () => {
           <h1 className="text-xl font-semibold mt-4">Create your account</h1>
           <p className="text-sm text-muted-foreground mt-1">Start creating AI videos today</p>
         </div>
+        {authError && (
+          <div className="rounded-lg p-3 bg-destructive/10 border border-destructive/30 flex items-center justify-between gap-2 mb-4">
+            <p className="text-sm text-destructive">{authError}</p>
+            <button type="button" onClick={() => handleRegister()} className="flex items-center gap-1 text-xs text-primary hover:underline whitespace-nowrap">
+              <RefreshCw className="h-3 w-3" /> Retry
+            </button>
+          </div>
+        )}
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
             <Label htmlFor="name">Full Name</Label>
@@ -102,7 +119,7 @@ const Register = () => {
             <Input id="referralCode" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} placeholder="Enter referral code" className="mt-1 bg-secondary/50 border-border/50 font-mono uppercase" />
           </div>
           <Button type="submit" disabled={loading} className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
-            {loading ? "Creating account..." : "Create Account"}
+            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating account...</> : "Create Account"}
           </Button>
         </form>
         <p className="text-sm text-center text-muted-foreground mt-6">
