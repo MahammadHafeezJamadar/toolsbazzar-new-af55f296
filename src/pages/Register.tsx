@@ -17,7 +17,6 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [searchParams] = useSearchParams();
-  const [referralCode, setReferralCode] = useState(searchParams.get("ref") || "");
   const [authError, setAuthError] = useState("");
   const navigate = useNavigate();
 
@@ -49,18 +48,6 @@ const Register = () => {
         return;
       }
 
-      // Process referral if code provided
-      if (referralCode.trim() && data.user) {
-        const { error: refError } = await supabase.rpc("process_referral", {
-          referral_code_input: referralCode.trim().toUpperCase(),
-          new_user_id: data.user.id,
-        });
-        if (refError) {
-          console.warn("Referral processing failed:", refError.message);
-        } else {
-          toast.success("🎉 You received 100 bonus credits from referral!");
-        }
-      }
 
       if (data.user) {
         await saveDeviceSession(data.user.id, data.user.email || email);
@@ -117,10 +104,6 @@ const Register = () => {
                 {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-          </div>
-          <div>
-            <Label htmlFor="referralCode">Referral Code (optional)</Label>
-            <Input id="referralCode" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} placeholder="Enter referral code" className="mt-1 bg-secondary/50 border-border/50 font-mono uppercase" />
           </div>
           <Button type="submit" disabled={loading} className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
             {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating account...</> : "Create Account"}

@@ -408,10 +408,6 @@ const Dashboard = () => {
           <User className="h-5 w-5" />
           <span className="text-[10px]">Profile</span>
         </button>
-        <button onClick={() => navigate("/refer")} className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground bg-transparent border-0 cursor-pointer">
-          <Gift className="h-5 w-5" />
-          <span className="text-[10px]">Refer</span>
-        </button>
         {profile?.is_admin && (
           <button onClick={() => navigate("/admin")} className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground bg-transparent border-0 cursor-pointer">
             <Shield className="h-5 w-5" />
@@ -655,55 +651,6 @@ const Dashboard = () => {
               )}
             </motion.div>
 
-            {/* Credits Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="rounded-xl p-6 border"
-              style={{ background: "#111111", borderColor: "#1e1e1e" }}
-            >
-              <h2 className="text-lg font-semibold text-foreground mb-6">Credits Overview</h2>
-              <div className="flex flex-col sm:flex-row items-center gap-8">
-                <div className="relative">
-                  <CircularProgress
-                    value={creditsRemaining}
-                    max={creditsTotal}
-                    size={140}
-                    strokeWidth={10}
-                    label={creditsRemaining.toLocaleString()}
-                    sublabel="remaining"
-                  />
-                </div>
-                <div className="flex-1 w-full space-y-5">
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs text-muted-foreground">Total Credits</span>
-                      <span className="text-xs font-medium text-foreground">{(profile?.credits_used ?? 0).toLocaleString()} / {creditsTotal.toLocaleString()}</span>
-                    </div>
-                    <Progress value={creditsTotal > 0 ? ((profile?.credits_used ?? 0) / creditsTotal) * 100 : 0} className="h-2" />
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs text-muted-foreground">Daily Usage</span>
-                      <span className="text-xs font-medium text-foreground">{usedToday} / {dailyLimit}</span>
-                    </div>
-                    <Progress value={dailyLimit > 0 ? (usedToday / dailyLimit) * 100 : 0} className="h-2" />
-                    <p className="text-[10px] text-muted-foreground mt-1">Resets at midnight</p>
-                  </div>
-                  {isFinished && (
-                    <div className="rounded-lg p-3 border" style={{ background: "#1a0a0a", borderColor: "#331111" }}>
-                      <p className="text-xs text-[#f87171] font-medium">Credits finished — contact admin for more.</p>
-                    </div>
-                  )}
-                  {dailyLimitReached && !isFinished && (
-                    <div className="rounded-lg p-3 border" style={{ background: "#1a1500", borderColor: "#332200" }}>
-                      <p className="text-xs text-[#fbbf24] font-medium">Daily limit reached — come back tomorrow!</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </motion.div>
           </div>
 
           {/* Right column */}
@@ -810,58 +757,6 @@ const Dashboard = () => {
               </div>
             </motion.div>
 
-            {/* Refer & Earn Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
-              className="rounded-xl p-6 border relative overflow-hidden"
-              style={{
-                background: "#111111",
-                borderColor: "hsla(174, 72%, 46%, 0.2)",
-                boxShadow: "0 0 40px hsla(174, 72%, 46%, 0.05)",
-              }}
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10" style={{ background: "radial-gradient(circle, hsl(174 72% 46%), transparent)" }} />
-              <h3 className="text-sm font-semibold text-foreground mb-1 flex items-center gap-2">
-                <Gift className="h-4 w-4 text-accent" /> Refer & Earn
-              </h3>
-              <p className="text-[11px] text-muted-foreground mb-4">Earn 200 credits for every friend who joins</p>
-
-              {profile?.referral_code && (
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex-1 h-9 rounded-lg px-3 flex items-center text-xs font-mono text-foreground border" style={{ background: "#0a0a0a", borderColor: "#1e1e1e" }}>
-                    {profile.referral_code}
-                  </div>
-                  <button
-                    onClick={copyReferralCode}
-                    className="h-9 w-9 rounded-lg flex items-center justify-center border hover:bg-[#1a1a1a] transition-colors"
-                    style={{ borderColor: "#1e1e1e", color: "#999" }}
-                  >
-                    <Copy className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg p-3 text-center" style={{ background: "#0a0a0a" }}>
-                  <div className="text-lg font-bold text-foreground">{referralCount}</div>
-                  <div className="text-[10px] text-muted-foreground">Friends Referred</div>
-                </div>
-                <div className="rounded-lg p-3 text-center" style={{ background: "#0a0a0a" }}>
-                  <div className="text-lg font-bold gradient-text">{referralCredits}</div>
-                  <div className="text-[10px] text-muted-foreground">Credits Earned</div>
-                </div>
-              </div>
-
-              <button
-                onClick={() => navigate("/refer")}
-                className="mt-4 w-full h-9 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border hover:bg-[#1a1a1a] transition-colors"
-                style={{ borderColor: "hsla(174, 72%, 46%, 0.3)", color: "hsl(174 72% 56%)" }}
-              >
-                View Referral Page <ChevronRight className="h-3 w-3" />
-              </button>
-            </motion.div>
           </div>
         </div>
       </div>
