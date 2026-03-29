@@ -247,7 +247,7 @@ const Dashboard = () => {
 
   const handleDownloadInvoice = () => {
     if (!profile) return;
-    const planPrices: Record<string, number> = { Basic: 299, Pro: 499, Ultra: 799 };
+    const planPrices: Record<string, number> = { Starter: 299, Pro: 499, Ultra: 999 };
     const amount = planPrices[profile.plan] || 0;
     const invoiceNo = `TB-${Date.now().toString(36).toUpperCase()}`;
     const activationDate = profile.created_at ? new Date(profile.created_at).toLocaleDateString("en-IN") : new Date().toLocaleDateString("en-IN");
