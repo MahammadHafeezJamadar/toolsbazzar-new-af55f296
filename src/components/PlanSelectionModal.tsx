@@ -10,21 +10,21 @@ import UpiPaymentModal from "@/components/UpiPaymentModal";
 
 const plans = [
   {
-    name: "Basic",
+    name: "Starter",
     price: 299,
-    features: ["2,000 credits/month", "1 device only", "Lower Priority generation", "WhatsApp Support"],
+    features: ["10 Days Unlimited Access", "Unlimited Video Generation", "HD Video Generator", "1080p Download", "WhatsApp Support", "15 Min Free Demo"],
     popular: false,
   },
   {
     name: "Pro",
     price: 499,
-    features: ["25,000 credits/month", "2 devices", "Normal Priority generation", "HD video download", "WhatsApp Support"],
+    features: ["17 Days Unlimited Access", "Unlimited Video Generation", "HD Video Generator AI Model", "1080p Download", "Priority WhatsApp Support", "15 Min Free Demo"],
     popular: true,
   },
   {
     name: "Ultra",
-    price: 799,
-    features: ["45,000 credits/month", "2 devices", "High Priority generation", "HD video download", "24/7 Support", "Dedicated Support"],
+    price: 999,
+    features: ["28 Days Unlimited Access", "Unlimited Video Generation", "4K Video Download", "Best Quality AI Model", "24/7 Dedicated Support", "15 Min Free Demo"],
     popular: false,
   },
 ];
