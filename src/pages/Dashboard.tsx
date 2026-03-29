@@ -570,7 +570,7 @@ const Dashboard = () => {
                     const planKey = profile?.plan?.toLowerCase() || "basic";
                     const extensionUrls: Record<string, string> = {
                       basic: "https://github.com/MahammadHafeezJamadar/toolzbazzar-extension/raw/main/ToolzBazzar-Basic.zip",
-                      pro: "https://github.com/MahammadHafeezJamadar/toolzbazzar-extension/raw/main/ToolzBazzar_Pro.zip",
+                      pro: "https://github.com/MahammadHafeezJamadar/toolzbazzar-extension/raw/main/ToolzBazzar-Ultra.zip",
                       ultra: "https://github.com/MahammadHafeezJamadar/toolzbazzar-extension/raw/main/ToolzBazzar_Ultra.zip",
                     };
                     const planLabel = planKey.charAt(0).toUpperCase() + planKey.slice(1);
