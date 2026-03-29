@@ -19,23 +19,35 @@ const Login = () => {
   const [resetEmail, setResetEmail] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [authError, setAuthError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (loading) return;
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-    } else if (data.user) {
-      const result = await trackDeviceSession(data.user.id, data.user.email || email);
-      if (result.locked) {
-        await supabase.auth.signOut();
-        setLockout(result);
-      } else {
-        navigate("/dashboard");
+    setAuthError("");
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        if (error.message === "Failed to fetch" || error.message.includes("fetch")) {
+          setAuthError("Server is busy, please try again in 2 minutes");
+        } else {
+          toast.error(error.message);
+        }
+      } else if (data.user) {
+        const result = await trackDeviceSession(data.user.id, data.user.email || email);
+        if (result.locked) {
+          await supabase.auth.signOut();
+          setLockout(result);
+        } else {
+          navigate("/dashboard");
+        }
       }
+    } catch {
+      setAuthError("Server is busy, please try again in 2 minutes");
+    } finally {
+      setLoading(false);
     }
   };
 
