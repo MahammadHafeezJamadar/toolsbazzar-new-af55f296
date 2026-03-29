@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
+import AdminDevices from "./pages/AdminDevices";
 import ReferAndEarn from "./pages/ReferAndEarn";
 import ProfilePage from "./pages/ProfilePage";
 import ResetPassword from "./pages/ResetPassword";
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/devices" element={<AdminDevices />} />
           <Route path="/refer" element={<ReferAndEarn />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/reset-password" element={<ResetPassword />} />
