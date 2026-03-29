@@ -79,6 +79,14 @@ const Register = () => {
           <h1 className="text-xl font-semibold mt-4">Create your account</h1>
           <p className="text-sm text-muted-foreground mt-1">Start creating AI videos today</p>
         </div>
+        {authError && (
+          <div className="rounded-lg p-3 bg-destructive/10 border border-destructive/30 flex items-center justify-between gap-2 mb-4">
+            <p className="text-sm text-destructive">{authError}</p>
+            <button type="button" onClick={() => handleRegister()} className="flex items-center gap-1 text-xs text-primary hover:underline whitespace-nowrap">
+              <RefreshCw className="h-3 w-3" /> Retry
+            </button>
+          </div>
+        )}
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
             <Label htmlFor="name">Full Name</Label>
@@ -111,7 +119,7 @@ const Register = () => {
             <Input id="referralCode" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} placeholder="Enter referral code" className="mt-1 bg-secondary/50 border-border/50 font-mono uppercase" />
           </div>
           <Button type="submit" disabled={loading} className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
-            {loading ? "Creating account..." : "Create Account"}
+            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating account...</> : "Create Account"}
           </Button>
         </form>
         <p className="text-sm text-center text-muted-foreground mt-6">
