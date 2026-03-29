@@ -35,6 +35,42 @@ export type Database = {
         }
         Relationships: []
       }
+      device_sessions: {
+        Row: {
+          browser: string | null
+          created_at: string
+          device_type: string | null
+          email: string
+          id: string
+          last_seen: string
+          os: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          browser?: string | null
+          created_at?: string
+          device_type?: string | null
+          email: string
+          id?: string
+          last_seen?: string
+          os?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          browser?: string | null
+          created_at?: string
+          device_type?: string | null
+          email?: string
+          id?: string
+          last_seen?: string
+          os?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       global_settings: {
         Row: {
           id: string
