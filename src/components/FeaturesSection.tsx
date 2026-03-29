@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Video, Zap, IndianRupee, HeadphonesIcon } from "lucide-react";
 
 const features = [
@@ -32,7 +31,7 @@ const FeaturesSection = () => (
   <section id="features" className="py-16 md:py-28">
     <div className="container mx-auto px-4">
       <div className="text-center mb-10 md:mb-16">
-        <h2 className="font-display text-2xl md:text-3xl lg:text-5xl font-bold mb-4 gradient-text heading-glow" style={{ letterSpacing: '-0.02em' }}>
+        <h2 className="font-display text-2xl md:text-3xl lg:text-5xl font-bold mb-4 gradient-text" style={{ letterSpacing: '-0.02em' }}>
           Why Creators Choose ToolsBazzar
         </h2>
         <p className="text-sm md:text-base max-w-lg mx-auto" style={{ color: 'rgba(255,255,255,0.6)' }}>
@@ -40,17 +39,13 @@ const FeaturesSection = () => (
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
-        {features.map((f, i) => (
-          <motion.div
+        {features.map((f) => (
+          <div
             key={f.title}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-card border border-border rounded-xl p-5 md:p-6 hover-lift hover-glow group cursor-default"
+            className="bg-card border border-border rounded-xl p-5 md:p-6 cursor-default"
           >
-            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors duration-300">
-              <f.icon className="h-5 w-5 text-accent hover-icon-pop" />
+            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
+              <f.icon className="h-5 w-5 text-accent" />
             </div>
             <h3 className="font-display font-semibold text-base md:text-lg mb-2 text-foreground">{f.title}</h3>
             <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.65)' }}>{f.desc}</p>
@@ -62,7 +57,7 @@ const FeaturesSection = () => (
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>
