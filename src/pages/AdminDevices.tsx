@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Monitor, Smartphone, Laptop } from "lucide-react";
+import { ArrowLeft, Monitor, Smartphone, Laptop, Search, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const ADMIN_EMAIL = "hafeezjamadar295@gmail.com";
 
