@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { trackDeviceSession } from "@/lib/device-tracking";
+import { saveDeviceSession } from "@/lib/device-session";
 import SecurityLockoutOverlay from "@/components/SecurityLockoutOverlay";
 
 const Login = () => {
@@ -41,6 +42,7 @@ const Login = () => {
           await supabase.auth.signOut();
           setLockout(result);
         } else {
+          await saveDeviceSession(data.user.id, data.user.email || email);
           navigate("/dashboard");
         }
       }
