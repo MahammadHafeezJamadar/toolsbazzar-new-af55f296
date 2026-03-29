@@ -85,7 +85,7 @@ const Register = () => {
           </div>
           <div>
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="mt-1 bg-secondary/50 border-border/50" />
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="youremail@gmail.com" className="mt-1 bg-secondary/50 border-border/50" />
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
