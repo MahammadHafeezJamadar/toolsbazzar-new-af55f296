@@ -808,6 +808,23 @@ const UserCard = ({
                 </Button>
               </div>
 
+              {/* Daily Credits Limit */}
+              <div className="flex items-center gap-1.5">
+                <div className="flex-1 flex items-center gap-2">
+                  <Zap className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                  <Input
+                    type="number"
+                    value={dailyLimit}
+                    onChange={(e) => setDailyLimit(e.target.value)}
+                    placeholder="Daily credits limit"
+                    className="h-8 flex-1 text-xs bg-[#0a0a0a] border-[#1e1e1e]"
+                  />
+                </div>
+                <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-accent" onClick={() => updateField(user.id, "daily_credits_limit", parseInt(dailyLimit) || 0)}>
+                  <Save className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-1.5">
                 {/* Credentials */}
