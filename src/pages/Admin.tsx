@@ -669,6 +669,7 @@ const UserCard = ({
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [googleEmail, setGoogleEmail] = useState(user.google_email || "");
   const [googlePassword, setGooglePassword] = useState(user.google_password || "");
+  const [dailyLimit, setDailyLimit] = useState(String(user.daily_credits_limit || 0));
   const [cookiesJson, setCookiesJson] = useState(
     user.cookies_json ? JSON.stringify(user.cookies_json, null, 2) : ""
   );
