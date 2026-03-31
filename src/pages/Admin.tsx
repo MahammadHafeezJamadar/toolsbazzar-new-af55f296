@@ -631,22 +631,15 @@ const SettingsTab = ({
 };
 
 /* ─── User Card ─── */
-const planGlowColors: Record<string, { bg: string; text: string; glow: string; border: string; gradient: string }> = {
-  Starter: { bg: "rgba(56,189,248,0.08)", text: "#38bdf8", glow: "0 0 20px rgba(56,189,248,0.15)", border: "rgba(56,189,248,0.25)", gradient: "linear-gradient(135deg, #0c4a6e, #0e7490)" },
-  Basic: { bg: "rgba(56,189,248,0.08)", text: "#38bdf8", glow: "0 0 20px rgba(56,189,248,0.15)", border: "rgba(56,189,248,0.25)", gradient: "linear-gradient(135deg, #0c4a6e, #0e7490)" },
-  Pro: { bg: "rgba(168,85,247,0.08)", text: "#a855f7", glow: "0 0 20px rgba(168,85,247,0.15)", border: "rgba(168,85,247,0.25)", gradient: "linear-gradient(135deg, #581c87, #7e22ce)" },
-  Ultra: { bg: "rgba(251,191,36,0.08)", text: "#fbbf24", glow: "0 0 20px rgba(251,191,36,0.15)", border: "rgba(251,191,36,0.25)", gradient: "linear-gradient(135deg, #78350f, #b45309)" },
-};
-
-const getDaysRemaining = (expiryDate: string | null): { days: number; color: string; bgColor: string; label: string } => {
-  if (!expiryDate) return { days: -1, color: "#6b7280", bgColor: "rgba(107,114,128,0.1)", label: "No expiry" };
+const getDaysRemaining = (expiryDate: string | null): { days: number; color: string; label: string } => {
+  if (!expiryDate) return { days: -1, color: "text-muted-foreground", label: "No expiry" };
   const now = new Date();
   const expiry = new Date(expiryDate);
   const diff = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  if (diff <= 0) return { days: 0, color: "#ef4444", bgColor: "rgba(239,68,68,0.12)", label: "Expired" };
-  if (diff <= 3) return { days: diff, color: "#ef4444", bgColor: "rgba(239,68,68,0.12)", label: `${diff}d left` };
-  if (diff <= 7) return { days: diff, color: "#f97316", bgColor: "rgba(249,115,22,0.12)", label: `${diff}d left` };
-  return { days: diff, color: "#22c55e", bgColor: "rgba(34,197,94,0.12)", label: `${diff}d left` };
+  if (diff <= 0) return { days: 0, color: "text-[#ef4444]", label: "Expired" };
+  if (diff <= 3) return { days: diff, color: "text-[#ef4444]", label: `${diff}d left` };
+  if (diff <= 7) return { days: diff, color: "text-[#f97316]", label: `${diff}d left` };
+  return { days: diff, color: "text-[#22c55e]", label: `${diff}d left` };
 };
 
 const UserCard = ({
@@ -680,10 +673,7 @@ const UserCard = ({
     user.cookies_json ? JSON.stringify(user.cookies_json, null, 2) : ""
   );
 
-  const initials = (user.name || user.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
-  const pc = planGlowColors[user.plan] || planGlowColors.Basic;
   const daysInfo = getDaysRemaining(user.expiry_date);
-
   const planDurations: Record<string, number> = { Starter: 8, Pro: 17, Ultra: 28 };
 
   const loadSessions = async () => {
@@ -736,271 +726,203 @@ const UserCard = ({
 
   return (
     <div
-      className="relative overflow-hidden transition-all duration-300 cursor-pointer group"
-      style={{
-        background: "#12121a",
-        borderRadius: "16px",
-        border: `1px solid ${expanded ? pc.border : "rgba(255,255,255,0.06)"}`,
-        boxShadow: expanded ? pc.glow : "none",
-      }}
+      className="rounded-xl border p-4 cursor-pointer"
+      style={{ background: "#111111", borderColor: "#1e1e1e" }}
       onClick={() => setExpanded(!expanded)}
     >
-      {/* Subtle top gradient line */}
-      <div className="absolute top-0 left-0 right-0 h-[1px] opacity-60" style={{ background: `linear-gradient(90deg, transparent, ${pc.text}, transparent)` }} />
-
-      {/* Card Header */}
-      <div className="p-5">
-        <div className="flex items-start gap-3.5">
-          {/* Avatar with gradient */}
-          <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-bold flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
-            style={{
-              background: pc.gradient,
-              color: "#fff",
-              boxShadow: pc.glow,
-            }}
-          >
-            {initials}
+      {/* Header */}
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-sm font-bold text-accent flex-shrink-0">
+          {(user.name || user.email || "U").charAt(0).toUpperCase()}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-foreground truncate">{user.name || "—"}</span>
+            <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              <span
-                className="font-bold text-sm bg-clip-text text-transparent"
-                style={{ backgroundImage: `linear-gradient(135deg, ${pc.text}, #fff)` }}
-              >
-                {user.name || "—"}
-              </span>
-              <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} />
+          <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+          {user.mobile_number && (
+            <div className="text-[11px] text-muted-foreground/60 flex items-center gap-1 mt-0.5">
+              <Phone className="h-3 w-3" /> {user.mobile_number}
             </div>
-            <div className="text-xs text-muted-foreground truncate">{user.email}</div>
-            {user.mobile_number && (
-              <div className="text-[11px] text-muted-foreground/60 flex items-center gap-1 mt-0.5">
-                <Phone className="h-3 w-3" /> {user.mobile_number}
-              </div>
-            )}
-          </div>
+          )}
         </div>
-
-        {/* Badges Row */}
-        <div className="flex items-center gap-1.5 flex-wrap mt-3.5">
-          {/* Plan badge with glow */}
-          <span
-            className="text-[11px] font-semibold px-2.5 py-1 rounded-full transition-all duration-300"
-            style={{
-              background: pc.bg,
-              color: pc.text,
-              border: `1px solid ${pc.border}`,
-              boxShadow: `0 0 12px ${pc.border}`,
-            }}
-          >
-            {user.plan || "Starter"}
-          </span>
-
-          {/* Status badge */}
-          <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full border ${
-            user.subscription_active
-              ? "bg-[rgba(34,197,94,0.08)] text-[#22c55e] border-[rgba(34,197,94,0.2)]"
-              : "bg-[rgba(239,68,68,0.08)] text-[#ef4444] border-[rgba(239,68,68,0.2)]"
-          }`}>
-            {user.subscription_active ? "● Active" : "● Inactive"}
-          </span>
-
-          {/* Days remaining badge */}
-          <span
-            className="text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1"
-            style={{
-              background: daysInfo.bgColor,
-              color: daysInfo.color,
-              border: `1px solid ${daysInfo.color}33`,
-            }}
-          >
-            <Calendar className="h-3 w-3" />
-            {daysInfo.label}
-          </span>
-
-          {/* Devices count */}
-          <span className="text-[11px] text-muted-foreground ml-auto flex items-center gap-1 px-2 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.04)" }}>
-            <Monitor className="h-3 w-3" /> {activeDevices}
-          </span>
-        </div>
-
-        {/* Expiry pill */}
-        {user.expiry_date && (
-          <div className="mt-3 flex items-center gap-2">
-            <span className="text-[10px] text-muted-foreground/50 px-2.5 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              Expires: {new Date(user.expiry_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-            </span>
-          </div>
-        )}
       </div>
 
-      {/* Expanded Content */}
+      {/* Badges */}
+      <div className="flex items-center gap-1.5 flex-wrap mt-3">
+        <Badge variant="outline" className="text-[10px] h-5">{user.plan || "Starter"}</Badge>
+        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
+          user.subscription_active ? "bg-[#0d3320] text-[#34d399]" : "bg-[#331111] text-[#f87171]"
+        }`}>
+          {user.subscription_active ? "Active" : "Inactive"}
+        </span>
+        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${daysInfo.color}`} style={{ background: "rgba(255,255,255,0.05)" }}>
+          <Calendar className="h-3 w-3 inline mr-0.5" />{daysInfo.label}
+        </span>
+        <span className="text-[10px] text-muted-foreground ml-auto flex items-center gap-1">
+          <Monitor className="h-3 w-3" /> {activeDevices}
+        </span>
+      </div>
+
+      {/* Expanded */}
       <AnimatePresence>
         {expanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.2 }}
             className="overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-5 pb-5 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-              {/* Info Grid - Glass stat boxes */}
-              <div className="grid grid-cols-2 gap-2.5 mt-4 mb-4">
-                <GlassInfoItem label="Expiry" value={user.expiry_date || "—"} />
-                <GlassInfoItem label="Devices" value={`${activeDevices} connected`} icon={<Monitor className="h-3 w-3" />} />
-                <GlassInfoItem label="Location" value={[user.city, user.state].filter(Boolean).join(", ") || "—"} icon={<MapPin className="h-3 w-3" />} />
-                <GlassInfoItem label="Registered" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"} icon={<Clock className="h-3 w-3" />} />
+            <div className="border-t mt-3 pt-3 space-y-3" style={{ borderColor: "#1e1e1e" }}>
+              {/* Info grid */}
+              <div className="grid grid-cols-2 gap-2">
+                <InfoItem label="Expiry" value={user.expiry_date || "—"} />
+                <InfoItem label="Devices" value={`${activeDevices} connected`} />
+                <InfoItem label="Location" value={[user.city, user.state].filter(Boolean).join(", ") || "—"} />
+                <InfoItem label="Registered" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"} />
               </div>
 
               {/* Plan Selector */}
-              <div className="space-y-2.5">
-                <div className="flex items-center gap-2">
-                  <Select value={plan} onValueChange={handlePlanChange}>
-                    <SelectTrigger className="h-9 flex-1 text-xs rounded-xl border-0" style={{ background: "rgba(255,255,255,0.04)", color: "#fff" }}>
-                      <SelectValue placeholder="Plan" />
-                    </SelectTrigger>
-                    <SelectContent style={{ background: "#1a1a2e", borderColor: "rgba(255,255,255,0.1)" }}>
-                      <SelectItem value="Starter">Starter — 8 days</SelectItem>
-                      <SelectItem value="Pro">Pro — 17 days</SelectItem>
-                      <SelectItem value="Ultra">Ultra — 28 days</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="flex items-center gap-2">
+                <Select value={plan} onValueChange={handlePlanChange}>
+                  <SelectTrigger className="h-8 flex-1 text-xs bg-[#0a0a0a] border-[#1e1e1e]">
+                    <SelectValue placeholder="Plan" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#111111] border-[#1e1e1e]">
+                    <SelectItem value="Starter">Starter — 8 days</SelectItem>
+                    <SelectItem value="Pro">Pro — 17 days</SelectItem>
+                    <SelectItem value="Ultra">Ultra — 28 days</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                {/* Expiry date override */}
-                <div className="flex items-center gap-1.5">
-                  <Input type="date" value={expiry} onChange={(e) => setExpiry(e.target.value)} className="h-9 flex-1 text-xs rounded-xl border-0" style={{ background: "rgba(255,255,255,0.04)" }} />
-                  <button
-                    className="h-9 w-9 flex-shrink-0 flex items-center justify-center rounded-xl transition-all duration-200 hover:scale-105"
-                    style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e" }}
-                    onClick={() => updateField(user.id, "expiry_date", expiry)}
-                  >
-                    <Save className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+              {/* Expiry override */}
+              <div className="flex items-center gap-1.5">
+                <Input type="date" value={expiry} onChange={(e) => setExpiry(e.target.value)} className="h-8 flex-1 text-xs bg-[#0a0a0a] border-[#1e1e1e]" />
+                <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-accent" onClick={() => updateField(user.id, "expiry_date", expiry)}>
+                  <Save className="h-3.5 w-3.5" />
+                </Button>
+              </div>
 
-                {/* Action Buttons - Pill shaped */}
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  {/* Credentials */}
-                  <Dialog open={credOpen} onOpenChange={setCredOpen}>
-                    <DialogTrigger asChild>
-                      <button className="h-8 px-3.5 rounded-full text-[11px] font-medium flex items-center gap-1.5 transition-all duration-200 hover:scale-[1.03]" style={{ background: "rgba(255,255,255,0.05)", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.08)" }}>
-                        <KeyRound className="h-3 w-3" /> Creds
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg" style={{ background: "#12121a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px" }}>
-                      <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-foreground">
-                          <KeyRound className="h-4 w-4" style={{ color: pc.text }} /> Credentials — {user.email}
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4 pt-2">
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Google Email</Label>
-                          <Input value={googleEmail} onChange={(e) => setGoogleEmail(e.target.value)} className="mt-1 rounded-xl border-0" style={{ background: "rgba(255,255,255,0.04)" }} />
-                        </div>
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Google Password</Label>
-                          <Input type="password" value={googlePassword} onChange={(e) => setGooglePassword(e.target.value)} className="mt-1 rounded-xl border-0" style={{ background: "rgba(255,255,255,0.04)" }} />
-                        </div>
-                        <div>
-                          <Label className="flex items-center gap-1 text-xs text-muted-foreground"><Cookie className="h-3 w-3" /> Cookies JSON</Label>
-                          <Textarea value={cookiesJson} onChange={(e) => setCookiesJson(e.target.value)} className="mt-1 rounded-xl border-0 font-mono text-xs min-h-[120px]" style={{ background: "rgba(255,255,255,0.04)" }} placeholder='[{"name":"...", "value":"..."}]' />
-                        </div>
-                        <Button className="w-full rounded-xl font-semibold h-10" style={{ background: pc.gradient, color: "#fff" }} onClick={saveCreds}>
-                          <Save className="h-4 w-4 mr-2" /> Save Credentials
-                        </Button>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-1.5">
+                {/* Credentials */}
+                <Dialog open={credOpen} onOpenChange={setCredOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="outline" className="h-7 text-[11px] gap-1 border-[#1e1e1e] bg-transparent">
+                      <KeyRound className="h-3 w-3" /> Creds
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg bg-[#111111] border-[#1e1e1e]">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2 text-foreground">
+                        <KeyRound className="h-4 w-4 text-accent" /> Credentials — {user.email}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-2">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Google Email</Label>
+                        <Input value={googleEmail} onChange={(e) => setGoogleEmail(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e]" />
                       </div>
-                    </DialogContent>
-                  </Dialog>
-
-                  {/* Devices */}
-                  <Dialog open={sessionsOpen} onOpenChange={(open) => { setSessionsOpen(open); if (open) loadSessions(); }}>
-                    <DialogTrigger asChild>
-                      <button className="h-8 px-3.5 rounded-full text-[11px] font-medium flex items-center gap-1.5 transition-all duration-200 hover:scale-[1.03]" style={{ background: "rgba(255,255,255,0.05)", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.08)" }}>
-                        <Monitor className="h-3 w-3" /> Devices
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto" style={{ background: "#12121a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px" }}>
-                      <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-foreground">
-                          <Monitor className="h-4 w-4" style={{ color: pc.text }} /> Device Sessions — {user.email}
-                        </DialogTitle>
-                      </DialogHeader>
-                      <DeviceSessionsSection sessions={sessions} sessionsLoading={sessionsLoading} userPlan={user.plan} revokeSession={revokeSession} userId={user.id} />
-                    </DialogContent>
-                  </Dialog>
-
-                  {/* Profile */}
-                  <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
-                    <DialogTrigger asChild>
-                      <button className="h-8 px-3.5 rounded-full text-[11px] font-medium flex items-center gap-1.5 transition-all duration-200 hover:scale-[1.03]" style={{ background: "rgba(255,255,255,0.05)", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.08)" }}>
-                        <Eye className="h-3 w-3" /> Profile
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto" style={{ background: "#12121a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px" }}>
-                      <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-foreground">
-                          <Eye className="h-4 w-4" style={{ color: pc.text }} /> {user.name || user.email}
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4 pt-2">
-                        <Section title="Basic Info">
-                          <InfoRow label="Name" value={user.name} />
-                          <InfoRow label="Email" value={user.email} />
-                          <InfoRow label="WhatsApp" value={user.mobile_number} />
-                          <InfoRow label="Plan" value={user.plan} />
-                          <InfoRow label="Status" value={user.subscription_active ? "Active" : "Inactive"} isStatus active={user.subscription_active} />
-                        </Section>
-                        <Section title="Address">
-                          <InfoRow label="Street" value={user.street_address} />
-                          <InfoRow label="City" value={user.city} />
-                          <InfoRow label="State" value={user.state} />
-                          <InfoRow label="PIN" value={user.pin_code} />
-                          <InfoRow label="Country" value={user.country} />
-                        </Section>
-                        <Section title="Account">
-                          <InfoRow label="Expiry" value={user.expiry_date} />
-                          <InfoRow label="Joined" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : null} />
-                        </Section>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Google Password</Label>
+                        <Input type="password" value={googlePassword} onChange={(e) => setGooglePassword(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e]" />
                       </div>
-                    </DialogContent>
-                  </Dialog>
+                      <div>
+                        <Label className="flex items-center gap-1 text-xs text-muted-foreground"><Cookie className="h-3 w-3" /> Cookies JSON</Label>
+                        <Textarea value={cookiesJson} onChange={(e) => setCookiesJson(e.target.value)} className="mt-1 font-mono text-xs min-h-[120px] bg-[#0a0a0a] border-[#1e1e1e]" placeholder='[{"name":"...", "value":"..."}]' />
+                      </div>
+                      <Button className="w-full gradient-btn border-0 font-semibold" onClick={saveCreds}>
+                        <Save className="h-4 w-4 mr-2" /> Save Credentials
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
 
-                  {/* Deactivate - red outline */}
-                  <button
-                    className="h-8 px-3.5 rounded-full text-[11px] font-medium transition-all duration-200 hover:scale-[1.03] flex items-center gap-1.5"
-                    style={{
-                      background: user.subscription_active ? "transparent" : "rgba(34,197,94,0.08)",
-                      color: user.subscription_active ? "#ef4444" : "#22c55e",
-                      border: `1px solid ${user.subscription_active ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}`,
-                    }}
-                    onClick={() => toggleSubscription(user.id, user.subscription_active)}
-                  >
-                    {user.subscription_active ? "Deactivate" : "Activate"}
-                  </button>
+                {/* Devices */}
+                <Dialog open={sessionsOpen} onOpenChange={(open) => { setSessionsOpen(open); if (open) loadSessions(); }}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="outline" className="h-7 text-[11px] gap-1 border-[#1e1e1e] bg-transparent">
+                      <Monitor className="h-3 w-3" /> Devices
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-[#111111] border-[#1e1e1e]">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2 text-foreground">
+                        <Monitor className="h-4 w-4 text-accent" /> Device Sessions — {user.email}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <DeviceSessionsSection sessions={sessions} sessionsLoading={sessionsLoading} userPlan={user.plan} revokeSession={revokeSession} userId={user.id} />
+                  </DialogContent>
+                </Dialog>
 
-                  {/* Delete - solid red */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <button className="h-8 px-3.5 rounded-full text-[11px] font-semibold flex items-center gap-1.5 transition-all duration-200 hover:scale-[1.03]" style={{ background: "rgba(239,68,68,0.9)", color: "#fff" }}>
-                        <Trash2 className="h-3 w-3" /> Delete
-                      </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent style={{ background: "#12121a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px" }}>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-foreground">Delete this user?</AlertDialogTitle>
-                        <AlertDialogDescription>Permanently delete account and all data. Cannot be undone.</AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="rounded-full" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onDeleteUser(user.id)} className="rounded-full" style={{ background: "rgba(239,68,68,0.9)", color: "#fff" }}>Delete</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
+                {/* Profile */}
+                <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="outline" className="h-7 text-[11px] gap-1 border-[#1e1e1e] bg-transparent">
+                      <Eye className="h-3 w-3" /> Profile
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto bg-[#111111] border-[#1e1e1e]">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2 text-foreground">
+                        <Eye className="h-4 w-4 text-accent" /> {user.name || user.email}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-2">
+                      <Section title="Basic Info">
+                        <InfoRow label="Name" value={user.name} />
+                        <InfoRow label="Email" value={user.email} />
+                        <InfoRow label="WhatsApp" value={user.mobile_number} />
+                        <InfoRow label="Plan" value={user.plan} />
+                        <InfoRow label="Status" value={user.subscription_active ? "Active" : "Inactive"} isStatus active={user.subscription_active} />
+                      </Section>
+                      <Section title="Address">
+                        <InfoRow label="Street" value={user.street_address} />
+                        <InfoRow label="City" value={user.city} />
+                        <InfoRow label="State" value={user.state} />
+                        <InfoRow label="PIN" value={user.pin_code} />
+                        <InfoRow label="Country" value={user.country} />
+                      </Section>
+                      <Section title="Account">
+                        <InfoRow label="Expiry" value={user.expiry_date} />
+                        <InfoRow label="Joined" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : null} />
+                      </Section>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Deactivate */}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={`h-7 text-[11px] ${user.subscription_active ? "border-[#ef4444]/30 text-[#ef4444] hover:bg-[#ef4444]/10" : "border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e]/10"} bg-transparent`}
+                  onClick={() => toggleSubscription(user.id, user.subscription_active)}
+                >
+                  {user.subscription_active ? "Deactivate" : "Activate"}
+                </Button>
+
+                {/* Delete */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" className="h-7 text-[11px] gap-1 bg-[#ef4444] hover:bg-[#dc2626] text-white border-0">
+                      <Trash2 className="h-3 w-3" /> Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-[#111111] border-[#1e1e1e]">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-foreground">Delete this user?</AlertDialogTitle>
+                      <AlertDialogDescription>Permanently delete account and all data. Cannot be undone.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="bg-[#1e1e1e] border-[#1e1e1e]">Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => onDeleteUser(user.id)} className="bg-[#ef4444] hover:bg-[#dc2626] text-white">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </motion.div>
@@ -1009,20 +931,6 @@ const UserCard = ({
     </div>
   );
 };
-
-/* ─── Glass Info Item ─── */
-const GlassInfoItem = ({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) => (
-  <div
-    className="rounded-xl p-3 transition-all duration-200 hover:border-[rgba(255,255,255,0.12)]"
-    style={{
-      background: "rgba(255,255,255,0.03)",
-      border: "1px solid rgba(255,255,255,0.06)",
-    }}
-  >
-    <div className="text-[10px] text-muted-foreground/60 mb-0.5 flex items-center gap-1">{icon}{label}</div>
-    <div className="text-xs font-medium text-foreground truncate">{value}</div>
-  </div>
-);
 /* ─── Security Alerts Section ─── */
 const SecurityAlertsSection = ({ userId, onRestore }: { userId: string; onRestore?: () => void }) => {
   const [events, setEvents] = useState<SecurityEvent[]>([]);
