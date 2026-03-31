@@ -125,7 +125,11 @@ export async function trackDeviceSession(userId: string, email: string): Promise
     // Same device, localStorage intact — just update
     await supabase
       .from("user_sessions")
-      .update({
+      .upsert({
+        id: existingDevice.id,
+        user_id: userId,
+        email,
+        device_id: deviceId,
         last_active_time: new Date().toISOString(),
         login_time: new Date().toISOString(),
         is_active: true,
@@ -137,8 +141,7 @@ export async function trackDeviceSession(userId: string, email: string): Promise
         stable_fingerprint: stableFingerprint,
         login_source: "website",
         login_count: (existingDevice.login_count ?? 0) + 1,
-      })
-      .eq("id", existingDevice.id);
+      } as any, { onConflict: 'id' });
 
     return { locked: false };
   }
