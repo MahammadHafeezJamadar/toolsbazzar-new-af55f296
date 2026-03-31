@@ -1276,7 +1276,8 @@ const UserDetailsTab = ({
         {filtered.map((u) => {
           const complete = isComplete(u);
           const initials = (u.name || u.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
-          const pc = planGlowColors[u.plan] || planGlowColors.Basic;
+          const planColors: Record<string, { bg: string; text: string }> = { Starter: { bg: "rgba(56,189,248,0.08)", text: "#38bdf8" }, Basic: { bg: "rgba(56,189,248,0.08)", text: "#38bdf8" }, Pro: { bg: "rgba(168,85,247,0.08)", text: "#a855f7" }, Ultra: { bg: "rgba(251,191,36,0.08)", text: "#fbbf24" } };
+          const pc = planColors[u.plan] || planColors.Basic;
           return (
             <div
               key={u.id}
