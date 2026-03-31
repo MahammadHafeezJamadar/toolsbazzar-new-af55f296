@@ -1368,7 +1368,7 @@ const UserDetailsTab = ({
         {filtered.map((u) => {
           const complete = isComplete(u);
           const initials = (u.name || u.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
-          const pc = planColors[u.plan] || planColors.Basic;
+          const pc = planGlowColors[u.plan] || planGlowColors.Basic;
           return (
             <div
               key={u.id}
