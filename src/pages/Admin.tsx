@@ -631,10 +631,22 @@ const SettingsTab = ({
 };
 
 /* ─── User Card ─── */
-const planColors: Record<string, { bg: string; text: string }> = {
-  Basic: { bg: "#1a2332", text: "#38bdf8" },
-  Pro: { bg: "#1a1a3e", text: "#818cf8" },
-  Ultra: { bg: "#2d1a3e", text: "#c084fc" },
+const planGlowColors: Record<string, { bg: string; text: string; glow: string; border: string; gradient: string }> = {
+  Starter: { bg: "rgba(56,189,248,0.08)", text: "#38bdf8", glow: "0 0 20px rgba(56,189,248,0.15)", border: "rgba(56,189,248,0.25)", gradient: "linear-gradient(135deg, #0c4a6e, #0e7490)" },
+  Basic: { bg: "rgba(56,189,248,0.08)", text: "#38bdf8", glow: "0 0 20px rgba(56,189,248,0.15)", border: "rgba(56,189,248,0.25)", gradient: "linear-gradient(135deg, #0c4a6e, #0e7490)" },
+  Pro: { bg: "rgba(168,85,247,0.08)", text: "#a855f7", glow: "0 0 20px rgba(168,85,247,0.15)", border: "rgba(168,85,247,0.25)", gradient: "linear-gradient(135deg, #581c87, #7e22ce)" },
+  Ultra: { bg: "rgba(251,191,36,0.08)", text: "#fbbf24", glow: "0 0 20px rgba(251,191,36,0.15)", border: "rgba(251,191,36,0.25)", gradient: "linear-gradient(135deg, #78350f, #b45309)" },
+};
+
+const getDaysRemaining = (expiryDate: string | null): { days: number; color: string; bgColor: string; label: string } => {
+  if (!expiryDate) return { days: -1, color: "#6b7280", bgColor: "rgba(107,114,128,0.1)", label: "No expiry" };
+  const now = new Date();
+  const expiry = new Date(expiryDate);
+  const diff = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  if (diff <= 0) return { days: 0, color: "#ef4444", bgColor: "rgba(239,68,68,0.12)", label: "Expired" };
+  if (diff <= 3) return { days: diff, color: "#ef4444", bgColor: "rgba(239,68,68,0.12)", label: `${diff}d left` };
+  if (diff <= 7) return { days: diff, color: "#f97316", bgColor: "rgba(249,115,22,0.12)", label: `${diff}d left` };
+  return { days: diff, color: "#22c55e", bgColor: "rgba(34,197,94,0.12)", label: `${diff}d left` };
 };
 
 const UserCard = ({
@@ -656,8 +668,6 @@ const UserCard = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [plan, setPlan] = useState(user.plan);
-  const [creditsTotal, setCreditsTotal] = useState(String(user.credits_total ?? 1000));
-  const [dailyLimit, setDailyLimit] = useState(String(user.daily_credits_limit ?? 100));
   const [expiry, setExpiry] = useState(user.expiry_date || "");
   const [credOpen, setCredOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -671,7 +681,10 @@ const UserCard = ({
   );
 
   const initials = (user.name || user.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
-  const pc = planColors[user.plan] || planColors.Basic;
+  const pc = planGlowColors[user.plan] || planGlowColors.Basic;
+  const daysInfo = getDaysRemaining(user.expiry_date);
+
+  const planDurations: Record<string, number> = { Starter: 8, Pro: 17, Ultra: 28 };
 
   const loadSessions = async () => {
     setSessionsLoading(true);
@@ -709,89 +722,116 @@ const UserCard = ({
     else { toast.success("Credentials saved"); setCredOpen(false); }
   };
 
-  const formatDate = (dateStr: string) => new Date(dateStr).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  const handlePlanChange = async (value: string) => {
+    setPlan(value);
+    const days = planDurations[value] || 8;
+    const newExpiry = new Date();
+    newExpiry.setDate(newExpiry.getDate() + days);
+    const expiryStr = newExpiry.toISOString().split("T")[0];
+    setExpiry(expiryStr);
+    const { error } = await supabase.from("profiles").update({ plan: value, expiry_date: expiryStr }).eq("id", user.id);
+    if (error) toast.error("Update failed");
+    else toast.success(`Plan → ${value} (${days} days)`);
+  };
 
   return (
     <div
-      className="rounded-xl border transition-all duration-300 cursor-pointer"
+      className="relative overflow-hidden transition-all duration-300 cursor-pointer group"
       style={{
-        background: "#111111",
-        borderColor: expanded ? "hsla(174, 72%, 46%, 0.3)" : "#1e1e1e",
-        boxShadow: expanded ? "0 0 25px hsla(174, 72%, 46%, 0.08)" : "none",
+        background: "#12121a",
+        borderRadius: "16px",
+        border: `1px solid ${expanded ? pc.border : "rgba(255,255,255,0.06)"}`,
+        boxShadow: expanded ? pc.glow : "none",
       }}
       onClick={() => setExpanded(!expanded)}
     >
+      {/* Subtle top gradient line */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] opacity-60" style={{ background: `linear-gradient(90deg, transparent, ${pc.text}, transparent)` }} />
+
       {/* Card Header */}
       <div className="p-5">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3.5">
+          {/* Avatar with gradient */}
           <div
-            className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+            className="w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-bold flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
             style={{
-              background: "linear-gradient(135deg, hsla(174, 72%, 46%, 0.2), hsla(150, 60%, 50%, 0.2))",
-              color: "hsl(174 72% 56%)",
-              border: "1px solid hsla(174, 72%, 46%, 0.3)",
+              background: pc.gradient,
+              color: "#fff",
+              boxShadow: pc.glow,
             }}
           >
             {initials}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="font-semibold text-sm text-foreground truncate">{user.name || "—"}</span>
-              <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+              <span
+                className="font-bold text-sm bg-clip-text text-transparent"
+                style={{ backgroundImage: `linear-gradient(135deg, ${pc.text}, #fff)` }}
+              >
+                {user.name || "—"}
+              </span>
+              <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} />
             </div>
             <div className="text-xs text-muted-foreground truncate">{user.email}</div>
             {user.mobile_number && (
-              <div className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+              <div className="text-[11px] text-muted-foreground/60 flex items-center gap-1 mt-0.5">
                 <Phone className="h-3 w-3" /> {user.mobile_number}
               </div>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-1.5 flex-wrap mt-3">
-          <span className="text-[11px] font-medium px-2 py-0.5 rounded-full" style={{ background: pc.bg, color: pc.text }}>
-            {user.plan || "—"}
+
+        {/* Badges Row */}
+        <div className="flex items-center gap-1.5 flex-wrap mt-3.5">
+          {/* Plan badge with glow */}
+          <span
+            className="text-[11px] font-semibold px-2.5 py-1 rounded-full transition-all duration-300"
+            style={{
+              background: pc.bg,
+              color: pc.text,
+              border: `1px solid ${pc.border}`,
+              boxShadow: `0 0 12px ${pc.border}`,
+            }}
+          >
+            {user.plan || "Starter"}
           </span>
-          <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${user.subscription_active ? "bg-[#0d3320] text-[#34d399]" : "bg-[#331111] text-[#f87171]"}`}>
-            {user.subscription_active ? "Active" : "Inactive"}
-          </span>
-          <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-            !!(user.name && user.mobile_number && user.city) ? "bg-[#0d3320] text-[#34d399]" : "bg-[#332200] text-[#fbbf24]"
+
+          {/* Status badge */}
+          <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full border ${
+            user.subscription_active
+              ? "bg-[rgba(34,197,94,0.08)] text-[#22c55e] border-[rgba(34,197,94,0.2)]"
+              : "bg-[rgba(239,68,68,0.08)] text-[#ef4444] border-[rgba(239,68,68,0.2)]"
           }`}>
-            {!!(user.name && user.mobile_number && user.city) ? "✅ Profile" : "❌ Incomplete"}
+            {user.subscription_active ? "● Active" : "● Inactive"}
           </span>
-          {referralCount > 0 && (
-            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#1a1a3e] text-[#818cf8]">
-              {referralCount} referral{referralCount > 1 ? "s" : ""}
-            </span>
-          )}
-          <span className="text-[11px] text-muted-foreground ml-auto flex items-center gap-1">
+
+          {/* Days remaining badge */}
+          <span
+            className="text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1"
+            style={{
+              background: daysInfo.bgColor,
+              color: daysInfo.color,
+              border: `1px solid ${daysInfo.color}33`,
+            }}
+          >
+            <Calendar className="h-3 w-3" />
+            {daysInfo.label}
+          </span>
+
+          {/* Devices count */}
+          <span className="text-[11px] text-muted-foreground ml-auto flex items-center gap-1 px-2 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.04)" }}>
             <Monitor className="h-3 w-3" /> {activeDevices}
           </span>
         </div>
 
-        {/* Credit Usage Progress */}
-        {(() => {
-          const used = user.credits_used ?? 0;
-          const total = user.credits_total ?? 1;
-          const pct = Math.min((used / total) * 100, 100);
-          const barColor = pct < 50 ? "#34d399" : pct < 80 ? "#fbbf24" : "#f87171";
-          return (
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] text-muted-foreground">Credits Used</span>
-                <span className="text-[10px] font-medium text-foreground">
-                  {used.toLocaleString()} / {(user.credits_total ?? 0).toLocaleString()}
-                </span>
-              </div>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#1e1e1e" }}>
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${pct}%`, background: barColor }}
-                />
-              </div>
-            </div>
-          );
-        })()}
+        {/* Expiry pill */}
+        {user.expiry_date && (
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-[10px] text-muted-foreground/50 px-2.5 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              Expires: {new Date(user.expiry_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Expanded Content */}
@@ -805,126 +845,105 @@ const UserCard = ({
             className="overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-5 pb-5 border-t" style={{ borderColor: "#1e1e1e" }}>
-              {/* Info Grid */}
-              <div className="grid grid-cols-2 gap-3 mt-4 mb-4">
-                <InfoItem label="Credits" value={`${user.credits_used ?? 0} / ${user.credits_total ?? 0}`} />
-                <InfoItem label="Daily" value={`${user.credits_used_today ?? 0} / ${user.daily_credits_limit ?? 0}`} />
-                <InfoItem label="Expiry" value={user.expiry_date || "—"} />
-                <InfoItem label="Devices" value={`${activeDevices} connected`} />
-                <InfoItem label="Location" value={[user.city, user.state, user.country].filter(Boolean).join(", ") || "—"} />
-                <InfoItem label="Registered" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"} />
-                <InfoItem label="Referrals" value={`${referralCount} referred`} />
-                <InfoItem label="Referred By" value={user.referred_by || "—"} />
+            <div className="px-5 pb-5 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+              {/* Info Grid - Glass stat boxes */}
+              <div className="grid grid-cols-2 gap-2.5 mt-4 mb-4">
+                <GlassInfoItem label="Expiry" value={user.expiry_date || "—"} />
+                <GlassInfoItem label="Devices" value={`${activeDevices} connected`} icon={<Monitor className="h-3 w-3" />} />
+                <GlassInfoItem label="Location" value={[user.city, user.state].filter(Boolean).join(", ") || "—"} icon={<MapPin className="h-3 w-3" />} />
+                <GlassInfoItem label="Registered" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"} icon={<Clock className="h-3 w-3" />} />
               </div>
 
-              {/* Action: Set Plan */}
+              {/* Plan Selector */}
               <div className="space-y-2.5">
                 <div className="flex items-center gap-2">
-                  <Select value={plan} onValueChange={async (value) => {
-                    setPlan(value);
-                    const { error } = await supabase.from("profiles").update({ plan: value, credits_total: 0, credits_used: 0, daily_credits_limit: 0 }).eq("id", user.id);
-                    if (error) toast.error("Update failed");
-                    else { setCreditsTotal("0"); setDailyLimit("0"); toast.success(`Plan → ${value}`); }
-                  }}>
-                    <SelectTrigger className="h-8 flex-1 text-xs bg-[#0a0a0a] border-[#1e1e1e]">
+                  <Select value={plan} onValueChange={handlePlanChange}>
+                    <SelectTrigger className="h-9 flex-1 text-xs rounded-xl border-0" style={{ background: "rgba(255,255,255,0.04)", color: "#fff" }}>
                       <SelectValue placeholder="Plan" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Basic">Basic — 2K</SelectItem>
-                      <SelectItem value="Pro">Pro — 25K</SelectItem>
-                      <SelectItem value="Ultra">Ultra — 45K</SelectItem>
+                    <SelectContent style={{ background: "#1a1a2e", borderColor: "rgba(255,255,255,0.1)" }}>
+                      <SelectItem value="Starter">Starter — 8 days</SelectItem>
+                      <SelectItem value="Pro">Pro — 17 days</SelectItem>
+                      <SelectItem value="Ultra">Ultra — 28 days</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Credits + Daily Limit */}
-                <div className="flex gap-2">
-                  <div className="flex items-center gap-1 flex-1">
-                    <Input type="number" value={creditsTotal} onChange={(e) => setCreditsTotal(e.target.value)} className="h-8 text-xs bg-[#0a0a0a] border-[#1e1e1e]" placeholder="Credits" />
-                    <button className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded bg-[#1a1a3e] text-[#818cf8] hover:bg-[#252560] transition-colors" onClick={() => updateField(user.id, "credits_total", parseInt(creditsTotal) || 0)}>
-                      <Save className="h-3 w-3" />
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-1 flex-1">
-                    <Input type="number" value={dailyLimit} onChange={(e) => setDailyLimit(e.target.value)} className="h-8 text-xs bg-[#0a0a0a] border-[#1e1e1e]" placeholder="Daily" />
-                    <button className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded bg-[#332200] text-[#fb923c] hover:bg-[#4a3300] transition-colors" onClick={() => updateField(user.id, "daily_credits_limit", parseInt(dailyLimit) || 0)}>
-                      <Save className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Expiry */}
-                <div className="flex items-center gap-1">
-                  <Input type="date" value={expiry} onChange={(e) => setExpiry(e.target.value)} className="h-8 flex-1 text-xs bg-[#0a0a0a] border-[#1e1e1e]" />
-                  <button className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded bg-[#0d3320] text-[#34d399] hover:bg-[#164e36] transition-colors" onClick={() => updateField(user.id, "expiry_date", expiry)}>
-                    <Save className="h-3 w-3" />
+                {/* Expiry date override */}
+                <div className="flex items-center gap-1.5">
+                  <Input type="date" value={expiry} onChange={(e) => setExpiry(e.target.value)} className="h-9 flex-1 text-xs rounded-xl border-0" style={{ background: "rgba(255,255,255,0.04)" }} />
+                  <button
+                    className="h-9 w-9 flex-shrink-0 flex items-center justify-center rounded-xl transition-all duration-200 hover:scale-105"
+                    style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e" }}
+                    onClick={() => updateField(user.id, "expiry_date", expiry)}
+                  >
+                    <Save className="h-3.5 w-3.5" />
                   </button>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {/* Set Credentials */}
+                {/* Action Buttons - Pill shaped */}
+                <div className="flex flex-wrap gap-1.5 pt-2">
+                  {/* Credentials */}
                   <Dialog open={credOpen} onOpenChange={setCredOpen}>
                     <DialogTrigger asChild>
-                      <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#0d2332] text-[#22d3ee] hover:bg-[#164050] transition-colors flex items-center gap-1">
+                      <button className="h-8 px-3.5 rounded-full text-[11px] font-medium flex items-center gap-1.5 transition-all duration-200 hover:scale-[1.03]" style={{ background: "rgba(255,255,255,0.05)", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.08)" }}>
                         <KeyRound className="h-3 w-3" /> Creds
                       </button>
                     </DialogTrigger>
-                    <DialogContent className="border-[#1e1e1e] max-w-lg" style={{ background: "#111111" }}>
+                    <DialogContent className="max-w-lg" style={{ background: "#12121a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px" }}>
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-foreground">
-                          <KeyRound className="h-4 w-4 text-accent" /> Credentials — {user.email}
+                          <KeyRound className="h-4 w-4" style={{ color: pc.text }} /> Credentials — {user.email}
                         </DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4 pt-2">
                         <div>
                           <Label className="text-xs text-muted-foreground">Google Email</Label>
-                          <Input value={googleEmail} onChange={(e) => setGoogleEmail(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent" />
+                          <Input value={googleEmail} onChange={(e) => setGoogleEmail(e.target.value)} className="mt-1 rounded-xl border-0" style={{ background: "rgba(255,255,255,0.04)" }} />
                         </div>
                         <div>
                           <Label className="text-xs text-muted-foreground">Google Password</Label>
-                          <Input type="password" value={googlePassword} onChange={(e) => setGooglePassword(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent" />
+                          <Input type="password" value={googlePassword} onChange={(e) => setGooglePassword(e.target.value)} className="mt-1 rounded-xl border-0" style={{ background: "rgba(255,255,255,0.04)" }} />
                         </div>
                         <div>
                           <Label className="flex items-center gap-1 text-xs text-muted-foreground"><Cookie className="h-3 w-3" /> Cookies JSON</Label>
-                          <Textarea value={cookiesJson} onChange={(e) => setCookiesJson(e.target.value)} className="mt-1 bg-[#0a0a0a] border-[#1e1e1e] font-mono text-xs min-h-[120px] focus:border-accent" placeholder='[{"name":"...", "value":"..."}]' />
+                          <Textarea value={cookiesJson} onChange={(e) => setCookiesJson(e.target.value)} className="mt-1 rounded-xl border-0 font-mono text-xs min-h-[120px]" style={{ background: "rgba(255,255,255,0.04)" }} placeholder='[{"name":"...", "value":"..."}]' />
                         </div>
-                        <Button className="w-full gradient-btn border-0 font-semibold" onClick={saveCreds}>
+                        <Button className="w-full rounded-xl font-semibold h-10" style={{ background: pc.gradient, color: "#fff" }} onClick={saveCreds}>
                           <Save className="h-4 w-4 mr-2" /> Save Credentials
                         </Button>
                       </div>
                     </DialogContent>
                   </Dialog>
 
-                  {/* View Devices */}
+                  {/* Devices */}
                   <Dialog open={sessionsOpen} onOpenChange={(open) => { setSessionsOpen(open); if (open) loadSessions(); }}>
                     <DialogTrigger asChild>
-                      <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#1e1e1e] text-[#999] hover:bg-[#2a2a2a] transition-colors flex items-center gap-1">
+                      <button className="h-8 px-3.5 rounded-full text-[11px] font-medium flex items-center gap-1.5 transition-all duration-200 hover:scale-[1.03]" style={{ background: "rgba(255,255,255,0.05)", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.08)" }}>
                         <Monitor className="h-3 w-3" /> Devices
                       </button>
                     </DialogTrigger>
-                    <DialogContent className="border-[#1e1e1e] max-w-3xl max-h-[80vh] overflow-y-auto" style={{ background: "#111111" }}>
+                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto" style={{ background: "#12121a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px" }}>
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-foreground">
-                          <Monitor className="h-4 w-4 text-accent" /> Device Sessions — {user.email}
+                          <Monitor className="h-4 w-4" style={{ color: pc.text }} /> Device Sessions — {user.email}
                         </DialogTitle>
                       </DialogHeader>
                       <DeviceSessionsSection sessions={sessions} sessionsLoading={sessionsLoading} userPlan={user.plan} revokeSession={revokeSession} userId={user.id} />
                     </DialogContent>
                   </Dialog>
 
-                  {/* View Profile */}
+                  {/* Profile */}
                   <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
                     <DialogTrigger asChild>
-                      <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#1e1e1e] text-foreground hover:bg-[#2a2a2a] transition-colors flex items-center gap-1">
+                      <button className="h-8 px-3.5 rounded-full text-[11px] font-medium flex items-center gap-1.5 transition-all duration-200 hover:scale-[1.03]" style={{ background: "rgba(255,255,255,0.05)", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.08)" }}>
                         <Eye className="h-3 w-3" /> Profile
                       </button>
                     </DialogTrigger>
-                    <DialogContent className="border-[#1e1e1e] max-w-lg max-h-[80vh] overflow-y-auto" style={{ background: "#111111" }}>
+                    <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto" style={{ background: "#12121a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px" }}>
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-foreground">
-                          <Eye className="h-4 w-4 text-accent" /> {user.name || user.email}
+                          <Eye className="h-4 w-4" style={{ color: pc.text }} /> {user.name || user.email}
                         </DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4 pt-2">
@@ -943,8 +962,6 @@ const UserCard = ({
                           <InfoRow label="Country" value={user.country} />
                         </Section>
                         <Section title="Account">
-                          <InfoRow label="Credits" value={`${user.credits_used ?? 0} / ${user.credits_total ?? 0}`} />
-                          <InfoRow label="Daily" value={`${user.credits_used_today ?? 0} / ${user.daily_credits_limit ?? 0}`} />
                           <InfoRow label="Expiry" value={user.expiry_date} />
                           <InfoRow label="Joined" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : null} />
                         </Section>
@@ -952,31 +969,34 @@ const UserCard = ({
                     </DialogContent>
                   </Dialog>
 
-                  {/* Activate/Deactivate */}
+                  {/* Deactivate - red outline */}
                   <button
-                    className={`h-7 px-2.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1 ${
-                      user.subscription_active ? "bg-[#331111] text-[#f87171] hover:bg-[#451a1a]" : "bg-[#0d3320] text-[#34d399] hover:bg-[#164e36]"
-                    }`}
+                    className="h-8 px-3.5 rounded-full text-[11px] font-medium transition-all duration-200 hover:scale-[1.03] flex items-center gap-1.5"
+                    style={{
+                      background: user.subscription_active ? "transparent" : "rgba(34,197,94,0.08)",
+                      color: user.subscription_active ? "#ef4444" : "#22c55e",
+                      border: `1px solid ${user.subscription_active ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}`,
+                    }}
                     onClick={() => toggleSubscription(user.id, user.subscription_active)}
                   >
                     {user.subscription_active ? "Deactivate" : "Activate"}
                   </button>
 
-                  {/* Delete */}
+                  {/* Delete - solid red */}
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <button className="h-7 px-2.5 rounded text-[11px] font-medium bg-[#331111] text-[#f87171] hover:bg-[#451a1a] transition-colors flex items-center gap-1">
+                      <button className="h-8 px-3.5 rounded-full text-[11px] font-semibold flex items-center gap-1.5 transition-all duration-200 hover:scale-[1.03]" style={{ background: "rgba(239,68,68,0.9)", color: "#fff" }}>
                         <Trash2 className="h-3 w-3" /> Delete
                       </button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="border-[#1e1e1e]" style={{ background: "#111111" }}>
+                    <AlertDialogContent style={{ background: "#12121a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px" }}>
                       <AlertDialogHeader>
                         <AlertDialogTitle className="text-foreground">Delete this user?</AlertDialogTitle>
                         <AlertDialogDescription>Permanently delete account and all data. Cannot be undone.</AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-[#1e1e1e] border-[#2a2a2a] text-foreground hover:bg-[#2a2a2a]">Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onDeleteUser(user.id)} className="bg-[#7f1d1d] text-[#fca5a5] hover:bg-[#991b1b]">Delete</AlertDialogAction>
+                        <AlertDialogCancel className="rounded-full" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onDeleteUser(user.id)} className="rounded-full" style={{ background: "rgba(239,68,68,0.9)", color: "#fff" }}>Delete</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -990,6 +1010,19 @@ const UserCard = ({
   );
 };
 
+/* ─── Glass Info Item ─── */
+const GlassInfoItem = ({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) => (
+  <div
+    className="rounded-xl p-3 transition-all duration-200 hover:border-[rgba(255,255,255,0.12)]"
+    style={{
+      background: "rgba(255,255,255,0.03)",
+      border: "1px solid rgba(255,255,255,0.06)",
+    }}
+  >
+    <div className="text-[10px] text-muted-foreground/60 mb-0.5 flex items-center gap-1">{icon}{label}</div>
+    <div className="text-xs font-medium text-foreground truncate">{value}</div>
+  </div>
+);
 /* ─── Security Alerts Section ─── */
 const SecurityAlertsSection = ({ userId, onRestore }: { userId: string; onRestore?: () => void }) => {
   const [events, setEvents] = useState<SecurityEvent[]>([]);
