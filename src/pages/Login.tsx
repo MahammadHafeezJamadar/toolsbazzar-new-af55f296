@@ -37,14 +37,23 @@ const Login = () => {
           toast.error(error.message);
         }
       } else if (data.user) {
-        const result = await trackDeviceSession(data.user.id, data.user.email || email);
-        if (result.locked) {
-          await supabase.auth.signOut();
-          setLockout(result);
-        } else {
-          await saveDeviceSession(data.user.id, data.user.email || email);
-          navigate("/dashboard");
+        try {
+          const result = await trackDeviceSession(data.user.id, data.user.email || email);
+          if (result.locked) {
+            await supabase.auth.signOut();
+            setLockout(result);
+            setLoading(false);
+            return;
+          }
+        } catch {
+          // Session tracking failed (e.g. 409 conflict) — proceed with login anyway
         }
+        try {
+          await saveDeviceSession(data.user.id, data.user.email || email);
+        } catch {
+          // Non-critical, ignore
+        }
+        navigate("/dashboard");
       }
     } catch {
       setAuthError("Server is busy, please try again in 2 minutes");

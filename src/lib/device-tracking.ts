@@ -231,7 +231,7 @@ export async function trackDeviceSession(userId: string, email: string): Promise
   const newDeviceNumber = sessions.length + 1;
   await supabase
     .from("user_sessions")
-    .insert({
+    .upsert({
       user_id: userId,
       email,
       device_id: deviceId,
@@ -245,10 +245,10 @@ export async function trackDeviceSession(userId: string, email: string): Promise
       last_active_time: new Date().toISOString(),
       is_active: true,
       login_count: 1,
-        device_number: newDeviceNumber,
-        triggered_lockout: false,
-        login_source: "website",
-    } as any);
+      device_number: newDeviceNumber,
+      triggered_lockout: false,
+      login_source: "website",
+    } as any, { onConflict: 'device_id' });
 
   return { locked: false };
 }
