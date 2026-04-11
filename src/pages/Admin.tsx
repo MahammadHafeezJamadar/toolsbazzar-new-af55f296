@@ -116,6 +116,8 @@ const Admin = () => {
   const [globalCookiesOpen, setGlobalCookiesOpen] = useState(false);
   const [globalCookies, setGlobalCookies] = useState("");
   const [globalCookiesLoading, setGlobalCookiesLoading] = useState(false);
+  const [globalHeygenCookies, setGlobalHeygenCookies] = useState("");
+  const [globalHeygenCookiesLoading, setGlobalHeygenCookiesLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [liveUsersToday, setLiveUsersToday] = useState(0);
   const navigate = useNavigate();
