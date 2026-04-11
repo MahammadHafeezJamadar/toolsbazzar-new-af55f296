@@ -463,6 +463,11 @@ const Admin = () => {
               globalCookiesLoading={globalCookiesLoading}
               loadGlobalCookies={loadGlobalCookies}
               saveGlobalCookies={saveGlobalCookies}
+              globalHeygenCookies={globalHeygenCookies}
+              setGlobalHeygenCookies={setGlobalHeygenCookies}
+              globalHeygenCookiesLoading={globalHeygenCookiesLoading}
+              loadGlobalHeygenCookies={loadGlobalHeygenCookies}
+              saveGlobalHeygenCookies={saveGlobalHeygenCookies}
             />
           )}
         </div>
