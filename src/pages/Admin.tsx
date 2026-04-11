@@ -628,6 +628,11 @@ const SettingsTab = ({
   globalCookiesLoading,
   loadGlobalCookies,
   saveGlobalCookies,
+  globalHeygenCookies,
+  setGlobalHeygenCookies,
+  globalHeygenCookiesLoading,
+  loadGlobalHeygenCookies,
+  saveGlobalHeygenCookies,
 }: {
   globalCookiesOpen: boolean;
   setGlobalCookiesOpen: (v: boolean) => void;
@@ -636,38 +641,80 @@ const SettingsTab = ({
   globalCookiesLoading: boolean;
   loadGlobalCookies: () => void;
   saveGlobalCookies: () => void;
+  globalHeygenCookies: string;
+  setGlobalHeygenCookies: (v: string) => void;
+  globalHeygenCookiesLoading: boolean;
+  loadGlobalHeygenCookies: () => void;
+  saveGlobalHeygenCookies: () => void;
 }) => {
   useEffect(() => {
     loadGlobalCookies();
+    loadGlobalHeygenCookies();
   }, []);
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-foreground mb-6">Settings</h1>
-      <div className="rounded-xl border p-6 max-w-2xl" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
-            <Globe className="h-4 w-4 text-accent" />
+      <div className="space-y-6 max-w-2xl">
+        {/* Global Cookies */}
+        <div className="rounded-xl border p-6" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+              <Globe className="h-4 w-4 text-accent" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">Global Cookies</h3>
+              <p className="text-xs text-muted-foreground">
+                When set, these cookies will be used for ALL users instead of individual user cookies.
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-foreground">Global Cookies</h3>
-            <p className="text-xs text-muted-foreground">
-              When set, these cookies will be used for ALL users instead of individual user cookies.
-            </p>
-          </div>
+          <Textarea
+            value={globalCookies}
+            onChange={(e) => setGlobalCookies(e.target.value)}
+            className="font-mono text-xs min-h-[200px] border-[#1e1e1e] bg-[#0a0a0a] focus:border-accent"
+            placeholder='[{"name":"...", "value":"..."}]'
+          />
+          <Button
+            className="mt-4 gradient-btn border-0 font-semibold"
+            onClick={saveGlobalCookies}
+            disabled={globalCookiesLoading}
+          >
+            <Save className="h-4 w-4 mr-2" /> {globalCookiesLoading ? "Saving..." : "Save Global Cookies"}
+          </Button>
         </div>
-        <Textarea
-          value={globalCookies}
-          onChange={(e) => setGlobalCookies(e.target.value)}
-          className="font-mono text-xs min-h-[200px] border-[#1e1e1e] bg-[#0a0a0a] focus:border-accent"
-          placeholder='[{"name":"...", "value":"..."}]'
-        />
-        <Button
-          className="mt-4 gradient-btn border-0 font-semibold"
-          onClick={saveGlobalCookies}
-          disabled={globalCookiesLoading}
-        >
-          <Save className="h-4 w-4 mr-2" /> {globalCookiesLoading ? "Saving..." : "Save Global Cookies"}
+
+        {/* Global HeyGen Cookies */}
+        <div className="rounded-xl border p-6" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
+              <Cookie className="h-4 w-4 text-purple-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">Global HeyGen Cookies</h3>
+              <p className="text-xs text-muted-foreground">
+                When set, these HeyGen cookies will be used for ALL users instead of individual user cookies.
+              </p>
+            </div>
+          </div>
+          <Textarea
+            value={globalHeygenCookies}
+            onChange={(e) => setGlobalHeygenCookies(e.target.value)}
+            className="font-mono text-xs min-h-[200px] border-[#1e1e1e] bg-[#0a0a0a] focus:border-purple-500"
+            placeholder='[{"name":"...", "value":"..."}]'
+          />
+          <Button
+            className="mt-4 border-0 font-semibold bg-purple-600 hover:bg-purple-700 text-white"
+            onClick={saveGlobalHeygenCookies}
+            disabled={globalHeygenCookiesLoading}
+          >
+            <Save className="h-4 w-4 mr-2" /> {globalHeygenCookiesLoading ? "Saving..." : "Save Global HeyGen Cookies"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
         </Button>
       </div>
     </div>
