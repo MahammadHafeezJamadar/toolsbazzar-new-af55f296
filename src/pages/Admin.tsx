@@ -50,6 +50,7 @@ interface UserProfile {
   google_email: string | null;
   google_password: string | null;
   cookies_json: any;
+  heygen_cookies: any;
   credits_total: number;
   credits_used: number;
   daily_credits_limit: number;
@@ -152,7 +153,7 @@ const Admin = () => {
   const loadUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by")
+      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, heygen_cookies, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by")
       .order("email");
     if (error) toast.error("Failed to load users");
     else setUsers(data || []);
@@ -697,6 +698,9 @@ const UserCard = ({
   const [cookiesJson, setCookiesJson] = useState(
     user.cookies_json ? JSON.stringify(user.cookies_json, null, 2) : ""
   );
+  const [heygenCookies, setHeygenCookies] = useState(
+    user.heygen_cookies ? JSON.stringify(user.heygen_cookies, null, 2) : ""
+  );
 
   const initials = (user.name || user.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
   const pc = planStyles[user.plan] || planStyles.Basic;
@@ -732,8 +736,13 @@ const UserCard = ({
       try { parsedCookies = JSON.parse(cookiesJson); }
       catch { toast.error("Invalid JSON for cookies"); return; }
     }
+    let parsedHeygen = null;
+    if (heygenCookies.trim()) {
+      try { parsedHeygen = JSON.parse(heygenCookies); }
+      catch { toast.error("Invalid JSON for HeyGen cookies"); return; }
+    }
     const { error } = await supabase.from("profiles").update({
-      google_email: googleEmail || null, google_password: googlePassword || null, cookies_json: parsedCookies,
+      google_email: googleEmail || null, google_password: googlePassword || null, cookies_json: parsedCookies, heygen_cookies: parsedHeygen,
     }).eq("id", user.id);
     if (error) toast.error("Failed to save credentials");
     else { toast.success("Credentials saved"); setCredOpen(false); }
@@ -945,6 +954,10 @@ const UserCard = ({
                         <div>
                           <Label className="flex items-center gap-1 text-xs text-muted-foreground"><Cookie className="h-3 w-3" /> Cookies JSON</Label>
                           <Textarea value={cookiesJson} onChange={(e) => setCookiesJson(e.target.value)} className="mt-1 font-mono text-xs min-h-[120px] border-0" style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px" }} placeholder='[{"name":"...", "value":"..."}]' />
+                        </div>
+                        <div>
+                          <Label className="flex items-center gap-1 text-xs text-muted-foreground"><Cookie className="h-3 w-3" /> HeyGen Cookies JSON</Label>
+                          <Textarea value={heygenCookies} onChange={(e) => setHeygenCookies(e.target.value)} className="mt-1 font-mono text-xs min-h-[120px] border-0" style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px" }} placeholder='[{"name":"...", "value":"..."}]' />
                         </div>
                         <Button className="w-full font-semibold h-10" style={{ background: pc.gradient, color: "#fff", borderRadius: "12px", border: "none" }} onClick={saveCreds}>
                           <Save className="h-4 w-4 mr-2" /> Save Credentials
