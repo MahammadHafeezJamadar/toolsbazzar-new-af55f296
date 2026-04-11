@@ -106,6 +106,7 @@ export type Database = {
           expiry_date: string | null
           google_email: string | null
           google_password: string | null
+          heygen_cookies: Json | null
           id: string
           is_admin: boolean | null
           last_reset_date: string
@@ -133,6 +134,7 @@ export type Database = {
           expiry_date?: string | null
           google_email?: string | null
           google_password?: string | null
+          heygen_cookies?: Json | null
           id?: string
           is_admin?: boolean | null
           last_reset_date?: string
@@ -160,6 +162,7 @@ export type Database = {
           expiry_date?: string | null
           google_email?: string | null
           google_password?: string | null
+          heygen_cookies?: Json | null
           id?: string
           is_admin?: boolean | null
           last_reset_date?: string
