@@ -715,11 +715,8 @@ const SettingsTab = ({
     </div>
   );
 };
-        </Button>
-      </div>
-    </div>
-  );
-};
+
+
 
 /* ─── Plan Colors ─── */
 const planStyles: Record<string, { bg: string; text: string; glow: string; border: string; gradient: string }> = {
