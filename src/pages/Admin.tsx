@@ -288,6 +288,42 @@ const Admin = () => {
     }
   };
 
+  const loadGlobalHeygenCookies = async () => {
+    const { data } = await supabase
+      .from("global_settings")
+      .select("value")
+      .eq("key", "global_heygen_cookies")
+      .single();
+    if (data?.value) setGlobalHeygenCookies(data.value);
+  };
+
+  const saveGlobalHeygenCookies = async () => {
+    if (globalHeygenCookies.trim()) {
+      try { JSON.parse(globalHeygenCookies); }
+      catch { toast.error("Invalid JSON"); return; }
+    }
+    setGlobalHeygenCookiesLoading(true);
+    const { data: existing } = await supabase
+      .from("global_settings")
+      .select("id")
+      .eq("key", "global_heygen_cookies")
+      .single();
+    let error;
+    if (existing) {
+      ({ error } = await supabase
+        .from("global_settings")
+        .update({ value: globalHeygenCookies.trim() || null, updated_at: new Date().toISOString() })
+        .eq("key", "global_heygen_cookies"));
+    } else {
+      ({ error } = await supabase
+        .from("global_settings")
+        .insert({ key: "global_heygen_cookies", value: globalHeygenCookies.trim() || null }));
+    }
+    setGlobalHeygenCookiesLoading(false);
+    if (error) toast.error("Failed to save HeyGen cookies");
+    else toast.success("Global HeyGen cookies saved");
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
