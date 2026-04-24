@@ -7,6 +7,7 @@ import {
   Users,
   BarChart3,
   Monitor,
+  CalendarClock,
   LogOut,
   Menu,
   X,
@@ -18,6 +19,7 @@ const navItems = [
   { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/admin/finance", label: "Finance", icon: Wallet },
   { to: "/admin", label: "Users", icon: Users },
+  { to: "/admin/renewals", label: "Renewals", icon: CalendarClock },
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/admin/devices", label: "Devices", icon: Monitor },
 ];
