@@ -114,8 +114,10 @@ export type Database = {
           name: string | null
           pin_code: string | null
           plan: string | null
+          plan_start_date: string | null
           referral_code: string | null
           referred_by: string | null
+          reminder_sent: boolean
           state: string | null
           street_address: string | null
           subscription_active: boolean | null
@@ -142,8 +144,10 @@ export type Database = {
           name?: string | null
           pin_code?: string | null
           plan?: string | null
+          plan_start_date?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          reminder_sent?: boolean
           state?: string | null
           street_address?: string | null
           subscription_active?: boolean | null
@@ -170,8 +174,10 @@ export type Database = {
           name?: string | null
           pin_code?: string | null
           plan?: string | null
+          plan_start_date?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          reminder_sent?: boolean
           state?: string | null
           street_address?: string | null
           subscription_active?: boolean | null
