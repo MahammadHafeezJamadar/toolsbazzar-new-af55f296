@@ -269,41 +269,108 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="rounded-2xl border p-4 md:p-5" style={cardStyle}>
-            <h3 className="text-sm font-semibold text-foreground mb-3">Recent Transactions</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="text-left text-muted-foreground border-b" style={{ borderColor: "#1e1e1e" }}>
-                    <th className="py-2 font-medium">Date</th>
-                    <th className="py-2 font-medium">Type</th>
-                    <th className="py-2 font-medium">Label</th>
-                    <th className="py-2 font-medium text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent.map((t) => (
-                    <tr key={t.id} className="border-b hover:bg-[#1a1a1a]/40 transition-colors" style={{ borderColor: "#161616" }}>
-                      <td className="py-2.5 text-foreground">{t.date}</td>
-                      <td className="py-2.5">
-                        <span
-                          className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold"
-                          style={{ background: `${planColors[t.type]}20`, color: planColors[t.type], border: `1px solid ${planColors[t.type]}40` }}
-                        >
-                          {t.type}
-                        </span>
-                      </td>
-                      <td className="py-2.5 text-muted-foreground">{t.label || "—"}</td>
-                      <td className="py-2.5 text-right font-semibold" style={{ color: isIncome(t.type) ? "#22c55e" : "#ef4444" }}>
-                        {isIncome(t.type) ? "+" : "−"}{formatINR(Number(t.amount))}
-                      </td>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 rounded-2xl border p-4 md:p-5" style={cardStyle}>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Recent Transactions</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-left text-muted-foreground border-b" style={{ borderColor: "#1e1e1e" }}>
+                      <th className="py-2 font-medium">Date</th>
+                      <th className="py-2 font-medium">Type</th>
+                      <th className="py-2 font-medium">Label</th>
+                      <th className="py-2 font-medium text-right">Amount</th>
                     </tr>
-                  ))}
-                  {recent.length === 0 && (
-                    <tr><td colSpan={4} className="py-6 text-center text-muted-foreground">No transactions yet</td></tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {recent.map((t) => (
+                      <tr key={t.id} className="border-b hover:bg-[#1a1a1a]/40 transition-colors" style={{ borderColor: "#161616" }}>
+                        <td className="py-2.5 text-foreground">{t.date}</td>
+                        <td className="py-2.5">
+                          <span
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                            style={{ background: `${planColors[t.type]}20`, color: planColors[t.type], border: `1px solid ${planColors[t.type]}40` }}
+                          >
+                            {t.type}
+                          </span>
+                        </td>
+                        <td className="py-2.5 text-muted-foreground">{t.label || "—"}</td>
+                        <td className="py-2.5 text-right font-semibold" style={{ color: isIncome(t.type) ? "#22c55e" : "#ef4444" }}>
+                          {isIncome(t.type) ? "+" : "−"}{formatINR(Number(t.amount))}
+                        </td>
+                      </tr>
+                    ))}
+                    {recent.length === 0 && (
+                      <tr><td colSpan={4} className="py-6 text-center text-muted-foreground">No transactions yet</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border p-4 md:p-5" style={{ ...cardStyle, borderColor: "#f59e0b30" }}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  <span style={{ color: "#f59e0b" }}>⚠️</span> Expiring Soon
+                </h3>
+                <button
+                  onClick={() => (window.location.href = "/admin/renewals")}
+                  className="text-[10px] text-muted-foreground hover:text-foreground"
+                >
+                  View all →
+                </button>
+              </div>
+              <div className="space-y-2">
+                {expiring.length === 0 && (
+                  <div className="text-xs text-muted-foreground py-6 text-center">
+                    No users expiring in next 7 days
+                  </div>
+                )}
+                {expiring.map((u) => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const exp = new Date(u.expiry_date!);
+                  exp.setHours(0, 0, 0, 0);
+                  const days = Math.ceil((exp.getTime() - today.getTime()) / 86400000);
+                  const color = days <= 3 ? "#ef4444" : days <= 7 ? "#f59e0b" : "#22c55e";
+                  const planColor = (planColors as any)[(u.plan || "BASIC").toUpperCase()] || "#888";
+                  return (
+                    <div
+                      key={u.id}
+                      className="flex items-center justify-between p-2.5 rounded-lg border"
+                      style={{ background: "#0a0a0a", borderColor: "#1e1e1e" }}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-medium text-foreground truncate">{u.name || u.email}</div>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span
+                            className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold"
+                            style={{ background: `${planColor}20`, color: planColor, border: `1px solid ${planColor}40` }}
+                          >
+                            {(u.plan || "Basic").toUpperCase()}
+                          </span>
+                          <span
+                            className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold"
+                            style={{ background: `${color}1f`, color }}
+                          >
+                            {days === 0 ? "Today" : `${days}d`}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => (window.location.href = "/admin/renewals")}
+                        className="ml-2 px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all hover:opacity-90"
+                        style={{
+                          background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
+                          color: "#0a0a0a",
+                        }}
+                      >
+                        Renew
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </>
