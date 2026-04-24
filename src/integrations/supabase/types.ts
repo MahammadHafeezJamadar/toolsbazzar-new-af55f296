@@ -268,6 +268,36 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          id: string
+          label: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date: string
+          id?: string
+          label?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          id?: string
+          label?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_sessions: {
         Row: {
           device_brand: string | null
