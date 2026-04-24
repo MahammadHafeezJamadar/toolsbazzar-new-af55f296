@@ -82,19 +82,45 @@ const Metric = ({
   </div>
 );
 
+interface ExpiringUser {
+  id: string;
+  name: string | null;
+  email: string;
+  plan: string | null;
+  expiry_date: string | null;
+}
+
 const AdminDashboard = () => {
   const [txns, setTxns] = useState<Transaction[]>([]);
   const [activeUsers, setActiveUsers] = useState(0);
+  const [expiring, setExpiring] = useState<ExpiringUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState<Range>("daily");
 
   const load = async () => {
-    const [{ data: txnData }, { count }] = await Promise.all([
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const in7 = new Date(today);
+    in7.setDate(in7.getDate() + 7);
+    const todayStr = today.toISOString().slice(0, 10);
+    const in7Str = in7.toISOString().slice(0, 10);
+
+    const [{ data: txnData }, { count }, { data: expData }] = await Promise.all([
       supabase.from("transactions").select("*").order("date", { ascending: false }),
       supabase.from("profiles").select("*", { count: "exact", head: true }).eq("subscription_active", true),
+      supabase
+        .from("profiles")
+        .select("id,name,email,plan,expiry_date")
+        .eq("subscription_active", true)
+        .not("expiry_date", "is", null)
+        .gte("expiry_date", todayStr)
+        .lte("expiry_date", in7Str)
+        .order("expiry_date", { ascending: true })
+        .limit(5),
     ]);
     setTxns((txnData ?? []) as Transaction[]);
     setActiveUsers(count ?? 0);
+    setExpiring((expData ?? []) as ExpiringUser[]);
     setLoading(false);
   };
 
