@@ -359,9 +359,48 @@ const Dashboard = () => {
   const dailyLimit = profile?.daily_credits_limit ?? 100;
   const dailyLimitReached = usedToday >= dailyLimit;
 
-  const daysLeft = profile?.expiry_date
-    ? Math.max(0, Math.ceil((new Date(profile.expiry_date).getTime() - Date.now()) / 86400000))
-    : 0;
+  const hasExpiry = !!profile?.expiry_date;
+  const expiryMs = hasExpiry ? new Date(profile!.expiry_date as string).getTime() : 0;
+  const rawDaysLeft = hasExpiry ? Math.ceil((expiryMs - Date.now()) / 86400000) : 0;
+  const daysLeft = Math.max(0, rawDaysLeft);
+  const isExpired = hasExpiry && rawDaysLeft <= 0;
+
+  // Expiry severity: >10 green, 4-10 orange, <4 red, expired red
+  const expirySeverity: "green" | "orange" | "red" | "none" = !hasExpiry
+    ? "none"
+    : isExpired
+      ? "red"
+      : daysLeft > 10
+        ? "green"
+        : daysLeft >= 4
+          ? "orange"
+          : "red";
+
+  const expiryColors = {
+    green: { text: "#22c55e", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.3)" },
+    orange: { text: "#fb923c", bg: "rgba(251,146,60,0.08)", border: "rgba(251,146,60,0.3)" },
+    red: { text: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.4)" },
+    none: { text: "#999", bg: "#151515", border: "#1e1e1e" },
+  }[expirySeverity];
+
+  const expiryLabel = !hasExpiry
+    ? "No expiry set"
+    : isExpired
+      ? "❌ Plan Expired"
+      : daysLeft > 10
+        ? `${daysLeft} days remaining`
+        : daysLeft >= 4
+          ? `⚠️ ${daysLeft} days remaining`
+          : `🔴 Expires soon! ${daysLeft} days left`;
+
+  const formattedExpiry = hasExpiry
+    ? new Date(profile!.expiry_date as string).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+    : "—";
+
+  const showRenewalBanner = hasExpiry && (isExpired || daysLeft < 10);
+  const renewalWaLink = `https://wa.me/919448646624?text=${encodeURIComponent(
+    `Hi! I want to renew my ${profile?.plan || ""} plan. My email: ${profile?.email || ""}`
+  )}`;
 
   const disabled = dailyLimitReached || isFinished;
   const initials = (profile?.name || profile?.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
@@ -437,6 +476,38 @@ const Dashboard = () => {
           </motion.div>
         )}
 
+        {/* Renewal Reminder Banner */}
+        {showRenewalBanner && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 rounded-xl p-4 border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+            style={{
+              background: "linear-gradient(135deg, rgba(239,68,68,0.12), rgba(251,146,60,0.08))",
+              borderColor: "rgba(239,68,68,0.4)",
+              boxShadow: "0 0 30px rgba(239,68,68,0.1)",
+            }}
+          >
+            <div>
+              <p className="text-sm font-semibold" style={{ color: "#fca5a5" }}>
+                {isExpired
+                  ? "❌ Your plan has expired!"
+                  : `⚠️ Your plan expires in ${daysLeft} day${daysLeft === 1 ? "" : "s"}!`}
+              </p>
+              <p className="text-xs mt-0.5 text-muted-foreground">Contact admin to renew and keep enjoying ToolsBazzar.</p>
+            </div>
+            <a
+              href={renewalWaLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg text-xs font-semibold whitespace-nowrap transition-transform hover:scale-[1.02]"
+              style={{ background: "#25D366", color: "#0a0a0a" }}
+            >
+              💬 Renew Now on WhatsApp
+            </a>
+          </motion.div>
+        )}
+
         {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -446,7 +517,7 @@ const Dashboard = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
             Welcome back, <span className="gradient-text">{profile?.name || "User"}</span>!
           </h1>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <span
               className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
               style={{
@@ -458,29 +529,55 @@ const Dashboard = () => {
             >
               {profile?.plan || "Free"} Plan
             </span>
-            {profile?.expiry_date && (
-              <span className="text-xs text-muted-foreground">
-                Expires in <span className="text-foreground font-medium">{daysLeft} days</span>
-              </span>
-            )}
+            <span
+              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
+              style={{ background: expiryColors.bg, borderColor: expiryColors.border, color: expiryColors.text }}
+            >
+              {expiryLabel}
+            </span>
           </div>
         </motion.div>
 
-        {/* Stats Cards */}
+        {/* Plan Expiry / Quick Stats Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 gap-3 mb-6"
+          className="rounded-2xl border p-5 mb-6"
+          style={{
+            background: "linear-gradient(135deg, #111111, #0d0d0d)",
+            borderColor: "#1e1e1e",
+            boxShadow: `0 0 30px ${expiryColors.bg}`,
+          }}
         >
-          <StatCard
-            icon={CreditCard}
-            label="Status"
-            value={profile?.subscription_active ? "Active" : "Inactive"}
-            sub={profile?.plan || "—"}
-            color={profile?.subscription_active ? "green" : "red"}
-          />
-          <StatCard icon={Clock} label="Days Left" value={String(daysLeft)} sub="in current plan" color="accent" />
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <CalendarClock className="h-4 w-4 text-accent" /> Plan Overview
+            </h2>
+            {hasExpiry && (
+              <span
+                className="text-[11px] font-semibold px-2.5 py-1 rounded-full border"
+                style={{ background: expiryColors.bg, borderColor: expiryColors.border, color: expiryColors.text }}
+              >
+                {expiryLabel}
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <MiniStat label="Plan" value={profile?.plan || "—"} />
+            <MiniStat
+              label="Status"
+              value={profile?.subscription_active ? "Active" : "Inactive"}
+              valueColor={profile?.subscription_active ? "#22c55e" : "#ef4444"}
+            />
+            <MiniStat label="Expires On" value={formattedExpiry} />
+            <MiniStat
+              label="Days Remaining"
+              value={hasExpiry ? (isExpired ? "0" : String(daysLeft)) : "—"}
+              valueColor={expiryColors.text}
+            />
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
@@ -805,5 +902,13 @@ const StatCard = ({
     </div>
   );
 };
+
+/* ─── Mini Stat ─── */
+const MiniStat = ({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) => (
+  <div className="rounded-xl border p-3" style={{ background: "#0d0d0d", borderColor: "#1e1e1e" }}>
+    <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">{label}</div>
+    <div className="text-sm font-semibold truncate" style={{ color: valueColor || "#f5f5f5" }}>{value}</div>
+  </div>
+);
 
 export default Dashboard;
