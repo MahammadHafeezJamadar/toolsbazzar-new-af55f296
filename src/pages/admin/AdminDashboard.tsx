@@ -226,7 +226,7 @@ const AdminDashboard = () => {
                     />
                     <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                       {planBars.map((b, i) => (
-                        <cell key={i} fill={b.color} />
+                        <Cell key={i} fill={b.color} />
                       ))}
                     </Bar>
                   </BarChart>
