@@ -903,4 +903,12 @@ const StatCard = ({
   );
 };
 
+/* ─── Mini Stat ─── */
+const MiniStat = ({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) => (
+  <div className="rounded-xl border p-3" style={{ background: "#0d0d0d", borderColor: "#1e1e1e" }}>
+    <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">{label}</div>
+    <div className="text-sm font-semibold truncate" style={{ color: valueColor || "#f5f5f5" }}>{value}</div>
+  </div>
+);
+
 export default Dashboard;
