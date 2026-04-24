@@ -359,9 +359,48 @@ const Dashboard = () => {
   const dailyLimit = profile?.daily_credits_limit ?? 100;
   const dailyLimitReached = usedToday >= dailyLimit;
 
-  const daysLeft = profile?.expiry_date
-    ? Math.max(0, Math.ceil((new Date(profile.expiry_date).getTime() - Date.now()) / 86400000))
-    : 0;
+  const hasExpiry = !!profile?.expiry_date;
+  const expiryMs = hasExpiry ? new Date(profile!.expiry_date as string).getTime() : 0;
+  const rawDaysLeft = hasExpiry ? Math.ceil((expiryMs - Date.now()) / 86400000) : 0;
+  const daysLeft = Math.max(0, rawDaysLeft);
+  const isExpired = hasExpiry && rawDaysLeft <= 0;
+
+  // Expiry severity: >10 green, 4-10 orange, <4 red, expired red
+  const expirySeverity: "green" | "orange" | "red" | "none" = !hasExpiry
+    ? "none"
+    : isExpired
+      ? "red"
+      : daysLeft > 10
+        ? "green"
+        : daysLeft >= 4
+          ? "orange"
+          : "red";
+
+  const expiryColors = {
+    green: { text: "#22c55e", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.3)" },
+    orange: { text: "#fb923c", bg: "rgba(251,146,60,0.08)", border: "rgba(251,146,60,0.3)" },
+    red: { text: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.4)" },
+    none: { text: "#999", bg: "#151515", border: "#1e1e1e" },
+  }[expirySeverity];
+
+  const expiryLabel = !hasExpiry
+    ? "No expiry set"
+    : isExpired
+      ? "❌ Plan Expired"
+      : daysLeft > 10
+        ? `${daysLeft} days remaining`
+        : daysLeft >= 4
+          ? `⚠️ ${daysLeft} days remaining`
+          : `🔴 Expires soon! ${daysLeft} days left`;
+
+  const formattedExpiry = hasExpiry
+    ? new Date(profile!.expiry_date as string).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+    : "—";
+
+  const showRenewalBanner = hasExpiry && (isExpired || daysLeft < 10);
+  const renewalWaLink = `https://wa.me/919448646624?text=${encodeURIComponent(
+    `Hi! I want to renew my ${profile?.plan || ""} plan. My email: ${profile?.email || ""}`
+  )}`;
 
   const disabled = dailyLimitReached || isFinished;
   const initials = (profile?.name || profile?.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
