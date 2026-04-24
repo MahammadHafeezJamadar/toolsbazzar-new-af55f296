@@ -375,7 +375,19 @@ const Admin = () => {
           ))}
         </nav>
 
-        <div className="p-3 border-t" style={{ borderColor: "#1e1e1e" }}>
+        <div className="p-3 border-t space-y-1" style={{ borderColor: "#1e1e1e" }}>
+          <Link
+            to="/admin/dashboard"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            style={{
+              background: "linear-gradient(135deg, hsla(174,72%,46%,0.15), hsla(150,60%,50%,0.1))",
+              border: "1px solid hsla(174,72%,46%,0.3)",
+              color: "hsl(174 72% 56%)",
+            }}
+          >
+            <LayoutDashboard className="h-4 w-4" />
+            Finance & Analytics
+          </Link>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a] transition-colors"
@@ -385,7 +397,7 @@ const Admin = () => {
           </button>
           <Link
             to="/dashboard"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a] transition-colors mt-1"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a] transition-colors"
           >
             <Eye className="h-4 w-4" />
             User Dashboard

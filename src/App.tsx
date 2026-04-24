@@ -11,6 +11,9 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
 import AdminDevices from "./pages/AdminDevices";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminFinance from "./pages/admin/AdminFinance";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import ReferAndEarn from "./pages/ReferAndEarn";
 import ProfilePage from "./pages/ProfilePage";
 import ResetPassword from "./pages/ResetPassword";
@@ -30,6 +33,9 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/finance" element={<AdminFinance />} />
+          <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/admin/devices" element={<AdminDevices />} />
           <Route path="/refer" element={<ReferAndEarn />} />
           <Route path="/profile" element={<ProfilePage />} />
