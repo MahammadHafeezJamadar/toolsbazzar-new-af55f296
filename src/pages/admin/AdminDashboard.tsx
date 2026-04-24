@@ -31,6 +31,7 @@ import {
   BarChart,
   Bar,
   Legend,
+  Cell,
 } from "recharts";
 
 type Range = "daily" | "weekly" | "monthly";
