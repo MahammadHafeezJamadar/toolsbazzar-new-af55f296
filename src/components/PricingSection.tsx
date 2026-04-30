@@ -8,15 +8,15 @@ const plans = [
   {
     name: "Starter",
     monthly: 299,
-    yearly: 2499,
-    subtitle: "10 Days Unlimited Access",
+    yearly: 299,
+    subtitle: "10 Days Access",
     badge: null,
     features: [
       "Unlimited Video Generation",
-      "HD Video Generator",
-      "1080p Download",
+      "Unlimited Credits ✅🚀",
+      "No Account Suspend Issue 🤩",
+      "HD Video",
       "WhatsApp Support",
-      "15 Min Free Demo Included",
     ],
     buttonText: "Get Started",
     buttonStyle: "outline" as const,
@@ -25,50 +25,31 @@ const plans = [
     buttonClass: "",
   },
   {
-    name: "Pro",
-    monthly: 499,
-    yearly: 3999,
-    subtitle: "17 Days Unlimited Access",
-    badge: "Most Popular",
-    badgeClass: "bg-accent text-accent-foreground",
-    features: [
-      "Unlimited Video Generation",
-      "HD Video Generator AI Model",
-      "1080p Download",
-      "Priority WhatsApp Support",
-      "15 Min Free Demo Included",
-    ],
-    buttonText: "Buy Now",
-    buttonStyle: "default" as const,
-    glowColor: "from-accent/40 to-accent/10",
-    borderClass: "border-accent/40",
-    buttonClass: "gradient-btn border-0",
-    popular: true,
-  },
-  {
     name: "Ultra",
-    monthly: 999,
-    yearly: 7999,
-    subtitle: "28 Days Unlimited Access",
+    monthly: 799,
+    yearly: 799,
+    subtitle: "28 Days Access",
     badge: "Best Value",
     badgeClass: "bg-gradient-to-r from-yellow-500 to-amber-500 text-black",
     features: [
       "Unlimited Video Generation",
-      "4K Video Download",
-      "Best Quality AI Model",
-      "24/7 Dedicated Support",
-      "15 Min Free Demo Included",
+      "Unlimited Credits ✅🚀",
+      "No Account Suspend Issue 🤩",
+      "4K Quality",
+      "Priority Support",
     ],
     buttonText: "Go Ultra",
     buttonStyle: "default" as const,
     glowColor: "from-yellow-500/30 to-amber-500/10",
     borderClass: "border-yellow-500/30",
     buttonClass: "bg-gradient-to-r from-yellow-500 to-amber-500 text-black hover:from-yellow-400 hover:to-amber-400 border-0",
+    popular: true,
   },
 ];
 
+
 const PricingSection = () => {
-  const [yearly, setYearly] = useState(false);
+  
   const [selectedPlan, setSelectedPlan] = useState<{ name: string; amount: number } | null>(null);
 
   return (
@@ -82,25 +63,6 @@ const PricingSection = () => {
           <p className="text-sm md:text-base max-w-xl mx-auto mb-8" style={{ color: 'rgba(255,255,255,0.6)' }}>
             No hidden charges.
           </p>
-          {/* Toggle */}
-          <div className="inline-flex items-center bg-card border border-border rounded-lg p-1 mb-6">
-            <button
-              onClick={() => setYearly(false)}
-              className={`px-4 py-2 text-sm rounded-md font-medium transition-colors ${
-                !yearly ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setYearly(true)}
-              className={`px-4 py-2 text-sm rounded-md font-medium transition-colors ${
-                yearly ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Yearly
-            </button>
-          </div>
         </div>
 
         {/* Announcement Strip */}
@@ -119,7 +81,7 @@ const PricingSection = () => {
         </motion.div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
           {plans.map((p, i) => (
             <motion.div
               key={p.name}
@@ -141,9 +103,9 @@ const PricingSection = () => {
                 <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>{p.subtitle}</p>
                 <div className="mb-6">
                   <span className="text-3xl md:text-4xl font-bold gradient-text font-display">
-                    ₹{yearly ? p.yearly : p.monthly}
+                    ₹{p.monthly}
                   </span>
-                  <span className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>/{yearly ? "yr" : "mo"}</span>
+                  <span className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}> one-time</span>
                 </div>
                 <ul className="space-y-3 mb-8">
                   {p.features.map((f) => (
@@ -157,7 +119,7 @@ const PricingSection = () => {
                   className={`w-full font-semibold h-11 uppercase ${p.buttonClass}`}
                   style={{ letterSpacing: '0.05em', fontWeight: 600 }}
                   variant={p.buttonStyle}
-                  onClick={() => setSelectedPlan({ name: p.name, amount: yearly ? p.yearly : p.monthly })}
+                  onClick={() => setSelectedPlan({ name: p.name, amount: p.monthly })}
                 >
                   {p.buttonText}
                 </Button>

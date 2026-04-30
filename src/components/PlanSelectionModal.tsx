@@ -12,20 +12,28 @@ const plans = [
   {
     name: "Starter",
     price: 299,
-    features: ["10 Days Unlimited Access", "Unlimited Video Generation", "HD Video Generator", "1080p Download", "WhatsApp Support", "15 Min Free Demo"],
+    features: [
+      "10 Days Access",
+      "Unlimited Video Generation",
+      "Unlimited Credits ✅🚀",
+      "No Account Suspend Issue 🤩",
+      "HD Video",
+      "WhatsApp Support",
+    ],
     popular: false,
-  },
-  {
-    name: "Pro",
-    price: 499,
-    features: ["17 Days Unlimited Access", "Unlimited Video Generation", "HD Video Generator AI Model", "1080p Download", "Priority WhatsApp Support", "15 Min Free Demo"],
-    popular: true,
   },
   {
     name: "Ultra",
-    price: 999,
-    features: ["28 Days Unlimited Access", "Unlimited Video Generation", "4K Video Download", "Best Quality AI Model", "24/7 Dedicated Support", "15 Min Free Demo"],
-    popular: false,
+    price: 799,
+    features: [
+      "28 Days Access",
+      "Unlimited Video Generation",
+      "Unlimited Credits ✅🚀",
+      "No Account Suspend Issue 🤩",
+      "4K Quality",
+      "Priority Support",
+    ],
+    popular: true,
   },
 ];
 
@@ -68,7 +76,7 @@ const PlanSelectionModal = ({ open, onClose, userEmail }: PlanSelectionModalProp
           </p>
         </DialogHeader>
 
-        <div className="p-6 pt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-6 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           {plans.map((p) => (
             <div
               key={p.name}
