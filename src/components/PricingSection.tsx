@@ -119,7 +119,7 @@ const PricingSection = () => {
                   className={`w-full font-semibold h-11 uppercase ${p.buttonClass}`}
                   style={{ letterSpacing: '0.05em', fontWeight: 600 }}
                   variant={p.buttonStyle}
-                  onClick={() => setSelectedPlan({ name: p.name, amount: yearly ? p.yearly : p.monthly })}
+                  onClick={() => setSelectedPlan({ name: p.name, amount: p.monthly })}
                 >
                   {p.buttonText}
                 </Button>
