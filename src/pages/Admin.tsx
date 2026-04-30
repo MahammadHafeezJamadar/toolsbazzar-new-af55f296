@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import AdminBottomNav from "@/components/admin/AdminBottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -484,6 +485,7 @@ const Admin = () => {
           )}
         </div>
       </main>
+      <AdminBottomNav />
     </div>
   );
 };
