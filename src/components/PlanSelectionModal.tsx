@@ -76,7 +76,7 @@ const PlanSelectionModal = ({ open, onClose, userEmail }: PlanSelectionModalProp
           </p>
         </DialogHeader>
 
-        <div className="p-6 pt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-6 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           {plans.map((p) => (
             <div
               key={p.name}
