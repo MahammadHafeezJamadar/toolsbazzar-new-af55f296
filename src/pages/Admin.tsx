@@ -484,6 +484,7 @@ const Admin = () => {
           )}
         </div>
       </main>
+      <AdminBottomNav />
     </div>
   );
 };
