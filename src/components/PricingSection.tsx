@@ -63,25 +63,6 @@ const PricingSection = () => {
           <p className="text-sm md:text-base max-w-xl mx-auto mb-8" style={{ color: 'rgba(255,255,255,0.6)' }}>
             No hidden charges.
           </p>
-          {/* Toggle */}
-          <div className="inline-flex items-center bg-card border border-border rounded-lg p-1 mb-6">
-            <button
-              onClick={() => setYearly(false)}
-              className={`px-4 py-2 text-sm rounded-md font-medium transition-colors ${
-                !yearly ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setYearly(true)}
-              className={`px-4 py-2 text-sm rounded-md font-medium transition-colors ${
-                yearly ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Yearly
-            </button>
-          </div>
         </div>
 
         {/* Announcement Strip */}
