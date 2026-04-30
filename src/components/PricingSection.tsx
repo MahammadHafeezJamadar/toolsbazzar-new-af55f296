@@ -103,9 +103,9 @@ const PricingSection = () => {
                 <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>{p.subtitle}</p>
                 <div className="mb-6">
                   <span className="text-3xl md:text-4xl font-bold gradient-text font-display">
-                    ₹{yearly ? p.yearly : p.monthly}
+                    ₹{p.monthly}
                   </span>
-                  <span className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>/{yearly ? "yr" : "mo"}</span>
+                  <span className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}> one-time</span>
                 </div>
                 <ul className="space-y-3 mb-8">
                   {p.features.map((f) => (
