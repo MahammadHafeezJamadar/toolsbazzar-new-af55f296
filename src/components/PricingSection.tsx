@@ -49,7 +49,7 @@ const plans = [
 
 
 const PricingSection = () => {
-  const [yearly, setYearly] = useState(false);
+  
   const [selectedPlan, setSelectedPlan] = useState<{ name: string; amount: number } | null>(null);
 
   return (
