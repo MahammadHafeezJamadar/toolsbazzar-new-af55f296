@@ -65,20 +65,7 @@ const PricingSection = () => {
           </p>
         </div>
 
-        {/* Announcement Strip */}
-        <motion.div
-          animate={{ boxShadow: ["0 0 20px rgba(234,179,8,0.3)", "0 0 40px rgba(16,185,129,0.4)", "0 0 20px rgba(234,179,8,0.3)"] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="max-w-4xl mx-auto mb-12 rounded-xl bg-gradient-to-r from-yellow-500/90 via-emerald-500/90 to-yellow-500/90 px-4 py-3 text-center"
-        >
-          <motion.p
-            animate={{ opacity: [0.85, 1, 0.85] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="text-sm md:text-base font-bold text-black font-display"
-          >
-            🎯 15 MIN FREE TRIAL / DEMO AVAILABLE FOR ANY PLAN — Try Before You Buy! No Commitment!
-          </motion.p>
-        </motion.div>
+
 
         {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
