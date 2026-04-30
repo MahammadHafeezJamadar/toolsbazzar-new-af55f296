@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import AdminBottomNav from "./AdminBottomNav";
 
 const navItems = [
   { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -169,8 +170,9 @@ const AdminShell = ({ title, children, actions }: AdminShellProps) => {
           </div>
           <div className="flex items-center gap-2">{actions}</div>
         </header>
-        <div className="p-4 md:p-6 max-w-7xl mx-auto">{children}</div>
+        <div className="p-4 md:p-6 max-w-7xl mx-auto pb-24 md:pb-6">{children}</div>
       </main>
+      <AdminBottomNav />
     </div>
   );
 };
