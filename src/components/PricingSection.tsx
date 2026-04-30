@@ -81,7 +81,7 @@ const PricingSection = () => {
         </motion.div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
           {plans.map((p, i) => (
             <motion.div
               key={p.name}
