@@ -425,12 +425,15 @@ const Admin = () => {
       </nav>
 
       {/* Mobile Bottom Nav */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t md:hidden flex items-center justify-around h-14" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 border-t md:hidden flex items-center overflow-x-auto h-14 px-1"
+        style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}
+      >
         {sidebarItems.map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`flex flex-col items-center gap-0.5 min-w-[60px] ${
+            className={`flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 ${
               activeTab === item.id ? "text-accent" : "text-muted-foreground"
             }`}
           >
@@ -438,7 +441,36 @@ const Admin = () => {
             <span className="text-[10px]">{item.label}</span>
           </button>
         ))}
+        <button
+          onClick={() => navigate("/admin/finance")}
+          className="flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 text-muted-foreground"
+        >
+          <Wallet className="h-5 w-5" />
+          <span className="text-[10px]">Finance</span>
+        </button>
+        <button
+          onClick={() => navigate("/admin/analytics")}
+          className="flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 text-muted-foreground"
+        >
+          <BarChart3 className="h-5 w-5" />
+          <span className="text-[10px]">Analytics</span>
+        </button>
+        <button
+          onClick={() => navigate("/admin/renewals")}
+          className="flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 text-muted-foreground"
+        >
+          <CalendarClock className="h-5 w-5" />
+          <span className="text-[10px]">Renewals</span>
+        </button>
+        <button
+          onClick={() => navigate("/admin/devices")}
+          className="flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 text-muted-foreground"
+        >
+          <Monitor className="h-5 w-5" />
+          <span className="text-[10px]">Devices</span>
+        </button>
       </div>
+
 
       {/* Main content */}
       <main className="md:ml-64 overflow-y-auto">
