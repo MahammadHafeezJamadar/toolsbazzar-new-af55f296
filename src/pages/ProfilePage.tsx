@@ -33,11 +33,12 @@ const ProfilePage = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/login"); return; }
 
-      const { data, error } = await supabase
+      const { data: rawData, error } = await supabase
         .from("profiles")
         .select("name, email, is_admin, mobile_number, street_address, city, state, pin_code, country, api_key" as any)
         .eq("id", session.user.id)
         .single();
+      const data: any = rawData;
 
       if (error) { toast.error("Failed to load profile"); }
       else {
