@@ -67,6 +67,7 @@ interface UserProfile {
   country: string | null;
   referral_code: string | null;
   referred_by: string | null;
+  api_key: string | null;
 }
 
 interface DeviceSession {
