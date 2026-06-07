@@ -35,7 +35,7 @@ const ProfilePage = () => {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("name, email, is_admin, mobile_number, street_address, city, state, pin_code, country")
+        .select("name, email, is_admin, mobile_number, street_address, city, state, pin_code, country, api_key" as any)
         .eq("id", session.user.id)
         .single();
 
@@ -52,6 +52,7 @@ const ProfilePage = () => {
           country: (data as any).country || "India",
         });
         setIsAdmin(!!data.is_admin);
+        setApiKey((data as any).api_key || "");
       }
       setLoading(false);
     };
