@@ -801,6 +801,46 @@ const GlassStatBox = ({ label, value, icon }: { label: string; value: string; ic
   </div>
 );
 
+const AdminApiKeyRow = ({ apiKey }: { apiKey: string | null }) => {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    if (!apiKey) return;
+    await navigator.clipboard.writeText(apiKey);
+    setCopied(true);
+    toast.success("API key copied!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <div
+      className="mb-4 p-3 rounded-xl"
+      style={{ background: "#12121a", border: "1px solid #1e1e2e" }}
+    >
+      <div className="text-[10px] text-muted-foreground/70 mb-1.5 flex items-center gap-1.5">
+        <KeyRound className="h-3 w-3" /> API LICENSE KEY
+      </div>
+      <div className="flex items-center gap-2">
+        <code className="flex-1 text-[11px] font-mono text-foreground truncate select-all">
+          {apiKey || "—"}
+        </code>
+        <button
+          onClick={handleCopy}
+          className="h-7 w-7 flex-shrink-0 flex items-center justify-center rounded-md transition-all"
+          style={{
+            background: copied ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.05)",
+            color: copied ? "#22c55e" : "#a3a3a3",
+          }}
+          title="Copy"
+        >
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+        </button>
+      </div>
+      {copied && <div className="text-[10px] text-[#22c55e] mt-1">Copied!</div>}
+    </div>
+  );
+};
+
+
+
 /* ─── User Card ─── */
 const UserCard = ({
   user,
