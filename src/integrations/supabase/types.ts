@@ -94,6 +94,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          api_key: string | null
           city: string | null
           cookies_json: Json | null
           country: string | null
@@ -124,6 +125,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          api_key?: string | null
           city?: string | null
           cookies_json?: Json | null
           country?: string | null
@@ -154,6 +156,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          api_key?: string | null
           city?: string | null
           cookies_json?: Json | null
           country?: string | null

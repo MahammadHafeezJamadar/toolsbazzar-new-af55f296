@@ -17,6 +17,7 @@ import {
   LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2, Globe,
   Users, CreditCard, Zap, TrendingUp, LayoutDashboard, Settings, ChevronUp, ChevronDown, Eye,
   Phone, MapPin, Calendar, Clock, Search, UserCheck, Megaphone, AlertTriangle, Wallet, BarChart3, CalendarClock,
+  Copy, Check,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -66,6 +67,7 @@ interface UserProfile {
   country: string | null;
   referral_code: string | null;
   referred_by: string | null;
+  api_key: string | null;
 }
 
 interface DeviceSession {
@@ -156,10 +158,10 @@ const Admin = () => {
   const loadUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, heygen_cookies, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by")
+      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, heygen_cookies, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by, api_key")
       .order("email");
     if (error) toast.error("Failed to load users");
-    else setUsers(data || []);
+    else setUsers((data as any) || []);
     setLoading(false);
   };
 
@@ -605,7 +607,8 @@ const UsersTab = ({
     return (
       u.email.toLowerCase().includes(q) ||
       (u.name || "").toLowerCase().includes(q) ||
-      (u.mobile_number || "").toLowerCase().includes(q)
+      (u.mobile_number || "").toLowerCase().includes(q) ||
+      (u.api_key || "").toLowerCase().includes(q)
     );
   });
 
@@ -636,7 +639,7 @@ const UsersTab = ({
       {/* Search */}
       <div className="mb-4">
         <Input
-          placeholder="Search by name, email, or mobile..."
+          placeholder="Search by name, email, mobile or API key..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="h-9 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent text-sm"
@@ -797,6 +800,46 @@ const GlassStatBox = ({ label, value, icon }: { label: string; value: string; ic
     <div className="text-xs font-medium text-foreground truncate">{value}</div>
   </div>
 );
+
+const AdminApiKeyRow = ({ apiKey }: { apiKey: string | null }) => {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    if (!apiKey) return;
+    await navigator.clipboard.writeText(apiKey);
+    setCopied(true);
+    toast.success("API key copied!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <div
+      className="mb-4 p-3 rounded-xl"
+      style={{ background: "#12121a", border: "1px solid #1e1e2e" }}
+    >
+      <div className="text-[10px] text-muted-foreground/70 mb-1.5 flex items-center gap-1.5">
+        <KeyRound className="h-3 w-3" /> API LICENSE KEY
+      </div>
+      <div className="flex items-center gap-2">
+        <code className="flex-1 text-[11px] font-mono text-foreground truncate select-all">
+          {apiKey || "—"}
+        </code>
+        <button
+          onClick={handleCopy}
+          className="h-7 w-7 flex-shrink-0 flex items-center justify-center rounded-md transition-all"
+          style={{
+            background: copied ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.05)",
+            color: copied ? "#22c55e" : "#a3a3a3",
+          }}
+          title="Copy"
+        >
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+        </button>
+      </div>
+      {copied && <div className="text-[10px] text-[#22c55e] mt-1">Copied!</div>}
+    </div>
+  );
+};
+
+
 
 /* ─── User Card ─── */
 const UserCard = ({
@@ -1012,6 +1055,11 @@ const UserCard = ({
                 <GlassStatBox label="Location" value={[user.city, user.state].filter(Boolean).join(", ") || "—"} icon={<MapPin className="h-3 w-3" />} />
                 <GlassStatBox label="Registered" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"} icon={<Clock className="h-3 w-3" />} />
               </div>
+
+              {/* API License Key (admin view, unblurred) */}
+              <AdminApiKeyRow apiKey={user.api_key} />
+
+
 
               {/* Plan Selector */}
               <div className="space-y-2.5">

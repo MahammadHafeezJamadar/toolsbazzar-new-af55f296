@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { LogOut, Shield, ArrowLeft, Save } from "lucide-react";
+import { LogOut, Shield, ArrowLeft, Save, KeyRound, Eye, EyeOff, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -13,6 +13,9 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [apiKey, setApiKey] = useState<string>("");
+  const [showKey, setShowKey] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -30,11 +33,12 @@ const ProfilePage = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/login"); return; }
 
-      const { data, error } = await supabase
+      const { data: rawData, error } = await supabase
         .from("profiles")
-        .select("name, email, is_admin, mobile_number, street_address, city, state, pin_code, country")
+        .select("name, email, is_admin, mobile_number, street_address, city, state, pin_code, country, api_key" as any)
         .eq("id", session.user.id)
         .single();
+      const data: any = rawData;
 
       if (error) { toast.error("Failed to load profile"); }
       else {
@@ -49,6 +53,7 @@ const ProfilePage = () => {
           country: (data as any).country || "India",
         });
         setIsAdmin(!!data.is_admin);
+        setApiKey((data as any).api_key || "");
       }
       setLoading(false);
     };
@@ -137,6 +142,63 @@ const ProfilePage = () => {
               }}
             >
               {initials}
+            </div>
+          </div>
+
+          {/* API License Key */}
+          <div
+            className="rounded-xl p-5 mb-5"
+            style={{ background: "#12121a", border: "1px solid #1e1e2e" }}
+          >
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+              <KeyRound className="h-3.5 w-3.5" />
+              <span className="tracking-wider">API LICENSE KEY</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <code
+                className="flex-1 text-sm font-mono text-foreground px-3 py-2 rounded-md truncate select-all transition-all"
+                style={{
+                  background: "#0a0a12",
+                  border: "1px solid #1e1e2e",
+                  filter: showKey ? "none" : "blur(6px)",
+                }}
+              >
+                {apiKey || "—"}
+              </code>
+              <button
+                type="button"
+                onClick={() => setShowKey((v) => !v)}
+                className="h-9 w-9 flex items-center justify-center rounded-md transition-all"
+                style={{ background: "#0a0a12", border: "1px solid #1e1e2e", color: "#a3a3a3" }}
+                title={showKey ? "Hide" : "Show"}
+              >
+                {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!apiKey) return;
+                  await navigator.clipboard.writeText(apiKey);
+                  setCopied(true);
+                  toast.success("Copied!");
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="h-9 w-9 flex items-center justify-center rounded-md transition-all"
+                style={{
+                  background: copied ? "rgba(34,197,94,0.15)" : "#0a0a12",
+                  border: copied ? "1px solid rgba(34,197,94,0.4)" : "1px solid #1e1e2e",
+                  color: copied ? "#22c55e" : "#a3a3a3",
+                }}
+                title="Copy"
+              >
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              </button>
+            </div>
+            {copied && (
+              <div className="text-xs mt-2" style={{ color: "#22c55e" }}>Copied!</div>
+            )}
+            <div className="text-[10px] text-muted-foreground/70 mt-2">
+              Read-only. Keep this key private — it identifies your account.
             </div>
           </div>
 
