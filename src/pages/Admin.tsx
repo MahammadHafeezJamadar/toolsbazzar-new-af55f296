@@ -607,7 +607,8 @@ const UsersTab = ({
     return (
       u.email.toLowerCase().includes(q) ||
       (u.name || "").toLowerCase().includes(q) ||
-      (u.mobile_number || "").toLowerCase().includes(q)
+      (u.mobile_number || "").toLowerCase().includes(q) ||
+      (u.api_key || "").toLowerCase().includes(q)
     );
   });
 
