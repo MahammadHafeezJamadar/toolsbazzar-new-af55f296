@@ -639,7 +639,7 @@ const UsersTab = ({
       {/* Search */}
       <div className="mb-4">
         <Input
-          placeholder="Search by name, email, or mobile..."
+          placeholder="Search by name, email, mobile or API key..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="h-9 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent text-sm"
