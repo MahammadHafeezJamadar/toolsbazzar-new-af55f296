@@ -1016,6 +1016,11 @@ const UserCard = ({
                 <GlassStatBox label="Registered" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"} icon={<Clock className="h-3 w-3" />} />
               </div>
 
+              {/* API License Key (admin view, unblurred) */}
+              <AdminApiKeyRow apiKey={user.api_key} />
+
+
+
               {/* Plan Selector */}
               <div className="space-y-2.5">
                 <Select value={plan} onValueChange={handlePlanChange}>
