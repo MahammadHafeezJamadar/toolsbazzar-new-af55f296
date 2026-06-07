@@ -13,6 +13,9 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [apiKey, setApiKey] = useState<string>("");
+  const [showKey, setShowKey] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
