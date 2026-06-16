@@ -51,10 +51,11 @@ const Downloads = () => {
         expiry: profile?.expiry_date ?? null,
       });
 
+      const sanitize = (s: string) => s.trim().replace(/^["'`]+|["'`]+$/g, "").trim();
       const get = (k: string) => {
         const v = settings?.find((s: any) => s.key === k)?.value;
-        if (typeof v === "string") return v;
-        if (v && typeof v === "object" && "url" in v) return (v as any).url ?? "";
+        if (typeof v === "string") return sanitize(v);
+        if (v && typeof v === "object" && "url" in v) return sanitize(String((v as any).url ?? ""));
         return "";
       };
       setApkUrl(get("flowx_apk_url"));
