@@ -118,6 +118,8 @@ const Dashboard = () => {
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [flowMessage, setFlowMessage] = useState<"active" | "inactive" | null>(null);
+  const [flowxApkUrl, setFlowxApkUrl] = useState<string>("");
+  const [flowxWinUrl, setFlowxWinUrl] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
