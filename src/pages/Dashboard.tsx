@@ -874,6 +874,71 @@ const Dashboard = () => {
               </div>
             </motion.div>
 
+            {/* FlowX Downloads Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="rounded-xl p-6 border"
+              style={{ background: "#111111", borderColor: "#1e1e1e" }}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Download className="h-4 w-4" style={{ color: "hsl(174 72% 56%)" }} />
+                <h3 className="font-semibold text-foreground">FlowX Downloads</h3>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4">
+                Download the latest FlowX applications.
+              </p>
+
+              {profile?.subscription_active ? (
+                <div className="space-y-3">
+                  <button
+                    onClick={() => {
+                      if (!flowxApkUrl) { toast.error("APK link not configured yet."); return; }
+                      window.open(flowxApkUrl, "_blank", "noopener,noreferrer");
+                    }}
+                    className="w-full h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all"
+                    style={{
+                      background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
+                      color: "#0a0a0a",
+                    }}
+                  >
+                    <Smartphone className="h-4 w-4" /> Download APK
+                  </button>
+                  <p className="text-[10px] text-muted-foreground -mt-1 text-center">Android APK for mobile devices</p>
+
+                  <button
+                    onClick={() => {
+                      if (!flowxWinUrl) { toast.error("Windows link not configured yet."); return; }
+                      window.open(flowxWinUrl, "_blank", "noopener,noreferrer");
+                    }}
+                    className="w-full h-11 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#1a1a1a] transition-colors"
+                    style={{ borderColor: "#1e1e1e", color: "#e5e5e5" }}
+                  >
+                    <Monitor className="h-4 w-4" /> Download Windows
+                  </button>
+                  <p className="text-[10px] text-muted-foreground -mt-1 text-center">Windows ZIP package for desktops and laptops</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="rounded-lg border p-4 flex flex-col items-center text-center" style={{ background: "#0a0a0a", borderColor: "#1e1e1e" }}>
+                    <Lock className="h-6 w-6 mb-2 text-muted-foreground" />
+                    <div className="text-sm font-semibold text-foreground mb-1">🔒 FlowX Downloads Locked</div>
+                    <p className="text-xs text-muted-foreground">
+                      You need an active BASIC, PRO, or ULTRA plan to access FlowX downloads.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => window.open(`https://wa.me/919448646624?text=${encodeURIComponent("Hi! I want to access FlowX downloads.")}`, "_blank", "noopener,noreferrer")}
+                    className="w-full h-10 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
+                    style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" /> Contact Admin on WhatsApp
+                  </button>
+                </div>
+              )}
+            </motion.div>
+
           </div>
         </div>
       </div>
