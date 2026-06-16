@@ -64,12 +64,19 @@ const Downloads = () => {
     })();
   }, [navigate]);
 
-  const handleDownload = (url: string, label: string) => {
+  const triggerDownload = (url: string, label: string) => {
     if (!url) {
       toast.error(`${label} download link not configured yet. Please contact admin.`);
       return;
     }
-    window.open(url, "_blank", "noopener,noreferrer");
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = url.split("/").pop() || "";
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`${label} download started`);
   };
 
   const contactAdmin = () => {
@@ -213,7 +220,7 @@ const Downloads = () => {
                   Android APK — for phones & tablets
                 </p>
                 <Button
-                  onClick={() => handleDownload(apkUrl, "Android")}
+                  onClick={() => triggerDownload(apkUrl, "Android")}
                   className="mt-6 h-12 font-bold"
                   style={{
                     background:
@@ -241,7 +248,7 @@ const Downloads = () => {
                   Windows — for PC & laptop
                 </p>
                 <Button
-                  onClick={() => handleDownload(winUrl, "Windows")}
+                  onClick={() => triggerDownload(winUrl, "Windows")}
                   className="mt-6 h-12 font-bold"
                   style={{
                     background:

@@ -895,7 +895,13 @@ const Dashboard = () => {
                   <button
                     onClick={() => {
                       if (!flowxApkUrl) { toast.error("APK link not configured yet."); return; }
-                      window.open(flowxApkUrl, "_blank", "noopener,noreferrer");
+                      const link = document.createElement("a");
+                      link.href = flowxApkUrl;
+                      link.download = flowxApkUrl.split("/").pop() || "";
+                      link.style.display = "none";
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
                     }}
                     className="w-full h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all"
                     style={{
@@ -910,7 +916,13 @@ const Dashboard = () => {
                   <button
                     onClick={() => {
                       if (!flowxWinUrl) { toast.error("Windows link not configured yet."); return; }
-                      window.open(flowxWinUrl, "_blank", "noopener,noreferrer");
+                      const link = document.createElement("a");
+                      link.href = flowxWinUrl;
+                      link.download = flowxWinUrl.split("/").pop() || "";
+                      link.style.display = "none";
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
                     }}
                     className="w-full h-11 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#1a1a1a] transition-colors"
                     style={{ borderColor: "#1e1e1e", color: "#e5e5e5" }}
