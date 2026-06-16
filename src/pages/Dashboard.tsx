@@ -156,6 +156,23 @@ const Dashboard = () => {
         .limit(1);
       if (annData && annData.length > 0) setAnnouncement((annData[0] as any).message);
 
+      // Load FlowX download URLs from global_settings
+      const { data: flowxSettings } = await supabase
+        .from("global_settings")
+        .select("key, value")
+        .in("key", ["flowx_apk_url", "flowx_windows_url"]);
+      if (flowxSettings) {
+        const sanitize = (s: string) => s.trim().replace(/^["'`]+|["'`]+$/g, "").trim();
+        const pick = (k: string) => {
+          const v = flowxSettings.find((s: any) => s.key === k)?.value;
+          if (typeof v === "string") return sanitize(v);
+          if (v && typeof v === "object" && "url" in v) return sanitize(String((v as any).url ?? ""));
+          return "";
+        };
+        setFlowxApkUrl(pick("flowx_apk_url"));
+        setFlowxWinUrl(pick("flowx_windows_url"));
+      }
+
       setLoading(false);
     };
     getProfile();
