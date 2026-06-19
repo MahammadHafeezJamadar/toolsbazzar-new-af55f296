@@ -184,7 +184,7 @@ const AdminFinance = () => {
     <AdminShell
       title="Finance — P&L"
       actions={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => exportCsv(filtered, `txns-${new Date().toISOString().slice(0, 10)}.csv`)}
             className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border hover:bg-[#1a1a1a]"
@@ -196,6 +196,47 @@ const AdminFinance = () => {
         </div>
       }
     >
+      {/* Period actions */}
+      <div className="flex flex-col sm:flex-row gap-2 mb-4">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button
+              disabled={archiving}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-60"
+            >
+              {archiving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              Start New Finance
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent style={{ background: "#111", borderColor: "#1e1e1e" }}>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-foreground">Start a new finance period?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to start a new finance period? Current data will be archived and a fresh dashboard will be created.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleStartNewPeriod}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                Yes, archive & reset
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <button
+          onClick={openHistory}
+          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/20 transition-all"
+        >
+          <History className="h-4 w-4" />
+          Previous Finance Records
+        </button>
+      </div>
+
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
         <SummaryCard label="Total Earned" value={formatINR(totals.revenue)} icon={TrendingUp} accent="#22c55e" />
         <SummaryCard label="Total Invested" value={formatINR(totals.expenses)} icon={TrendingDown} accent="#ef4444" />
