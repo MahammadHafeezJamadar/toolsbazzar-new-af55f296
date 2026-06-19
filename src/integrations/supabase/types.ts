@@ -71,6 +71,86 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_period_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          id: string
+          label: string | null
+          original_created_at: string | null
+          original_id: string | null
+          period_id: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date: string
+          id?: string
+          label?: string | null
+          original_created_at?: string | null
+          original_id?: string | null
+          period_id: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          id?: string
+          label?: string | null
+          original_created_at?: string | null
+          original_id?: string | null
+          period_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_period_transactions_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "finance_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_periods: {
+        Row: {
+          archived_at: string
+          created_at: string
+          end_date: string | null
+          final_balance: number
+          id: string
+          start_date: string | null
+          total_expenses: number
+          total_income: number
+          total_transactions: number
+        }
+        Insert: {
+          archived_at?: string
+          created_at?: string
+          end_date?: string | null
+          final_balance?: number
+          id?: string
+          start_date?: string | null
+          total_expenses?: number
+          total_income?: number
+          total_transactions?: number
+        }
+        Update: {
+          archived_at?: string
+          created_at?: string
+          end_date?: string | null
+          final_balance?: number
+          id?: string
+          start_date?: string | null
+          total_expenses?: number
+          total_income?: number
+          total_transactions?: number
+        }
+        Relationships: []
+      }
       global_settings: {
         Row: {
           id: string
@@ -372,6 +452,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      archive_finance_period: { Args: never; Returns: string }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       process_referral: {
         Args: { new_user_id: string; referral_code_input: string }
