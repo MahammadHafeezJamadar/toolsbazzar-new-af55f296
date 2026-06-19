@@ -354,8 +354,161 @@ const AdminFinance = () => {
           style={{ borderColor: "#1e1e1e", color: "#ccc" }}
         >
           <Download className="h-3.5 w-3.5" /> Export CSV
+        <button
+          onClick={() => exportCsv(filtered, `txns-${new Date().toISOString().slice(0, 10)}.csv`)}
+          className="w-full h-10 inline-flex items-center justify-center gap-1.5 rounded-lg text-xs font-medium border hover:bg-[#1a1a1a]"
+          style={{ borderColor: "#1e1e1e", color: "#ccc" }}
+        >
+          <Download className="h-3.5 w-3.5" /> Export CSV
         </button>
       </div>
+
+      {/* Previous Finance Records dialog */}
+      <Dialog open={historyOpen} onOpenChange={(o) => { setHistoryOpen(o); if (!o) setSelectedPeriod(null); }}>
+        <DialogContent
+          className="max-w-4xl max-h-[85vh] overflow-y-auto"
+          style={{ background: "#0d0d0d", borderColor: "#1e1e1e" }}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-foreground flex items-center gap-2">
+              {selectedPeriod ? (
+                <>
+                  <button
+                    onClick={() => setSelectedPeriod(null)}
+                    className="p-1 rounded hover:bg-[#1a1a1a]"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </button>
+                  Period details
+                </>
+              ) : (
+                <>
+                  <History className="h-4 w-4" />
+                  Previous Finance Records
+                </>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+
+          {!selectedPeriod && (
+            <div className="space-y-3">
+              {periodsLoading && (
+                <div className="flex justify-center py-10">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              )}
+              {!periodsLoading && periods.length === 0 && (
+                <div className="rounded-xl border p-8 text-center text-muted-foreground" style={cardStyle}>
+                  No archived periods yet.
+                </div>
+              )}
+              {!periodsLoading && periods.map((p) => (
+                <div
+                  key={p.id}
+                  className="rounded-xl border p-4 hover:border-blue-500/40 transition-colors"
+                  style={cardStyle}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="text-xs text-muted-foreground">
+                        {p.start_date ?? "—"} → {p.end_date ?? "—"}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        Archived {new Date(p.archived_at).toLocaleString()}
+                      </div>
+                      <div className="flex flex-wrap gap-3 mt-2 text-xs">
+                        <span className="text-muted-foreground">Income: <span className="text-[#22c55e] font-semibold">{formatINR(Number(p.total_income))}</span></span>
+                        <span className="text-muted-foreground">Expenses: <span className="text-[#ef4444] font-semibold">{formatINR(Number(p.total_expenses))}</span></span>
+                        <span className="text-muted-foreground">Balance: <span className="font-semibold" style={{ color: Number(p.final_balance) >= 0 ? "#fbbf24" : "#ef4444" }}>{formatINR(Number(p.final_balance))}</span></span>
+                        <span className="text-muted-foreground">Txns: <span className="text-foreground font-semibold">{p.total_transactions}</span></span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => viewPeriod(p)}
+                      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Eye className="h-3.5 w-3.5" /> View details
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {selectedPeriod && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="rounded-lg border p-3" style={cardStyle}>
+                  <div className="text-[10px] uppercase text-muted-foreground">Income</div>
+                  <div className="text-sm font-bold text-[#22c55e]">{formatINR(Number(selectedPeriod.total_income))}</div>
+                </div>
+                <div className="rounded-lg border p-3" style={cardStyle}>
+                  <div className="text-[10px] uppercase text-muted-foreground">Expenses</div>
+                  <div className="text-sm font-bold text-[#ef4444]">{formatINR(Number(selectedPeriod.total_expenses))}</div>
+                </div>
+                <div className="rounded-lg border p-3" style={cardStyle}>
+                  <div className="text-[10px] uppercase text-muted-foreground">Balance</div>
+                  <div className="text-sm font-bold" style={{ color: Number(selectedPeriod.final_balance) >= 0 ? "#fbbf24" : "#ef4444" }}>{formatINR(Number(selectedPeriod.final_balance))}</div>
+                </div>
+                <div className="rounded-lg border p-3" style={cardStyle}>
+                  <div className="text-[10px] uppercase text-muted-foreground">Transactions</div>
+                  <div className="text-sm font-bold text-foreground">{selectedPeriod.total_transactions}</div>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {selectedPeriod.start_date ?? "—"} → {selectedPeriod.end_date ?? "—"}
+              </div>
+
+              {periodTxnsLoading && (
+                <div className="flex justify-center py-10">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              )}
+              {!periodTxnsLoading && (
+                <div className="rounded-xl border overflow-hidden" style={cardStyle}>
+                  {periodTxns.length === 0 ? (
+                    <div className="p-6 text-center text-muted-foreground text-sm">No transactions in this period.</div>
+                  ) : (
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b text-left" style={{ borderColor: "#1e1e1e", background: "#0d0d0d" }}>
+                          <th className="py-2 px-3 text-muted-foreground font-medium">Date</th>
+                          <th className="py-2 px-3 text-muted-foreground font-medium">Type</th>
+                          <th className="py-2 px-3 text-muted-foreground font-medium">Label</th>
+                          <th className="py-2 px-3 text-muted-foreground font-medium text-right">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {periodTxns.map((t) => (
+                          <tr key={t.id} className="border-b last:border-0" style={{ borderColor: "#161616" }}>
+                            <td className="py-2 px-3 text-muted-foreground">{t.date}</td>
+                            <td className="py-2 px-3">
+                              <span
+                                className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                                style={{
+                                  background: `${planColors[t.type] ?? "#666"}20`,
+                                  color: planColors[t.type] ?? "#ccc",
+                                  border: `1px solid ${planColors[t.type] ?? "#666"}40`,
+                                }}
+                              >
+                                {t.type}
+                              </span>
+                            </td>
+                            <td className="py-2 px-3 text-muted-foreground">{t.label || "—"}</td>
+                            <td className="py-2 px-3 text-right font-semibold" style={{ color: isIncome(t.type) ? "#22c55e" : "#ef4444" }}>
+                              {isIncome(t.type) ? "+" : "−"}{formatINR(Number(t.amount))}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </AdminShell>
   );
 };
