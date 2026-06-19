@@ -24,8 +24,34 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Download, Trash2, TrendingDown, TrendingUp, Wallet, Percent } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Download, Trash2, TrendingDown, TrendingUp, Wallet, Percent, Plus, History, Loader2, ArrowLeft, Eye } from "lucide-react";
 import { toast } from "sonner";
+
+interface FinancePeriod {
+  id: string;
+  start_date: string | null;
+  end_date: string | null;
+  total_income: number;
+  total_expenses: number;
+  final_balance: number;
+  total_transactions: number;
+  archived_at: string;
+}
+
+interface ArchivedTxn {
+  id: string;
+  period_id: string;
+  date: string;
+  type: TxnType;
+  label: string | null;
+  amount: number;
+}
 
 const cardStyle: React.CSSProperties = {
   background: "linear-gradient(135deg, #111, #0d0d0d)",
