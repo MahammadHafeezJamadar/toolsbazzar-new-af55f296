@@ -130,6 +130,56 @@ const AdminFinance = () => {
     else toast.success("Transaction deleted");
   };
 
+  const [archiving, setArchiving] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [periods, setPeriods] = useState<FinancePeriod[]>([]);
+  const [periodsLoading, setPeriodsLoading] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState<FinancePeriod | null>(null);
+  const [periodTxns, setPeriodTxns] = useState<ArchivedTxn[]>([]);
+  const [periodTxnsLoading, setPeriodTxnsLoading] = useState(false);
+
+  const loadPeriods = async () => {
+    setPeriodsLoading(true);
+    const { data, error } = await (supabase as any)
+      .from("finance_periods")
+      .select("*")
+      .order("archived_at", { ascending: false });
+    if (error) toast.error(error.message);
+    setPeriods((data ?? []) as FinancePeriod[]);
+    setPeriodsLoading(false);
+  };
+
+  const openHistory = async () => {
+    setHistoryOpen(true);
+    setSelectedPeriod(null);
+    await loadPeriods();
+  };
+
+  const viewPeriod = async (p: FinancePeriod) => {
+    setSelectedPeriod(p);
+    setPeriodTxnsLoading(true);
+    const { data, error } = await (supabase as any)
+      .from("finance_period_transactions")
+      .select("*")
+      .eq("period_id", p.id)
+      .order("date", { ascending: false });
+    if (error) toast.error(error.message);
+    setPeriodTxns((data ?? []) as ArchivedTxn[]);
+    setPeriodTxnsLoading(false);
+  };
+
+  const handleStartNewPeriod = async () => {
+    setArchiving(true);
+    const { error } = await (supabase as any).rpc("archive_finance_period");
+    setArchiving(false);
+    if (error) {
+      toast.error(error.message || "Failed to archive period");
+      return;
+    }
+    toast.success("New finance period started — previous data archived");
+    load();
+  };
+
   return (
     <AdminShell
       title="Finance — P&L"
