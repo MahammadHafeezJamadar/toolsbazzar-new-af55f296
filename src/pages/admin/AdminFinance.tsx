@@ -354,12 +354,6 @@ const AdminFinance = () => {
           style={{ borderColor: "#1e1e1e", color: "#ccc" }}
         >
           <Download className="h-3.5 w-3.5" /> Export CSV
-        <button
-          onClick={() => exportCsv(filtered, `txns-${new Date().toISOString().slice(0, 10)}.csv`)}
-          className="w-full h-10 inline-flex items-center justify-center gap-1.5 rounded-lg text-xs font-medium border hover:bg-[#1a1a1a]"
-          style={{ borderColor: "#1e1e1e", color: "#ccc" }}
-        >
-          <Download className="h-3.5 w-3.5" /> Export CSV
         </button>
       </div>
 
