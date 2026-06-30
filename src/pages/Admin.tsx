@@ -1680,6 +1680,38 @@ const UserDetailsTab = ({
                     <InfoRow label="Expiry" value={u.expiry_date} />
                     <InfoRow label="Registered" value={u.created_at ? new Date(u.created_at).toLocaleDateString() : null} />
                   </Section>
+                  <Section title="Private Plan">
+                    <div className="flex items-center justify-between py-1">
+                      <div>
+                        <div className="text-xs text-foreground font-medium">Private Plan Enabled</div>
+                        <div className="text-[10px] text-muted-foreground">Grants access to exclusive FlowX private builds on the user dashboard.</div>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          const next = !u.private_plan_enabled;
+                          const { error } = await supabase
+                            .from("profiles")
+                            .update({ private_plan_enabled: next } as any)
+                            .eq("id", u.id);
+                          if (error) { toast.error("Failed to update"); return; }
+                          setSelectedUser({ ...u, private_plan_enabled: next });
+                          toast.success(next ? "Private Plan enabled" : "Private Plan disabled");
+                        }}
+                        role="switch"
+                        aria-checked={!!u.private_plan_enabled}
+                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                        style={{
+                          background: u.private_plan_enabled
+                            ? "linear-gradient(135deg, #a855f7, #fbbf24)"
+                            : "#1e1e1e",
+                        }}
+                      >
+                        <span
+                          className="inline-block h-5 w-5 transform rounded-full bg-white transition-transform"
+                          style={{ transform: u.private_plan_enabled ? "translateX(22px)" : "translateX(2px)" }}
+                        />
+                      </button>
+                    </div>
                   <Section title="Referral Details">
                     <InfoRow label="Referral Code" value={u.referral_code} />
                     <InfoRow label="Total Referrals" value={String(referralCounts[u.id] || 0)} />
