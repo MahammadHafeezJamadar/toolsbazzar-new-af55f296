@@ -196,6 +196,7 @@ export type Database = {
           pin_code: string | null
           plan: string | null
           plan_start_date: string | null
+          private_plan_enabled: boolean
           referral_code: string | null
           referred_by: string | null
           reminder_sent: boolean
@@ -227,6 +228,7 @@ export type Database = {
           pin_code?: string | null
           plan?: string | null
           plan_start_date?: string | null
+          private_plan_enabled?: boolean
           referral_code?: string | null
           referred_by?: string | null
           reminder_sent?: boolean
@@ -258,6 +260,7 @@ export type Database = {
           pin_code?: string | null
           plan?: string | null
           plan_start_date?: string | null
+          private_plan_enabled?: boolean
           referral_code?: string | null
           referred_by?: string | null
           reminder_sent?: boolean

@@ -68,6 +68,7 @@ interface UserProfile {
   referral_code: string | null;
   referred_by: string | null;
   api_key: string | null;
+  private_plan_enabled?: boolean | null;
 }
 
 interface DeviceSession {
@@ -158,7 +159,7 @@ const Admin = () => {
   const loadUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, heygen_cookies, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by, api_key")
+      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, heygen_cookies, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by, api_key, private_plan_enabled")
       .order("email");
     if (error) toast.error("Failed to load users");
     else setUsers((data as any) || []);
@@ -1678,6 +1679,39 @@ const UserDetailsTab = ({
                     <InfoRow label="Daily Limit" value={String(u.daily_credits_limit ?? 0)} />
                     <InfoRow label="Expiry" value={u.expiry_date} />
                     <InfoRow label="Registered" value={u.created_at ? new Date(u.created_at).toLocaleDateString() : null} />
+                  </Section>
+                  <Section title="Private Plan">
+                    <div className="flex items-center justify-between py-1">
+                      <div>
+                        <div className="text-xs text-foreground font-medium">Private Plan Enabled</div>
+                        <div className="text-[10px] text-muted-foreground">Grants access to exclusive FlowX private builds on the user dashboard.</div>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          const next = !u.private_plan_enabled;
+                          const { error } = await supabase
+                            .from("profiles")
+                            .update({ private_plan_enabled: next } as any)
+                            .eq("id", u.id);
+                          if (error) { toast.error("Failed to update"); return; }
+                          setSelectedUser({ ...u, private_plan_enabled: next });
+                          toast.success(next ? "Private Plan enabled" : "Private Plan disabled");
+                        }}
+                        role="switch"
+                        aria-checked={!!u.private_plan_enabled}
+                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                        style={{
+                          background: u.private_plan_enabled
+                            ? "linear-gradient(135deg, #a855f7, #fbbf24)"
+                            : "#1e1e1e",
+                        }}
+                      >
+                        <span
+                          className="inline-block h-5 w-5 transform rounded-full bg-white transition-transform"
+                          style={{ transform: u.private_plan_enabled ? "translateX(22px)" : "translateX(2px)" }}
+                        />
+                      </button>
+                    </div>
                   </Section>
                   <Section title="Referral Details">
                     <InfoRow label="Referral Code" value={u.referral_code} />
