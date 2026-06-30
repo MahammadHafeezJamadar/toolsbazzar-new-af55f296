@@ -43,6 +43,7 @@ interface Profile {
   mobile_number: string | null;
   city: string | null;
   created_at: string | null;
+  private_plan_enabled?: boolean | null;
 }
 
 /* ─── Circular Progress ─── */
@@ -120,6 +121,9 @@ const Dashboard = () => {
   const [flowMessage, setFlowMessage] = useState<"active" | "inactive" | null>(null);
   const [flowxApkUrl, setFlowxApkUrl] = useState<string>("");
   const [flowxWinUrl, setFlowxWinUrl] = useState<string>("");
+  const [flowxPrivateApkUrl, setFlowxPrivateApkUrl] = useState<string>("");
+  const [flowxPrivateWinUrl, setFlowxPrivateWinUrl] = useState<string>("");
+  const [flowxPrivateVersion, setFlowxPrivateVersion] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -129,7 +133,7 @@ const Dashboard = () => {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, referral_code, mobile_number, city, created_at")
+        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, referral_code, mobile_number, city, created_at, private_plan_enabled")
         .eq("id", session.user.id)
         .single();
 
@@ -160,7 +164,7 @@ const Dashboard = () => {
       const { data: flowxSettings } = await supabase
         .from("global_settings")
         .select("key, value")
-        .in("key", ["flowx_apk_url", "flowx_windows_url"]);
+        .in("key", ["flowx_apk_url", "flowx_windows_url", "flowx_private_apk_url", "flowx_private_windows_url", "flowx_private_version"]);
       if (flowxSettings) {
         const sanitize = (s: string) => s.trim().replace(/^["'`]+|["'`]+$/g, "").trim();
         const pick = (k: string) => {
@@ -171,6 +175,9 @@ const Dashboard = () => {
         };
         setFlowxApkUrl(pick("flowx_apk_url"));
         setFlowxWinUrl(pick("flowx_windows_url"));
+        setFlowxPrivateApkUrl(pick("flowx_private_apk_url"));
+        setFlowxPrivateWinUrl(pick("flowx_private_windows_url"));
+        setFlowxPrivateVersion(pick("flowx_private_version"));
       }
 
       setLoading(false);
