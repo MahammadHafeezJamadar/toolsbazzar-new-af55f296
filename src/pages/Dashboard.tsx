@@ -958,6 +958,106 @@ const Dashboard = () => {
               )}
             </motion.div>
 
+            {/* Private Plan Downloads Card (only if enabled for this user) */}
+            {profile?.private_plan_enabled && profile?.subscription_active && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="rounded-xl p-6 border relative overflow-hidden"
+                style={{
+                  background: "linear-gradient(135deg, #14101f 0%, #111111 60%)",
+                  borderColor: "rgba(192, 132, 252, 0.35)",
+                  boxShadow: "0 0 0 1px rgba(192,132,252,0.05), 0 8px 32px rgba(168,85,247,0.08)",
+                }}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <Download className="h-4 w-4" style={{ color: "#c084fc" }} />
+                    <h3 className="font-semibold text-foreground">Private Plan Downloads</h3>
+                  </div>
+                  <span
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wider"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(251,191,36,0.18), rgba(168,85,247,0.18))",
+                      color: "#fbbf24",
+                      border: "1px solid rgba(251,191,36,0.4)",
+                    }}
+                  >
+                    PRIVATE
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-1">
+                  Exclusive FlowX builds available only for your account.
+                </p>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-[10px] uppercase tracking-wider text-[#c084fc]">Exclusive Build</span>
+                  {flowxPrivateVersion && (
+                    <span
+                      className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(168,85,247,0.12)", color: "#c084fc", border: "1px solid rgba(168,85,247,0.3)" }}
+                    >
+                      Private v{flowxPrivateVersion}
+                    </span>
+                  )}
+                </div>
+
+                {(flowxPrivateApkUrl || flowxPrivateWinUrl) ? (
+                  <div className="space-y-3">
+                    {flowxPrivateApkUrl && (
+                      <>
+                        <button
+                          onClick={() => {
+                            const link = document.createElement("a");
+                            link.href = flowxPrivateApkUrl;
+                            link.download = flowxPrivateApkUrl.split("/").pop() || "";
+                            link.style.display = "none";
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
+                          className="w-full h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all"
+                          style={{
+                            background: "linear-gradient(135deg, #a855f7, #fbbf24)",
+                            color: "#0a0a0a",
+                          }}
+                        >
+                          <Smartphone className="h-4 w-4" /> Download Private APK
+                        </button>
+                        <p className="text-[10px] text-muted-foreground -mt-1 text-center">Private Android build for your account</p>
+                      </>
+                    )}
+
+                    {flowxPrivateWinUrl && (
+                      <>
+                        <button
+                          onClick={() => {
+                            const link = document.createElement("a");
+                            link.href = flowxPrivateWinUrl;
+                            link.download = flowxPrivateWinUrl.split("/").pop() || "";
+                            link.style.display = "none";
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
+                          className="w-full h-11 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#1a1325] transition-colors"
+                          style={{ borderColor: "rgba(192,132,252,0.4)", color: "#e5e5e5" }}
+                        >
+                          <Monitor className="h-4 w-4" /> Download Private Windows
+                        </button>
+                        <p className="text-[10px] text-muted-foreground -mt-1 text-center">Private Windows build for your account</p>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border p-4 flex flex-col items-center text-center" style={{ background: "#0a0a0a", borderColor: "rgba(192,132,252,0.25)" }}>
+                    <Lock className="h-5 w-5 mb-2 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">Private build is currently unavailable.</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
           </div>
         </div>
       </div>
