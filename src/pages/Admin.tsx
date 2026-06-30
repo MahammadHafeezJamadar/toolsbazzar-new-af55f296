@@ -1712,6 +1712,7 @@ const UserDetailsTab = ({
                         />
                       </button>
                     </div>
+                  </Section>
                   <Section title="Referral Details">
                     <InfoRow label="Referral Code" value={u.referral_code} />
                     <InfoRow label="Total Referrals" value={String(referralCounts[u.id] || 0)} />
