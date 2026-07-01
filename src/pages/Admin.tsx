@@ -863,7 +863,6 @@ const UserCard = ({
   const [expanded, setExpanded] = useState(false);
   const [plan, setPlan] = useState(user.plan);
   const [expiry, setExpiry] = useState(user.expiry_date || "");
-  const [privatePlanEnabled, setPrivatePlanEnabled] = useState(user.private_plan_enabled ?? false);
   const [credOpen, setCredOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
