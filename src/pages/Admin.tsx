@@ -1108,6 +1108,24 @@ const UserCard = ({
                   </button>
                 </div>
 
+                {/* Private Plan toggle */}
+                <div className="flex items-center justify-between px-3 py-2.5" style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px" }}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-foreground font-medium">Private Plan</span>
+                    {(user.private_plan_enabled ?? false) && (
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: "rgba(251,191,36,0.12)", color: "#fbbf24" }}>PRIVATE</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-muted-foreground">{(user.private_plan_enabled ?? false) ? "ON" : "OFF"}</span>
+                    <Switch
+                      checked={user.private_plan_enabled ?? false}
+                      onCheckedChange={(v) => updateField(user.id, "private_plan_enabled", v)}
+                      className="data-[state=checked]:bg-accent"
+                    />
+                  </div>
+                </div>
+
                 {/* Action Buttons — Pill shaped */}
                 <div className="flex flex-wrap gap-1.5 pt-2">
                   {/* Credentials */}
