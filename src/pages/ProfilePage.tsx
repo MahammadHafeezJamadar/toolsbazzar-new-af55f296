@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { LogOut, Shield, ArrowLeft, Save, KeyRound, Eye, EyeOff, Copy, Check } from "lucide-react";
+import { LogOut, Shield, ArrowLeft, Save, KeyRound, Eye, EyeOff, Copy, Check, Home, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
