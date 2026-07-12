@@ -21,7 +21,7 @@ import {
 import {
   LogOut, Shield, KeyRound, Trash2, ExternalLink, Download, Gift,
   Zap, CalendarClock, CreditCard, Clock, Copy, Users, ChevronRight, User, X, FileText,
-  Smartphone, Monitor, Lock, MessageCircle,
+  Smartphone, Monitor, Lock, MessageCircle, Home,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
