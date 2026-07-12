@@ -439,6 +439,9 @@ const Dashboard = () => {
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
           <button onClick={() => navigate("/")} className="text-lg font-bold text-foreground bg-transparent border-0 cursor-pointer">ToolsBazzar</button>
           <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
+              <Home className="h-4 w-4" /> Home
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/profile")} className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
               <User className="h-4 w-4" /> My Profile
             </Button>
