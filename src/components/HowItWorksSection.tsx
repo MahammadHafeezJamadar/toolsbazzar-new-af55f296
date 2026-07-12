@@ -8,6 +8,9 @@ const HowItWorksSection = () => (
     />
     <div className="container mx-auto px-4">
       <div className="text-center mb-10">
+        <p className="text-xs md:text-sm uppercase tracking-[0.2em] mb-3" style={{ color: "hsl(174 72% 56%)" }}>
+          How To Use FlowX
+        </p>
         <h2 className="font-display text-3xl md:text-4xl font-bold mb-3 gradient-text">How To Use</h2>
         <p className="text-sm md:text-base" style={{ color: "rgba(255,255,255,0.6)" }}>
           Watch this quick video to get started
