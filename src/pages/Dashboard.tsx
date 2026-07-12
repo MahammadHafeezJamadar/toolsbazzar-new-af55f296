@@ -884,24 +884,75 @@ const Dashboard = () => {
               </div>
             </motion.div>
 
-            {/* FlowX Downloads Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="rounded-xl p-6 border"
-              style={{ background: "#111111", borderColor: "#1e1e1e" }}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <Download className="h-4 w-4" style={{ color: "hsl(174 72% 56%)" }} />
-                <h3 className="font-semibold text-foreground">FlowX Downloads</h3>
+          </div>
+        </div>
+
+        {/* Premium Downloads Section */}
+        <div className="mt-8 space-y-6">
+          {/* CARD 1 — FlowX Public Downloads */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="group relative rounded-3xl overflow-hidden border transition-all duration-500 hover:-translate-y-1"
+            style={{
+              background:
+                "radial-gradient(1200px 400px at -10% -20%, hsla(174,72%,46%,0.18), transparent 60%), radial-gradient(900px 400px at 110% 120%, hsla(174,72%,46%,0.10), transparent 55%), linear-gradient(180deg, #0d1414 0%, #0a0f10 100%)",
+              borderColor: "rgba(45,212,191,0.18)",
+              boxShadow:
+                "0 30px 80px -30px rgba(20, 184, 166, 0.35), inset 0 1px 0 rgba(255,255,255,0.03)",
+            }}
+          >
+            {/* decorative orb */}
+            <div
+              className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-40 transition-opacity duration-500 group-hover:opacity-70"
+              style={{ background: "radial-gradient(circle, hsl(174 72% 46% / 0.55), transparent 70%)" }}
+            />
+            <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
+              backgroundImage: "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+              backgroundSize: "44px 44px",
+            }} />
+
+            <div className="relative p-6 md:p-10 lg:p-12">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-8">
+                <div className="flex items-start gap-4 md:gap-5">
+                  <div
+                    className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
+                      boxShadow: "0 10px 30px -10px hsla(174,72%,46%,0.6)",
+                    }}
+                  >
+                    <Download className="h-7 w-7 md:h-8 md:w-8" style={{ color: "#04140f" }} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span
+                        className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full"
+                        style={{
+                          background: "hsla(174,72%,46%,0.12)",
+                          color: "hsl(174 72% 66%)",
+                          border: "1px solid hsla(174,72%,46%,0.3)",
+                        }}
+                      >
+                        Public Build
+                      </span>
+                    </div>
+                    <h3
+                      className="font-display font-bold text-foreground leading-tight"
+                      style={{ fontSize: "clamp(1.75rem, 4vw, 2.25rem)" }}
+                    >
+                      🌐 FlowX Public Downloads
+                    </h3>
+                    <p className="text-sm md:text-base mt-2 max-w-xl" style={{ color: "rgba(255,255,255,0.6)" }}>
+                      Download the official FlowX application for Android and Windows.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground mb-4">
-                Download the latest FlowX applications.
-              </p>
 
               {profile?.subscription_active ? (
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <button
                     onClick={() => {
                       if (!flowxApkUrl) { toast.error("APK link not configured yet."); return; }
@@ -913,15 +964,17 @@ const Dashboard = () => {
                       link.click();
                       document.body.removeChild(link);
                     }}
-                    className="w-full h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all"
+                    className="group/btn relative overflow-hidden h-16 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]"
                     style={{
                       background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
-                      color: "#0a0a0a",
+                      color: "#04140f",
+                      boxShadow: "0 15px 40px -12px hsla(174,72%,46%,0.55)",
                     }}
                   >
-                    <Smartphone className="h-4 w-4" /> Download APK
+                    <Smartphone className="h-5 w-5" />
+                    <span>Download APK</span>
+                    <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)" }} />
                   </button>
-                  <p className="text-[10px] text-muted-foreground -mt-1 text-center">Android APK for mobile devices</p>
 
                   <button
                     onClick={() => {
@@ -934,81 +987,147 @@ const Dashboard = () => {
                       link.click();
                       document.body.removeChild(link);
                     }}
-                    className="w-full h-11 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#1a1a1a] transition-colors"
-                    style={{ borderColor: "#1e1e1e", color: "#e5e5e5" }}
+                    className="h-16 rounded-2xl border-2 font-semibold text-base flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.99] backdrop-blur-sm"
+                    style={{
+                      borderColor: "hsla(174,72%,46%,0.35)",
+                      color: "#e5faf6",
+                      background: "hsla(174,72%,46%,0.05)",
+                    }}
                   >
-                    <Monitor className="h-4 w-4" /> Download Windows
+                    <Monitor className="h-5 w-5" />
+                    <span>Download for Windows</span>
                   </button>
-                  <p className="text-[10px] text-muted-foreground -mt-1 text-center">Windows ZIP package for desktops and laptops</p>
+
+                  <p className="text-xs text-center md:text-left" style={{ color: "rgba(255,255,255,0.45)" }}>
+                    Android APK · Optimized for all devices
+                  </p>
+                  <p className="text-xs text-center md:text-left" style={{ color: "rgba(255,255,255,0.45)" }}>
+                    Windows ZIP · Desktop & laptop package
+                  </p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  <div className="rounded-lg border p-4 flex flex-col items-center text-center" style={{ background: "#0a0a0a", borderColor: "#1e1e1e" }}>
-                    <Lock className="h-6 w-6 mb-2 text-muted-foreground" />
-                    <div className="text-sm font-semibold text-foreground mb-1">🔒 FlowX Downloads Locked</div>
-                    <p className="text-xs text-muted-foreground">
-                      You need an active BASIC, PRO, or ULTRA plan to access FlowX downloads.
-                    </p>
+                <div className="rounded-2xl border p-6 md:p-8 flex flex-col items-center text-center" style={{ background: "rgba(0,0,0,0.35)", borderColor: "rgba(255,255,255,0.08)" }}>
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(255,255,255,0.05)" }}>
+                    <Lock className="h-6 w-6 text-muted-foreground" />
                   </div>
+                  <div className="text-base font-semibold text-foreground mb-2">FlowX Downloads Locked</div>
+                  <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.55)" }}>
+                    You need an active plan to access FlowX downloads.
+                  </p>
                   <button
                     onClick={() => window.open(`https://wa.me/919448646624?text=${encodeURIComponent("Hi! I want to access FlowX downloads.")}`, "_blank", "noopener,noreferrer")}
-                    className="w-full h-10 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
-                    style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
+                    className="h-11 px-6 rounded-xl text-sm font-semibold flex items-center justify-center gap-2"
+                    style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#04140f" }}
                   >
-                    <MessageCircle className="h-3.5 w-3.5" /> Contact Admin on WhatsApp
+                    <MessageCircle className="h-4 w-4" /> Contact Admin on WhatsApp
                   </button>
                 </div>
               )}
-            </motion.div>
+            </div>
+          </motion.div>
 
-            {/* Private Plan Downloads Card (only if enabled for this user) */}
-            {profile?.private_plan_enabled && profile?.subscription_active && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 }}
-                className="rounded-xl p-6 border relative overflow-hidden"
-                style={{
-                  background: "linear-gradient(135deg, #14101f 0%, #111111 60%)",
-                  borderColor: "rgba(192, 132, 252, 0.35)",
-                  boxShadow: "0 0 0 1px rgba(192,132,252,0.05), 0 8px 32px rgba(168,85,247,0.08)",
-                }}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <Download className="h-4 w-4" style={{ color: "#c084fc" }} />
-                    <h3 className="font-semibold text-foreground">Private Plan Downloads</h3>
-                  </div>
-                  <span
-                    className="text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wider"
+          {/* CARD 2 — FlowX Private Downloads (VIP) */}
+          {profile?.private_plan_enabled && profile?.subscription_active && (
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="group relative rounded-3xl overflow-hidden border-2 transition-all duration-500 hover:-translate-y-1"
+              style={{
+                background:
+                  "radial-gradient(900px 400px at 100% -10%, rgba(251,191,36,0.18), transparent 55%), radial-gradient(1000px 500px at -10% 120%, rgba(168,85,247,0.28), transparent 60%), linear-gradient(180deg, #17102a 0%, #0f0a1c 100%)",
+                borderColor: "rgba(251,191,36,0.35)",
+                boxShadow:
+                  "0 40px 100px -30px rgba(168,85,247,0.55), 0 0 0 1px rgba(251,191,36,0.12), inset 0 1px 0 rgba(255,255,255,0.05)",
+              }}
+            >
+              {/* animated golden orb */}
+              <div
+                className="pointer-events-none absolute -top-32 -right-20 w-96 h-96 rounded-full blur-3xl opacity-50 transition-opacity duration-700 group-hover:opacity-80 animate-pulse"
+                style={{ background: "radial-gradient(circle, rgba(251,191,36,0.55), transparent 70%)" }}
+              />
+              <div
+                className="pointer-events-none absolute -bottom-40 -left-20 w-[28rem] h-[28rem] rounded-full blur-3xl opacity-50"
+                style={{ background: "radial-gradient(circle, rgba(168,85,247,0.55), transparent 70%)" }}
+              />
+              {/* shimmering top edge */}
+              <div
+                className="pointer-events-none absolute top-0 left-0 right-0 h-px"
+                style={{ background: "linear-gradient(90deg, transparent, rgba(251,191,36,0.9), rgba(168,85,247,0.9), transparent)" }}
+              />
+
+              <div className="relative p-6 md:p-10 lg:p-12">
+                {/* VIP top badge */}
+                <div className="absolute top-5 right-5 md:top-8 md:right-8">
+                  <div
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-[0.2em]"
                     style={{
-                      background: "linear-gradient(135deg, rgba(251,191,36,0.18), rgba(168,85,247,0.18))",
-                      color: "#fbbf24",
-                      border: "1px solid rgba(251,191,36,0.4)",
+                      background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
+                      color: "#1a0f00",
+                      boxShadow: "0 8px 24px -6px rgba(251,191,36,0.55)",
                     }}
                   >
-                    PRIVATE
-                  </span>
+                    ⭐ VIP
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground mb-1">
-                  Exclusive FlowX builds available only for your account.
-                </p>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-[10px] uppercase tracking-wider text-[#c084fc]">Exclusive Build</span>
-                  {flowxPrivateVersion && (
-                    <span
-                      className="text-[10px] font-medium px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(168,85,247,0.12)", color: "#c084fc", border: "1px solid rgba(168,85,247,0.3)" }}
+
+                <div className="flex items-start gap-4 md:gap-5 mb-8 pr-16">
+                  <div
+                    className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl md:text-3xl"
+                    style={{
+                      background: "linear-gradient(135deg, #fbbf24 0%, #a855f7 100%)",
+                      boxShadow: "0 15px 40px -10px rgba(168,85,247,0.6)",
+                    }}
+                  >
+                    👑
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <span
+                        className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full"
+                        style={{
+                          background: "linear-gradient(135deg, rgba(251,191,36,0.18), rgba(168,85,247,0.22))",
+                          color: "#fcd34d",
+                          border: "1px solid rgba(251,191,36,0.45)",
+                        }}
+                      >
+                        Private Member
+                      </span>
+                      {flowxPrivateVersion && (
+                        <span
+                          className="text-[10px] md:text-xs font-mono font-semibold px-2.5 py-1 rounded-full"
+                          style={{
+                            background: "rgba(168,85,247,0.15)",
+                            color: "#d8b4fe",
+                            border: "1px solid rgba(168,85,247,0.4)",
+                          }}
+                        >
+                          Private v{flowxPrivateVersion}
+                        </span>
+                      )}
+                    </div>
+                    <h3
+                      className="font-display font-black leading-tight"
+                      style={{
+                        fontSize: "clamp(1.75rem, 4vw, 2.25rem)",
+                        background: "linear-gradient(135deg, #fef3c7 0%, #fbbf24 45%, #d8b4fe 100%)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        backgroundClip: "text",
+                      }}
                     >
-                      Private v{flowxPrivateVersion}
-                    </span>
-                  )}
+                      👑 PRIVATE ACCESS
+                    </h3>
+                    <p className="text-sm md:text-base mt-2 max-w-xl" style={{ color: "rgba(255,255,255,0.7)" }}>
+                      Exclusive private builds available only for your account.
+                    </p>
+                  </div>
                 </div>
 
                 {(flowxPrivateApkUrl || flowxPrivateWinUrl) ? (
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {flowxPrivateApkUrl && (
-                      <>
+                      <div className="space-y-2">
                         <button
                           onClick={() => {
                             const link = document.createElement("a");
@@ -1019,20 +1138,25 @@ const Dashboard = () => {
                             link.click();
                             document.body.removeChild(link);
                           }}
-                          className="w-full h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all"
+                          className="group/gold relative overflow-hidden w-full h-16 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]"
                           style={{
-                            background: "linear-gradient(135deg, #a855f7, #fbbf24)",
-                            color: "#0a0a0a",
+                            background: "linear-gradient(135deg, #fde68a 0%, #fbbf24 40%, #f59e0b 100%)",
+                            color: "#1a0f00",
+                            boxShadow: "0 20px 50px -12px rgba(251,191,36,0.65), inset 0 1px 0 rgba(255,255,255,0.5)",
                           }}
                         >
-                          <Smartphone className="h-4 w-4" /> Download Private APK
+                          <Smartphone className="h-5 w-5" />
+                          <span>Download Private APK</span>
+                          <span className="absolute inset-0 -translate-x-full group-hover/gold:translate-x-full transition-transform duration-700" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent)" }} />
                         </button>
-                        <p className="text-[10px] text-muted-foreground -mt-1 text-center">Private Android build for your account</p>
-                      </>
+                        <p className="text-xs text-center" style={{ color: "rgba(253,224,71,0.65)" }}>
+                          Private Android build · Your account only
+                        </p>
+                      </div>
                     )}
 
                     {flowxPrivateWinUrl && (
-                      <>
+                      <div className="space-y-2">
                         <button
                           onClick={() => {
                             const link = document.createElement("a");
@@ -1043,26 +1167,33 @@ const Dashboard = () => {
                             link.click();
                             document.body.removeChild(link);
                           }}
-                          className="w-full h-11 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#1a1325] transition-colors"
-                          style={{ borderColor: "rgba(192,132,252,0.4)", color: "#e5e5e5" }}
+                          className="w-full h-16 rounded-2xl border-2 font-semibold text-base flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]"
+                          style={{
+                            borderColor: "rgba(251,191,36,0.55)",
+                            color: "#fef3c7",
+                            background: "linear-gradient(135deg, rgba(251,191,36,0.08), rgba(168,85,247,0.12))",
+                          }}
                         >
-                          <Monitor className="h-4 w-4" /> Download Private Windows
+                          <Monitor className="h-5 w-5" />
+                          <span>Download Private Windows</span>
                         </button>
-                        <p className="text-[10px] text-muted-foreground -mt-1 text-center">Private Windows build for your account</p>
-                      </>
+                        <p className="text-xs text-center" style={{ color: "rgba(216,180,254,0.7)" }}>
+                          Private Windows build · Your account only
+                        </p>
+                      </div>
                     )}
                   </div>
                 ) : (
-                  <div className="rounded-lg border p-4 flex flex-col items-center text-center" style={{ background: "#0a0a0a", borderColor: "rgba(192,132,252,0.25)" }}>
-                    <Lock className="h-5 w-5 mb-2 text-muted-foreground" />
-                    <p className="text-xs text-muted-foreground">Private build is currently unavailable.</p>
+                  <div className="rounded-2xl border p-6 md:p-8 flex flex-col items-center text-center" style={{ background: "rgba(0,0,0,0.35)", borderColor: "rgba(251,191,36,0.25)" }}>
+                    <Lock className="h-6 w-6 mb-3" style={{ color: "#fbbf24" }} />
+                    <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>Private build is currently unavailable.</p>
                   </div>
                 )}
-              </motion.div>
-            )}
-
-          </div>
+              </div>
+            </motion.div>
+          )}
         </div>
+
       </div>
 
       {/* Plan Selection Modal */}
