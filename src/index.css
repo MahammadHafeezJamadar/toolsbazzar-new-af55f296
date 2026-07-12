@@ -53,12 +53,29 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
     color: rgba(255, 255, 255, 0.88);
+    font-size: 15px;
+  }
+
+  p, span, div, a, li, td, th, label {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+
+  img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -66,6 +83,7 @@
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.1;
+    overflow-wrap: break-word;
   }
 
   p {
@@ -77,6 +95,11 @@
 
   button, a, label, span, li {
     font-family: var(--font-body);
+  }
+
+  @media (max-width: 640px) {
+    .text-xs { font-size: 12px; }
+    input, select, textarea { font-size: 16px; } /* prevents iOS zoom */
   }
 }
 
