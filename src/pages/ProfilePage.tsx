@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { LogOut, Shield, ArrowLeft, Save, KeyRound, Eye, EyeOff, Copy, Check } from "lucide-react";
+import { LogOut, Shield, ArrowLeft, Save, KeyRound, Eye, EyeOff, Copy, Check, Home, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -109,14 +109,20 @@ const ProfilePage = () => {
       <nav className="sticky top-0 z-50 border-b" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
           <Link to="/" className="text-lg font-bold text-foreground">ToolsBazzar</Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
+              <Link to="/" className="flex items-center gap-1"><Home className="h-4 w-4" /> <span className="hidden sm:inline">Home</span></Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
+              <Link to="/dashboard" className="flex items-center gap-1"><LayoutDashboard className="h-4 w-4" /> <span className="hidden sm:inline">Dashboard</span></Link>
+            </Button>
             {isAdmin && (
               <Button variant="ghost" size="sm" asChild>
-                <Link to="/admin" className="flex items-center gap-1 text-accent"><Shield className="h-4 w-4" /> Admin</Link>
+                <Link to="/admin" className="flex items-center gap-1 text-accent"><Shield className="h-4 w-4" /> <span className="hidden sm:inline">Admin</span></Link>
               </Button>
             )}
             <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
-              <LogOut className="h-4 w-4 mr-1" /> Logout
+              <LogOut className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         </div>
