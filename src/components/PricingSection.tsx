@@ -1,136 +1,208 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Target, Globe, MessageCircle } from "lucide-react";
+import { Check, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UpiPaymentModal from "@/components/UpiPaymentModal";
 
-const plans = [
+type Plan = {
+  name: string;
+  displayName: string;
+  price: number;
+  duration: string;
+  features: string[];
+  badge?: string;
+  accent: string; // tailwind gradient stops
+  ring: string;
+  glow: string;
+  badgeClass?: string;
+};
+
+const sharedPlans: Plan[] = [
   {
-    name: "Starter",
-    monthly: 299,
-    yearly: 299,
-    subtitle: "10 Days Access",
-    badge: null,
+    name: "Sub-Private",
+    displayName: "Sub-Private",
+    price: 299,
+    duration: "10 Days",
     features: [
-      "Unlimited Video Generation",
-      "Unlimited Credits ✅🚀",
-      "No Account Suspend Issue 🤩",
-      "HD Video",
-      "WhatsApp Support",
+      "Unlimited Generation",
+      "4K Download",
+      "Omni Flash",
+      "Fast",
+      "Nano Banana",
+      "Imagen 4",
     ],
-    buttonText: "Get Started",
-    buttonStyle: "outline" as const,
-    glowColor: "from-gray-400/40 to-gray-500/20",
-    borderClass: "border-gray-500/30",
-    buttonClass: "",
+    accent: "from-sky-500/40 to-blue-600/10",
+    ring: "border-sky-500/30",
+    glow: "shadow-[0_0_40px_-10px_rgba(56,189,248,0.35)]",
   },
   {
-    name: "Ultra",
-    monthly: 799,
-    yearly: 799,
-    subtitle: "28 Days Access",
-    badge: "Best Value",
-    badgeClass: "bg-gradient-to-r from-yellow-500 to-amber-500 text-black",
+    name: "Sub-Private",
+    displayName: "Sub-Private",
+    price: 599,
+    duration: "30 Days",
+    badge: "Popular",
+    badgeClass: "bg-gradient-to-r from-amber-400 to-yellow-500 text-black",
     features: [
-      "Unlimited Video Generation",
-      "Unlimited Credits ✅🚀",
-      "No Account Suspend Issue 🤩",
-      "4K Quality",
-      "Priority Support",
+      "Unlimited Generation",
+      "4K Download",
+      "Omni Flash",
+      "Fast",
+      "Nano Banana",
+      "Imagen 4",
     ],
-    buttonText: "Go Ultra",
-    buttonStyle: "default" as const,
-    glowColor: "from-yellow-500/30 to-amber-500/10",
-    borderClass: "border-yellow-500/30",
-    buttonClass: "bg-gradient-to-r from-yellow-500 to-amber-500 text-black hover:from-yellow-400 hover:to-amber-400 border-0",
-    popular: true,
+    accent: "from-amber-400/40 to-yellow-500/10",
+    ring: "border-amber-400/40",
+    glow: "shadow-[0_0_40px_-10px_rgba(251,191,36,0.4)]",
   },
 ];
 
+const privatePlans: Plan[] = [
+  {
+    name: "Private",
+    displayName: "Private",
+    price: 799,
+    duration: "15 Days Warranty",
+    features: [
+      "250+ AI Video Generations",
+      "Unlimited AI Image Generation",
+      "Premium Models",
+      "1K–4K Download",
+      "Omni Flash",
+      "Quality",
+      "Fast",
+      "15 Days Warranty",
+    ],
+    accent: "from-purple-500/40 to-fuchsia-600/10",
+    ring: "border-purple-500/40",
+    glow: "shadow-[0_0_40px_-10px_rgba(168,85,247,0.4)]",
+  },
+  {
+    name: "Private",
+    displayName: "Private",
+    price: 1599,
+    duration: "30 Days Warranty",
+    badge: "Best Value",
+    badgeClass: "bg-gradient-to-r from-amber-400 to-yellow-500 text-black",
+    features: [
+      "500+ AI Video Generations",
+      "Unlimited AI Image Generation",
+      "All Premium Models",
+      "1K–4K Download",
+      "Omni Flash",
+      "Quality",
+      "Fast",
+      "30 Days Warranty",
+    ],
+    accent: "from-amber-400/50 to-yellow-500/10",
+    ring: "border-amber-400/50",
+    glow: "shadow-[0_0_50px_-10px_rgba(251,191,36,0.45)]",
+  },
+];
+
+const PlanCard = ({
+  plan,
+  index,
+  onSelect,
+}: {
+  plan: Plan;
+  index: number;
+  onSelect: (p: Plan) => void;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ delay: index * 0.1 }}
+    className={`relative rounded-2xl p-[1px] bg-gradient-to-b ${plan.accent} ${plan.glow}`}
+  >
+    <div className={`h-full rounded-2xl bg-card/70 backdrop-blur-xl p-6 md:p-7 border ${plan.ring} flex flex-col`}>
+      {plan.badge && (
+        <span className={`absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${plan.badgeClass}`}>
+          {plan.badge}
+        </span>
+      )}
+      <div className="flex items-baseline justify-between mb-1">
+        <h3 className="font-display text-lg font-bold text-foreground">{plan.displayName}</h3>
+        <span className="text-xs uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.5)' }}>
+          {plan.duration}
+        </span>
+      </div>
+      <div className="mb-5 mt-2">
+        <span className="text-4xl md:text-5xl font-bold gradient-text font-display">₹{plan.price}</span>
+        <span className="text-sm ml-1" style={{ color: 'rgba(255,255,255,0.5)' }}>one-time</span>
+      </div>
+      <ul className="space-y-2.5 mb-6 flex-1">
+        {plan.features.map((f) => (
+          <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: 'rgba(255,255,255,0.75)' }}>
+            <Check className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
+            <span>{f}</span>
+          </li>
+        ))}
+      </ul>
+      <Button
+        onClick={() => onSelect(plan)}
+        className="w-full h-12 text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-accent to-emerald-500 text-black hover:opacity-90 border-0"
+      >
+        🚀 Get Started
+      </Button>
+    </div>
+  </motion.div>
+);
 
 const PricingSection = () => {
-  
   const [selectedPlan, setSelectedPlan] = useState<{ name: string; amount: number } | null>(null);
+
+  const handleSelect = (plan: Plan) => {
+    setSelectedPlan({ name: `${plan.displayName} — ${plan.duration}`, amount: plan.price });
+  };
 
   return (
     <section id="pricing" className="py-16 md:py-28">
       <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <h2 className="font-display text-2xl md:text-3xl lg:text-5xl font-bold mb-4 gradient-text heading-glow" style={{ letterSpacing: '-0.02em' }}>
+        <div className="text-center mb-12">
+          <h2 className="font-display text-2xl md:text-3xl lg:text-5xl font-bold mb-4 gradient-text" style={{ letterSpacing: '-0.02em' }}>
             Simple, Transparent Pricing
           </h2>
-          <p className="text-sm md:text-base max-w-xl mx-auto mb-8" style={{ color: 'rgba(255,255,255,0.6)' }}>
-            No hidden charges.
+          <p className="text-sm md:text-base max-w-xl mx-auto" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            Choose the plan that fits you. No hidden charges.
           </p>
         </div>
 
-
-
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
-          {plans.map((p, i) => (
-            <motion.div
-              key={p.name}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.12 }}
-              className={`relative rounded-2xl p-[1px] bg-gradient-to-b ${p.glowColor} ${
-                (p as any).popular ? "scale-[1.02] md:scale-105 z-10" : ""
-              }`}
-            >
-              <div className="h-full rounded-2xl bg-card/80 backdrop-blur-xl p-6 md:p-8 border border-border">
-                {p.badge && (
-                  <span className={`absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold ${p.badgeClass}`}>
-                    {p.badge}
-                  </span>
-                )}
-                <h3 className="font-display text-sm font-semibold mb-1 uppercase" style={{ letterSpacing: '0.1em', color: 'rgba(255,255,255,0.8)' }}>{p.name}</h3>
-                <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>{p.subtitle}</p>
-                <div className="mb-6">
-                  <span className="text-3xl md:text-4xl font-bold gradient-text font-display">
-                    ₹{p.monthly}
-                  </span>
-                  <span className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}> one-time</span>
-                </div>
-                <ul className="space-y-3 mb-8">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                      <Check className="h-4 w-4 text-accent flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  className={`w-full font-semibold h-11 uppercase ${p.buttonClass}`}
-                  style={{ letterSpacing: '0.05em', fontWeight: 600 }}
-                  variant={p.buttonStyle}
-                  onClick={() => setSelectedPlan({ name: p.name, amount: p.monthly })}
-                >
-                  {p.buttonText}
-                </Button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Icon Badges */}
-        <div className="flex flex-wrap justify-center gap-6 mt-12">
-          {[
-            { icon: Target, label: "15 Min Free Demo" },
-            { icon: Globe, label: "Order Via Website" },
-            { icon: MessageCircle, label: "Book on WhatsApp" },
-          ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-2 text-sm cursor-default" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              <Icon className="h-4 w-4 text-accent" />
-              <span>{label}</span>
+        {/* Shared Plans */}
+        <div className="mb-14">
+          <div className="text-center mb-6">
+            <h3 className="font-display text-xl md:text-2xl font-bold text-foreground mb-1">Shared Plans</h3>
+            <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>Sub-Private Access</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+            {sharedPlans.map((p, i) => (
+              <PlanCard key={`shared-${i}`} plan={p} index={i} onSelect={handleSelect} />
+            ))}
+          </div>
+          <div className="max-w-3xl mx-auto mt-5">
+            <div className="flex items-start gap-2.5 rounded-xl p-3.5 border border-yellow-500/20 bg-yellow-500/5">
+              <AlertTriangle className="h-4 w-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs md:text-sm" style={{ color: 'rgba(253,224,71,0.9)' }}>
+                In Sub-Private plans, image or video generation may occasionally fail because the account is shared.
+              </p>
             </div>
-          ))}
+          </div>
         </div>
 
-        {/* Footer Line */}
-        <p className="text-center text-xs mt-6 uppercase font-medium" style={{ color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', fontVariant: 'small-caps' }}>
+        {/* Private Plans */}
+        <div>
+          <div className="text-center mb-6">
+            <h3 className="font-display text-xl md:text-2xl font-bold text-foreground mb-1">Private Plans</h3>
+            <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>Dedicated Premium Access</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+            {privatePlans.map((p, i) => (
+              <PlanCard key={`private-${i}`} plan={p} index={i} onSelect={handleSelect} />
+            ))}
+          </div>
+        </div>
+
+        <p className="text-center text-xs mt-10 uppercase font-medium" style={{ color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em' }}>
           Powered by Google Veo 3 AI · No Hidden Charges · Instant Delivery
         </p>
       </div>

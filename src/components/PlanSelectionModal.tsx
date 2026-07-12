@@ -10,30 +10,52 @@ import UpiPaymentModal from "@/components/UpiPaymentModal";
 
 const plans = [
   {
-    name: "Starter",
+    name: "Sub-Private — 10 Days",
     price: 299,
     features: [
       "10 Days Access",
-      "Unlimited Video Generation",
-      "Unlimited Credits ✅🚀",
-      "No Account Suspend Issue 🤩",
-      "HD Video",
-      "WhatsApp Support",
+      "Unlimited Generation",
+      "4K Download",
+      "Omni Flash, Fast",
+      "Nano Banana, Imagen 4",
     ],
     popular: false,
   },
   {
-    name: "Ultra",
+    name: "Sub-Private — 30 Days",
+    price: 599,
+    features: [
+      "30 Days Access",
+      "Unlimited Generation",
+      "4K Download",
+      "Omni Flash, Fast",
+      "Nano Banana, Imagen 4",
+    ],
+    popular: false,
+  },
+  {
+    name: "Private — 15 Days",
     price: 799,
     features: [
-      "28 Days Access",
-      "Unlimited Video Generation",
-      "Unlimited Credits ✅🚀",
-      "No Account Suspend Issue 🤩",
-      "4K Quality",
-      "Priority Support",
+      "250+ AI Video Generations",
+      "Unlimited AI Image Generation",
+      "Premium Models",
+      "1K–4K Download",
+      "15 Days Warranty",
     ],
     popular: true,
+  },
+  {
+    name: "Private — 30 Days",
+    price: 1599,
+    features: [
+      "500+ AI Video Generations",
+      "Unlimited AI Image Generation",
+      "All Premium Models",
+      "1K–4K Download",
+      "30 Days Warranty",
+    ],
+    popular: false,
   },
 ];
 
