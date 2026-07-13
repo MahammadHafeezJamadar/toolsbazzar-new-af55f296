@@ -60,7 +60,7 @@ const privatePlans: Plan[] = [
   {
     name: "Private",
     displayName: "Private",
-    price: 799,
+    price: 899,
     duration: "15 Days Warranty",
     features: [
       "250+ AI Video Generations",
