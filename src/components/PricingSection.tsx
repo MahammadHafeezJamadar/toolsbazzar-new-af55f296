@@ -26,8 +26,8 @@ const sharedPlans: Plan[] = [
     features: [
       "Unlimited Generation",
       "4K Download",
-      "Omni Flash",
-      "Fast",
+      "Veo 3.1 - Lite",
+      "Veo 3.1 - Fast",
       "Nano Banana",
       "Imagen 4",
     ],
@@ -45,8 +45,8 @@ const sharedPlans: Plan[] = [
     features: [
       "Unlimited Generation",
       "4K Download",
-      "Omni Flash",
-      "Fast",
+      "Veo 3.1 - Lite",
+      "Veo 3.1 - Fast",
       "Nano Banana",
       "Imagen 4",
     ],
