@@ -101,7 +101,7 @@ const PlanSelectionModal = ({ open, onClose, userEmail }: PlanSelectionModalProp
         <div className="p-6 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           {plans.map((p) => (
             <div
-              key={p.name}
+              key={`${p.name}-${p.price}`}
               className="rounded-xl p-5 relative flex flex-col"
               style={{
                 background: "#0a0a0a",
