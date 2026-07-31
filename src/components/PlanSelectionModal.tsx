@@ -34,14 +34,14 @@ const plans = [
     popular: false,
   },
   {
-    name: "Private — 15 Days",
-    price: 899,
+    name: "Private — 30 Days",
+    price: 999,
     features: [
-      "250+ AI Video Generations",
+      "300+ AI Video Generations",
       "Unlimited AI Image Generation",
       "Premium Models",
       "1K–4K Download",
-      "15 Days Warranty",
+      "30 Days Warranty",
     ],
     popular: true,
   },
@@ -101,7 +101,7 @@ const PlanSelectionModal = ({ open, onClose, userEmail }: PlanSelectionModalProp
         <div className="p-6 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           {plans.map((p) => (
             <div
-              key={p.name}
+              key={`${p.name}-${p.price}`}
               className="rounded-xl p-5 relative flex flex-col"
               style={{
                 background: "#0a0a0a",
