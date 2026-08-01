@@ -205,6 +205,15 @@ const PricingSection = () => {
         <p className="text-center text-xs mt-10 uppercase font-medium" style={{ color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em' }}>
           Powered by Google Veo 3 AI · No Hidden Charges · Instant Delivery
         </p>
+
+        <div className="max-w-3xl mx-auto mt-6">
+          <div className="flex items-start gap-2.5 rounded-xl p-3.5 border border-red-500/20 bg-red-500/5">
+            <span className="text-sm flex-shrink-0">⚠️</span>
+            <p className="text-xs md:text-sm" style={{ color: 'rgba(252,165,165,0.9)' }}>
+              🍎 <strong>Important Notice:</strong> All plans listed above are currently available for Windows and Android platforms only. macOS is not supported at this time.
+            </p>
+          </div>
+        </div>
       </div>
 
       <UpiPaymentModal

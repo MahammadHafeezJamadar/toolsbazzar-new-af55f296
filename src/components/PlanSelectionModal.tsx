@@ -96,6 +96,9 @@ const PlanSelectionModal = ({ open, onClose, userEmail }: PlanSelectionModalProp
           <p className="text-sm text-muted-foreground text-center mt-1">
             Select a plan to get started
           </p>
+          <p className="text-[11px] text-center mt-2" style={{ color: 'rgba(252,165,165,0.9)' }}>
+            ⚠️ 🍎 All plans are available for Windows & Android only — macOS is not supported.
+          </p>
         </DialogHeader>
 
         <div className="p-6 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
