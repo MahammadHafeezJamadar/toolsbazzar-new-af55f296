@@ -23,7 +23,7 @@ const plans = [
   },
   {
     name: "Sub-Private — 30 Days",
-    price: 599,
+    price: 699,
     features: [
       "30 Days Access",
       "Unlimited Generation",

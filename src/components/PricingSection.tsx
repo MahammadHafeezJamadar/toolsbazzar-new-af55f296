@@ -38,7 +38,7 @@ const sharedPlans: Plan[] = [
   {
     name: "Sub-Private",
     displayName: "Sub-Private",
-    price: 599,
+    price: 699,
     duration: "30 Days",
     badge: "Popular",
     badgeClass: "bg-gradient-to-r from-amber-400 to-yellow-500 text-black",
