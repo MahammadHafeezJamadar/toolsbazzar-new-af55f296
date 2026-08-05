@@ -956,10 +956,12 @@ const Dashboard = () => {
                   <button
                     onClick={() => {
                       if (!flowxApkUrl) { toast.error("APK link not configured yet."); return; }
-                      const link = document.createElement("a");
-                      link.href = flowxApkUrl;
-                      link.download = flowxApkUrl.split("/").pop() || "";
-                      link.style.display = "none";
+                       const link = document.createElement("a");
+                       link.href = flowxApkUrl;
+                       link.download = flowxApkUrl.split("/").pop() || "";
+                       link.target = "_blank";
+                       link.rel = "noopener noreferrer";
+                       link.style.display = "none";
                       document.body.appendChild(link);
                       link.click();
                       document.body.removeChild(link);
@@ -979,10 +981,12 @@ const Dashboard = () => {
                   <button
                     onClick={() => {
                       if (!flowxWinUrl) { toast.error("Windows link not configured yet."); return; }
-                      const link = document.createElement("a");
-                      link.href = flowxWinUrl;
-                      link.download = flowxWinUrl.split("/").pop() || "";
-                      link.style.display = "none";
+                       const link = document.createElement("a");
+                       link.href = flowxWinUrl;
+                       link.download = flowxWinUrl.split("/").pop() || "";
+                       link.target = "_blank";
+                       link.rel = "noopener noreferrer";
+                       link.style.display = "none";
                       document.body.appendChild(link);
                       link.click();
                       document.body.removeChild(link);
@@ -1130,10 +1134,12 @@ const Dashboard = () => {
                       <div className="space-y-2">
                         <button
                           onClick={() => {
-                            const link = document.createElement("a");
-                            link.href = flowxPrivateApkUrl;
-                            link.download = flowxPrivateApkUrl.split("/").pop() || "";
-                            link.style.display = "none";
+                             const link = document.createElement("a");
+                             link.href = flowxPrivateApkUrl;
+                             link.download = flowxPrivateApkUrl.split("/").pop() || "";
+                             link.target = "_blank";
+                             link.rel = "noopener noreferrer";
+                             link.style.display = "none";
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
@@ -1159,10 +1165,12 @@ const Dashboard = () => {
                       <div className="space-y-2">
                         <button
                           onClick={() => {
-                            const link = document.createElement("a");
-                            link.href = flowxPrivateWinUrl;
-                            link.download = flowxPrivateWinUrl.split("/").pop() || "";
-                            link.style.display = "none";
+                             const link = document.createElement("a");
+                             link.href = flowxPrivateWinUrl;
+                             link.download = flowxPrivateWinUrl.split("/").pop() || "";
+                             link.target = "_blank";
+                             link.rel = "noopener noreferrer";
+                             link.style.display = "none";
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
