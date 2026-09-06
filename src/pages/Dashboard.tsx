@@ -21,7 +21,7 @@ import {
 import {
   LogOut, Shield, KeyRound, Trash2, ExternalLink, Download, Gift,
   Zap, CalendarClock, CreditCard, Clock, Copy, Users, ChevronRight, User, X, FileText,
-  Smartphone, Monitor, Lock, MessageCircle, Home,
+  Smartphone, Monitor, Lock, Home,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -425,9 +425,6 @@ const Dashboard = () => {
     : "—";
 
   const showRenewalBanner = hasExpiry && (isExpired || daysLeft < 10);
-  const renewalWaLink = `https://wa.me/919448646624?text=${encodeURIComponent(
-    `Hi! I want to renew my ${profile?.plan || ""} plan. My email: ${profile?.email || ""}`
-  )}`;
 
   const disabled = dailyLimitReached || isFinished;
   const initials = (profile?.name || profile?.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
@@ -526,15 +523,13 @@ const Dashboard = () => {
               </p>
               <p className="text-xs mt-0.5 text-muted-foreground">Contact admin to renew and keep enjoying ToolsBazzar.</p>
             </div>
-            <a
-              href={renewalWaLink}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setPaymentModalOpen(true)}
               className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg text-xs font-semibold whitespace-nowrap transition-transform hover:scale-[1.02]"
-              style={{ background: "#25D366", color: "#0a0a0a" }}
+              style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
             >
-              💬 Renew Now on WhatsApp
-            </a>
+              <CreditCard className="h-4 w-4" /> Renew Plan
+            </button>
           </motion.div>
         )}
 
@@ -766,13 +761,6 @@ const Dashboard = () => {
                     }}
                   >
                     <CreditCard className="h-4 w-4" /> Upgrade Plan
-                  </button>
-                  <button
-                    onClick={() => window.open("https://wa.me/919448646624", "_blank", "noopener,noreferrer")}
-                    className="w-full h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-2 hover:bg-[#1a1a1a] transition-colors"
-                    style={{ borderColor: "#1e1e1e", color: "#999" }}
-                  >
-                    Contact on WhatsApp
                   </button>
                 </div>
               )}
@@ -1019,11 +1007,11 @@ const Dashboard = () => {
                     You need an active plan to access FlowX downloads.
                   </p>
                   <button
-                    onClick={() => window.open(`https://wa.me/919448646624?text=${encodeURIComponent("Hi! I want to access FlowX downloads.")}`, "_blank", "noopener,noreferrer")}
+                    onClick={() => setPaymentModalOpen(true)}
                     className="h-11 px-6 rounded-xl text-sm font-semibold flex items-center justify-center gap-2"
                     style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#04140f" }}
                   >
-                    <MessageCircle className="h-4 w-4" /> Contact Admin on WhatsApp
+                    <CreditCard className="h-4 w-4" /> Upgrade Plan
                   </button>
                 </div>
               )}
