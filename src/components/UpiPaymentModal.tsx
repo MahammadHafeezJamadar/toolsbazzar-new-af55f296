@@ -50,12 +50,6 @@ const UpiPaymentModal = ({ open, onClose, planName, amount, userEmail }: UpiPaym
             <div className="text-2xl font-bold mt-1" style={{ color: "hsl(174 72% 56%)" }}>₹{amount}</div>
           </div>
 
-          {/* QR Code */}
-          <div className="flex justify-center">
-            <div className="rounded-xl overflow-hidden border" style={{ borderColor: "#1e1e1e" }}>
-              <img src="/upi-qr.jpeg" alt="UPI QR Code" className="w-52 h-52 object-contain" />
-            </div>
-          </div>
 
           {/* UPI ID */}
           <div className="rounded-xl p-3 flex items-center justify-between" style={{ background: "#0a0a0a", border: "1px solid #1e1e1e" }}>
@@ -77,7 +71,7 @@ const UpiPaymentModal = ({ open, onClose, planName, amount, userEmail }: UpiPaym
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">How to pay</div>
             <div className="space-y-1.5">
               {[
-                "1. Scan QR code or pay to UPI ID",
+                "1. Pay to the UPI ID below",
                 "2. Take screenshot of payment",
                 "3. Send screenshot on WhatsApp",
                 "4. Your plan will be activated within 30 minutes",

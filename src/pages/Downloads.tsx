@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Download, Lock, Smartphone, Monitor, MessageCircle, ArrowLeft } from "lucide-react";
+import { Download, Lock, Smartphone, Monitor, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
-const WHATSAPP = "919448646624";
+
 
 interface PlanInfo {
   active: boolean;
@@ -81,13 +81,6 @@ const Downloads = () => {
     toast.success(`${label} download started`);
   };
 
-  const contactAdmin = () => {
-    window.open(
-      `https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Hi, I need help with FlowX downloads.")}`,
-      "_blank",
-      "noopener,noreferrer"
-    );
-  };
 
   if (loading) {
     return (
@@ -177,7 +170,7 @@ const Downloads = () => {
             </div>
 
             <Button
-              onClick={contactAdmin}
+              onClick={() => navigate("/dashboard")}
               className="mt-7 h-12 px-6 font-bold"
               style={{
                 background:
@@ -186,8 +179,7 @@ const Downloads = () => {
                 borderRadius: "12px",
               }}
             >
-              <MessageCircle className="w-5 h-5 mr-2" />
-              Contact Admin on WhatsApp
+              Go to Dashboard
             </Button>
           </div>
         ) : (
@@ -265,19 +257,6 @@ const Downloads = () => {
               </div>
             </div>
 
-            <div className="mt-8 text-center">
-              <p className="text-sm text-neutral-500 mb-3">
-                Facing issues with downloads or installation?
-              </p>
-              <Button
-                onClick={contactAdmin}
-                variant="outline"
-                className="border-white/15 text-neutral-300 hover:bg-white/5"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Contact Admin
-              </Button>
-            </div>
           </>
         )}
       </div>

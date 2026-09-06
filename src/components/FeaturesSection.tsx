@@ -22,8 +22,8 @@ const features = [
   {
     icon: HeadphonesIcon,
     title: "24/7 Support",
-    desc: "Dedicated WhatsApp support for all your queries. We are always here to help",
-    points: ["WhatsApp support", "Quick response time", "Dedicated assistance"],
+    desc: "Dedicated support for all your queries. We are always here to help",
+    points: ["Quick response time", "Dedicated assistance", "Always here to help"],
   },
 ];
 
