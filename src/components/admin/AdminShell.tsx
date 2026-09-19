@@ -51,7 +51,8 @@ const AdminShell = ({ title, children, actions }: AdminShellProps) => {
         .eq("id", session.user.id)
         .single();
       if (!active) return;
-      if (!profile?.is_admin) {
+      const AUTHORIZED_ADMIN_EMAIL = "hafeezjamadar295@gmail.com";
+      if (!profile?.is_admin || session.user.email?.toLowerCase() !== AUTHORIZED_ADMIN_EMAIL) {
         toast.error("Admin access only");
         navigate("/dashboard");
         return;
