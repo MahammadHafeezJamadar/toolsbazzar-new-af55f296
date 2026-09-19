@@ -43,7 +43,7 @@ interface Profile {
   mobile_number: string | null;
   city: string | null;
   created_at: string | null;
-  private_plan_enabled?: boolean | null;
+  video_remaining?: number | null;
 }
 
 /* ─── Circular Progress ─── */
@@ -119,11 +119,7 @@ const Dashboard = () => {
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [flowMessage, setFlowMessage] = useState<"active" | "inactive" | null>(null);
-  const [flowxApkUrl, setFlowxApkUrl] = useState<string>("");
   const [flowxWinUrl, setFlowxWinUrl] = useState<string>("");
-  const [flowxPrivateApkUrl, setFlowxPrivateApkUrl] = useState<string>("");
-  const [flowxPrivateWinUrl, setFlowxPrivateWinUrl] = useState<string>("");
-  const [flowxPrivateVersion, setFlowxPrivateVersion] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -133,7 +129,7 @@ const Dashboard = () => {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, referral_code, mobile_number, city, created_at, private_plan_enabled")
+        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, referral_code, mobile_number, city, created_at, video_remaining")
         .eq("id", session.user.id)
         .single();
 
@@ -164,7 +160,7 @@ const Dashboard = () => {
       const { data: flowxSettings } = await supabase
         .from("global_settings")
         .select("key, value")
-        .in("key", ["flowx_apk_url", "flowx_windows_url", "flowx_private_apk_url", "flowx_private_windows_url", "flowx_private_version"]);
+        .in("key", ["flowx_windows_url"]);
       if (flowxSettings) {
         const sanitize = (s: string) => s.trim().replace(/^["'`]+|["'`]+$/g, "").trim();
         const pick = (k: string) => {
@@ -173,11 +169,7 @@ const Dashboard = () => {
           if (v && typeof v === "object" && "url" in v) return sanitize(String((v as any).url ?? ""));
           return "";
         };
-        setFlowxApkUrl(pick("flowx_apk_url"));
         setFlowxWinUrl(pick("flowx_windows_url"));
-        setFlowxPrivateApkUrl(pick("flowx_private_apk_url"));
-        setFlowxPrivateWinUrl(pick("flowx_private_windows_url"));
-        setFlowxPrivateVersion(pick("flowx_private_version"));
       }
 
       setLoading(false);
@@ -589,7 +581,7 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <MiniStat label="Plan" value={profile?.plan || "—"} />
             <MiniStat
               label="Status"
@@ -602,6 +594,7 @@ const Dashboard = () => {
               value={hasExpiry ? (isExpired ? "0" : String(daysLeft)) : "—"}
               valueColor={expiryColors.text}
             />
+            <MiniStat label="Video Remaining" value={String(profile?.video_remaining ?? 0)} />
           </div>
         </motion.div>
 
@@ -791,7 +784,6 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <div className="font-semibold text-foreground">{profile?.name || "User"}</div>
-                  <div className="text-xs text-muted-foreground">{profile?.email}</div>
                 </div>
               </div>
 
@@ -933,39 +925,14 @@ const Dashboard = () => {
                       🌐 FlowX Public Downloads
                     </h3>
                     <p className="text-sm md:text-base mt-2 max-w-xl" style={{ color: "rgba(255,255,255,0.6)" }}>
-                      Download the official FlowX application for Android and Windows.
+                      Download the official FlowX application for Windows.
                     </p>
                   </div>
                 </div>
               </div>
 
               {profile?.subscription_active ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button
-                    onClick={() => {
-                      if (!flowxApkUrl) { toast.error("APK link not configured yet."); return; }
-                       const link = document.createElement("a");
-                       link.href = flowxApkUrl;
-                       link.download = flowxApkUrl.split("/").pop() || "";
-                       link.target = "_blank";
-                       link.rel = "noopener noreferrer";
-                       link.style.display = "none";
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }}
-                    className="group/btn relative overflow-hidden h-16 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]"
-                    style={{
-                      background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
-                      color: "#04140f",
-                      boxShadow: "0 15px 40px -12px hsla(174,72%,46%,0.55)",
-                    }}
-                  >
-                    <Smartphone className="h-5 w-5" />
-                    <span>Download APK</span>
-                    <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)" }} />
-                  </button>
-
+                <div className="grid grid-cols-1 gap-4">
                   <button
                     onClick={() => {
                       if (!flowxWinUrl) { toast.error("Windows link not configured yet."); return; }
@@ -991,9 +958,6 @@ const Dashboard = () => {
                   </button>
 
                   <p className="text-xs text-center md:text-left" style={{ color: "rgba(255,255,255,0.45)" }}>
-                    Android APK · Optimized for all devices
-                  </p>
-                  <p className="text-xs text-center md:text-left" style={{ color: "rgba(255,255,255,0.45)" }}>
                     Windows ZIP · Desktop & laptop package
                   </p>
                 </div>
@@ -1018,176 +982,6 @@ const Dashboard = () => {
             </div>
           </motion.div>
 
-          {/* CARD 2 — FlowX Private Downloads (VIP) */}
-          {profile?.private_plan_enabled && profile?.subscription_active && (
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="group relative rounded-3xl overflow-hidden border-2 transition-all duration-500 hover:-translate-y-1"
-              style={{
-                background:
-                  "radial-gradient(900px 400px at 100% -10%, rgba(251,191,36,0.18), transparent 55%), radial-gradient(1000px 500px at -10% 120%, rgba(168,85,247,0.28), transparent 60%), linear-gradient(180deg, #17102a 0%, #0f0a1c 100%)",
-                borderColor: "rgba(251,191,36,0.35)",
-                boxShadow:
-                  "0 40px 100px -30px rgba(168,85,247,0.55), 0 0 0 1px rgba(251,191,36,0.12), inset 0 1px 0 rgba(255,255,255,0.05)",
-              }}
-            >
-              {/* animated golden orb */}
-              <div
-                className="pointer-events-none absolute -top-32 -right-20 w-96 h-96 rounded-full blur-3xl opacity-50 transition-opacity duration-700 group-hover:opacity-80 animate-pulse"
-                style={{ background: "radial-gradient(circle, rgba(251,191,36,0.55), transparent 70%)" }}
-              />
-              <div
-                className="pointer-events-none absolute -bottom-40 -left-20 w-[28rem] h-[28rem] rounded-full blur-3xl opacity-50"
-                style={{ background: "radial-gradient(circle, rgba(168,85,247,0.55), transparent 70%)" }}
-              />
-              {/* shimmering top edge */}
-              <div
-                className="pointer-events-none absolute top-0 left-0 right-0 h-px"
-                style={{ background: "linear-gradient(90deg, transparent, rgba(251,191,36,0.9), rgba(168,85,247,0.9), transparent)" }}
-              />
-
-              <div className="relative p-6 md:p-10 lg:p-12">
-                {/* VIP top badge */}
-                <div className="absolute top-5 right-5 md:top-8 md:right-8">
-                  <div
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-[0.2em]"
-                    style={{
-                      background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
-                      color: "#1a0f00",
-                      boxShadow: "0 8px 24px -6px rgba(251,191,36,0.55)",
-                    }}
-                  >
-                    ⭐ VIP
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 md:gap-5 mb-8 pr-16">
-                  <div
-                    className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl md:text-3xl"
-                    style={{
-                      background: "linear-gradient(135deg, #fbbf24 0%, #a855f7 100%)",
-                      boxShadow: "0 15px 40px -10px rgba(168,85,247,0.6)",
-                    }}
-                  >
-                    👑
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span
-                        className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full"
-                        style={{
-                          background: "linear-gradient(135deg, rgba(251,191,36,0.18), rgba(168,85,247,0.22))",
-                          color: "#fcd34d",
-                          border: "1px solid rgba(251,191,36,0.45)",
-                        }}
-                      >
-                        Private Member
-                      </span>
-                      {flowxPrivateVersion && (
-                        <span
-                          className="text-[10px] md:text-xs font-mono font-semibold px-2.5 py-1 rounded-full"
-                          style={{
-                            background: "rgba(168,85,247,0.15)",
-                            color: "#d8b4fe",
-                            border: "1px solid rgba(168,85,247,0.4)",
-                          }}
-                        >
-                          Private v{flowxPrivateVersion}
-                        </span>
-                      )}
-                    </div>
-                    <h3
-                      className="font-display font-black leading-tight"
-                      style={{
-                        fontSize: "clamp(1.75rem, 4vw, 2.25rem)",
-                        background: "linear-gradient(135deg, #fef3c7 0%, #fbbf24 45%, #d8b4fe 100%)",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                      }}
-                    >
-                      👑 PRIVATE ACCESS
-                    </h3>
-                    <p className="text-sm md:text-base mt-2 max-w-xl" style={{ color: "rgba(255,255,255,0.7)" }}>
-                      Exclusive private builds available only for your account.
-                    </p>
-                  </div>
-                </div>
-
-                {(flowxPrivateApkUrl || flowxPrivateWinUrl) ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {flowxPrivateApkUrl && (
-                      <div className="space-y-2">
-                        <button
-                          onClick={() => {
-                             const link = document.createElement("a");
-                             link.href = flowxPrivateApkUrl;
-                             link.download = flowxPrivateApkUrl.split("/").pop() || "";
-                             link.target = "_blank";
-                             link.rel = "noopener noreferrer";
-                             link.style.display = "none";
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                          }}
-                          className="group/gold relative overflow-hidden w-full h-16 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]"
-                          style={{
-                            background: "linear-gradient(135deg, #fde68a 0%, #fbbf24 40%, #f59e0b 100%)",
-                            color: "#1a0f00",
-                            boxShadow: "0 20px 50px -12px rgba(251,191,36,0.65), inset 0 1px 0 rgba(255,255,255,0.5)",
-                          }}
-                        >
-                          <Smartphone className="h-5 w-5" />
-                          <span>Download Private APK</span>
-                          <span className="absolute inset-0 -translate-x-full group-hover/gold:translate-x-full transition-transform duration-700" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent)" }} />
-                        </button>
-                        <p className="text-xs text-center" style={{ color: "rgba(253,224,71,0.65)" }}>
-                          Private Android build · Your account only
-                        </p>
-                      </div>
-                    )}
-
-                    {flowxPrivateWinUrl && (
-                      <div className="space-y-2">
-                        <button
-                          onClick={() => {
-                             const link = document.createElement("a");
-                             link.href = flowxPrivateWinUrl;
-                             link.download = flowxPrivateWinUrl.split("/").pop() || "";
-                             link.target = "_blank";
-                             link.rel = "noopener noreferrer";
-                             link.style.display = "none";
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                          }}
-                          className="w-full h-16 rounded-2xl border-2 font-semibold text-base flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]"
-                          style={{
-                            borderColor: "rgba(251,191,36,0.55)",
-                            color: "#fef3c7",
-                            background: "linear-gradient(135deg, rgba(251,191,36,0.08), rgba(168,85,247,0.12))",
-                          }}
-                        >
-                          <Monitor className="h-5 w-5" />
-                          <span>Download Private Windows</span>
-                        </button>
-                        <p className="text-xs text-center" style={{ color: "rgba(216,180,254,0.7)" }}>
-                          Private Windows build · Your account only
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border p-6 md:p-8 flex flex-col items-center text-center" style={{ background: "rgba(0,0,0,0.35)", borderColor: "rgba(251,191,36,0.25)" }}>
-                    <Lock className="h-6 w-6 mb-3" style={{ color: "#fbbf24" }} />
-                    <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>Private build is currently unavailable.</p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
         </div>
 
       </div>
