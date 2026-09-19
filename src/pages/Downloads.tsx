@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Download, Lock, Smartphone, Monitor, ArrowLeft } from "lucide-react";
+import { Download, Lock, Monitor, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 
@@ -17,7 +17,6 @@ const Downloads = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<PlanInfo>({ active: false, plan: null, expiry: null });
-  const [apkUrl, setApkUrl] = useState<string>("");
   const [winUrl, setWinUrl] = useState<string>("");
 
   useEffect(() => {
@@ -37,7 +36,7 @@ const Downloads = () => {
         supabase
           .from("global_settings")
           .select("key, value")
-          .in("key", ["flowx_apk_url", "flowx_windows_url"]),
+          .in("key", ["flowx_windows_url"]),
       ]);
 
       const today = new Date();
@@ -58,7 +57,6 @@ const Downloads = () => {
         if (v && typeof v === "object" && "url" in v) return sanitize(String((v as any).url ?? ""));
         return "";
       };
-      setApkUrl(get("flowx_apk_url"));
       setWinUrl(get("flowx_windows_url"));
       setLoading(false);
     })();
