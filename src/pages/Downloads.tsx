@@ -199,34 +199,8 @@ const Downloads = () => {
               </span>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              {/* Android Card */}
-              <div
-                className="rounded-2xl p-6 flex flex-col"
-                style={{
-                  background: "#0D0D0D",
-                  border: "0.5px solid rgba(192,192,192,0.12)",
-                }}
-              >
-                <Smartphone className="w-9 h-9 text-neutral-300 mb-3" />
-                <h3 className="text-lg font-bold">FlowX for Mobile</h3>
-                <p className="text-neutral-500 text-sm mt-1">
-                  Android APK — for phones & tablets
-                </p>
-                <Button
-                  onClick={() => triggerDownload(apkUrl, "Android")}
-                  className="mt-6 h-12 font-bold"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #F5F5F5 0%, #9A9A9A 50%, #E8E8E8 100%)",
-                    color: "#000",
-                    borderRadius: "12px",
-                  }}
-                >
-                  <Download className="w-5 h-5 mr-2" />
-                  Download APK
-                </Button>
-              </div>
+            <div className="grid gap-4">
+
 
               {/* Windows Card */}
               <div

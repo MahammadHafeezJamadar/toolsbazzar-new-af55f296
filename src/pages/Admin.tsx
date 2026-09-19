@@ -68,7 +68,7 @@ interface UserProfile {
   referral_code: string | null;
   referred_by: string | null;
   api_key: string | null;
-  private_plan_enabled?: boolean | null;
+  video_remaining?: number | null;
 }
 
 interface DeviceSession {
@@ -137,7 +137,8 @@ const Admin = () => {
         .eq("id", session.user.id)
         .single();
 
-      if (!profile?.is_admin) {
+      const AUTHORIZED_ADMIN_EMAIL = "hafeezjamadar295@gmail.com";
+      if (!profile?.is_admin || session.user.email?.toLowerCase() !== AUTHORIZED_ADMIN_EMAIL) {
         toast.error("Access denied");
         navigate("/dashboard");
         return;
@@ -159,7 +160,7 @@ const Admin = () => {
   const loadUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, heygen_cookies, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by, api_key, private_plan_enabled")
+      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, heygen_cookies, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by, api_key, video_remaining")
       .order("email");
     if (error) toast.error("Failed to load users");
     else setUsers((data as any) || []);
@@ -870,7 +871,7 @@ const UserCard = ({
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [googleEmail, setGoogleEmail] = useState(user.google_email || "");
   const [googlePassword, setGooglePassword] = useState(user.google_password || "");
-  const [dailyLimit, setDailyLimit] = useState(String(user.daily_credits_limit || 0));
+  const [videoRemaining, setVideoRemaining] = useState(String(user.video_remaining ?? 0));
   const [cookiesJson, setCookiesJson] = useState(
     user.cookies_json ? JSON.stringify(user.cookies_json, null, 2) : ""
   );
@@ -1087,44 +1088,28 @@ const UserCard = ({
                   </button>
                 </div>
 
-                {/* Daily Credits Limit */}
+                {/* Video Remaining */}
                 <div className="flex items-center gap-1.5">
                   <div className="flex-1 flex items-center gap-2 px-3" style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px" }}>
                     <Zap className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                     <Input
                       type="number"
-                      value={dailyLimit}
-                      onChange={(e) => setDailyLimit(e.target.value)}
-                      placeholder="Daily credits limit"
+                      min={0}
+                      value={videoRemaining}
+                      onChange={(e) => setVideoRemaining(e.target.value)}
+                      placeholder="Video Remaining"
                       className="h-9 flex-1 text-xs border-0 bg-transparent px-0"
                     />
                   </div>
                   <button
                     className="h-9 w-9 flex-shrink-0 flex items-center justify-center transition-all duration-200"
                     style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e", borderRadius: "12px" }}
-                    onClick={() => updateField(user.id, "daily_credits_limit", parseInt(dailyLimit) || 0)}
+                    onClick={() => updateField(user.id, "video_remaining", Math.max(0, parseInt(videoRemaining) || 0))}
                   >
                     <Save className="h-3.5 w-3.5" />
                   </button>
                 </div>
 
-                {/* Private Plan toggle */}
-                <div className="flex items-center justify-between px-3 py-2.5" style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px" }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-foreground font-medium">Private Plan</span>
-                    {(user.private_plan_enabled ?? false) && (
-                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: "rgba(251,191,36,0.12)", color: "#fbbf24" }}>PRIVATE</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-muted-foreground">{(user.private_plan_enabled ?? false) ? "ON" : "OFF"}</span>
-                    <Switch
-                      checked={user.private_plan_enabled ?? false}
-                      onCheckedChange={(v) => updateField(user.id, "private_plan_enabled", v)}
-                      className="data-[state=checked]:bg-accent"
-                    />
-                  </div>
-                </div>
 
                 {/* Action Buttons — Pill shaped */}
                 <div className="flex flex-wrap gap-1.5 pt-2">
@@ -1693,44 +1678,11 @@ const UserDetailsTab = ({
                   <Section title="Account Details">
                     <InfoRow label="Plan" value={u.plan} />
                     <InfoRow label="Status" value={u.subscription_active ? "Active" : "Inactive"} isStatus active={u.subscription_active} />
-                    <InfoRow label="Credits" value={`${u.credits_used ?? 0} / ${u.credits_total ?? 0}`} />
-                    <InfoRow label="Daily Limit" value={String(u.daily_credits_limit ?? 0)} />
+                    <InfoRow label="Video Remaining" value={String(u.video_remaining ?? 0)} />
                     <InfoRow label="Expiry" value={u.expiry_date} />
                     <InfoRow label="Registered" value={u.created_at ? new Date(u.created_at).toLocaleDateString() : null} />
                   </Section>
-                  <Section title="Private Plan">
-                    <div className="flex items-center justify-between py-1">
-                      <div>
-                        <div className="text-xs text-foreground font-medium">Private Plan Enabled</div>
-                        <div className="text-[10px] text-muted-foreground">Grants access to exclusive FlowX private builds on the user dashboard.</div>
-                      </div>
-                      <button
-                        onClick={async () => {
-                          const next = !u.private_plan_enabled;
-                          const { error } = await supabase
-                            .from("profiles")
-                            .update({ private_plan_enabled: next } as any)
-                            .eq("id", u.id);
-                          if (error) { toast.error("Failed to update"); return; }
-                          setSelectedUser({ ...u, private_plan_enabled: next });
-                          toast.success(next ? "Private Plan enabled" : "Private Plan disabled");
-                        }}
-                        role="switch"
-                        aria-checked={!!u.private_plan_enabled}
-                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                        style={{
-                          background: u.private_plan_enabled
-                            ? "linear-gradient(135deg, #a855f7, #fbbf24)"
-                            : "#1e1e1e",
-                        }}
-                      >
-                        <span
-                          className="inline-block h-5 w-5 transform rounded-full bg-white transition-transform"
-                          style={{ transform: u.private_plan_enabled ? "translateX(22px)" : "translateX(2px)" }}
-                        />
-                      </button>
-                    </div>
-                  </Section>
+
                   <Section title="Referral Details">
                     <InfoRow label="Referral Code" value={u.referral_code} />
                     <InfoRow label="Total Referrals" value={String(referralCounts[u.id] || 0)} />

@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789817982114,
+      "tag": "0000_add_video_remaining_and_restrict_admin",
+      "breakpoints": true
+    }
+  ]
+}

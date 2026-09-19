@@ -204,6 +204,7 @@ export type Database = {
           street_address: string | null
           subscription_active: boolean | null
           updated_at: string | null
+          video_remaining: number
         }
         Insert: {
           api_key?: string | null
@@ -236,6 +237,7 @@ export type Database = {
           street_address?: string | null
           subscription_active?: boolean | null
           updated_at?: string | null
+          video_remaining?: number
         }
         Update: {
           api_key?: string | null
@@ -268,6 +270,7 @@ export type Database = {
           street_address?: string | null
           subscription_active?: boolean | null
           updated_at?: string | null
+          video_remaining?: number
         }
         Relationships: [
           {
