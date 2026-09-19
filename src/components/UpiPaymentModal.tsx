@@ -1,3 +1,5 @@
+import { X, Copy } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +15,14 @@ interface UpiPaymentModalProps {
   userEmail?: string;
 }
 
+const UPI_ID = "9448646624@fam";
+
 const UpiPaymentModal = ({ open, onClose, planName, amount, userEmail }: UpiPaymentModalProps) => {
+  const copyUpi = () => {
+    navigator.clipboard.writeText(UPI_ID);
+    toast.success("UPI ID copied!");
+  };
+
   const sendProof = () => {
     const msg = encodeURIComponent(
       `Hi! I have made payment for ${planName} plan - ₹${amount}. Please activate my account. Email: ${userEmail || "N/A"}`
@@ -41,21 +50,36 @@ const UpiPaymentModal = ({ open, onClose, planName, amount, userEmail }: UpiPaym
             <div className="text-2xl font-bold mt-1" style={{ color: "hsl(174 72% 56%)" }}>₹{amount}</div>
           </div>
 
+
+          {/* UPI ID */}
+          <div className="rounded-xl p-3 flex items-center justify-between" style={{ background: "#0a0a0a", border: "1px solid #1e1e1e" }}>
+            <div>
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">UPI ID</div>
+              <div className="text-sm font-mono font-medium text-foreground mt-0.5">{UPI_ID}</div>
+            </div>
+            <button
+              onClick={copyUpi}
+              className="h-8 w-8 rounded-lg flex items-center justify-center border hover:bg-[#1a1a1a] transition-colors"
+              style={{ borderColor: "#1e1e1e", color: "#999" }}
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
           {/* Instructions */}
           <div className="space-y-2">
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">How to pay</div>
             <div className="space-y-1.5">
               {[
-                "1. Message us on WhatsApp to get payment details",
-                "2. Complete the payment and take a screenshot",
-                "3. Send the screenshot on WhatsApp",
+                "1. Pay to the UPI ID below",
+                "2. Take screenshot of payment",
+                "3. Send screenshot on WhatsApp",
                 "4. Your plan will be activated within 30 minutes",
               ].map((step) => (
                 <div key={step} className="text-sm text-muted-foreground">{step}</div>
               ))}
             </div>
           </div>
-
 
           {/* WhatsApp Button */}
           <button
