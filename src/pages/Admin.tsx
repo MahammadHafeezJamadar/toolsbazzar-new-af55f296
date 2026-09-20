@@ -1065,6 +1065,34 @@ const UserCard = ({
 
 
 
+              {/* Plan Type — Private / Shared */}
+              <div className="space-y-1.5 mb-3">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Plan Type</span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {(["Private", "Shared"] as const).map((t) => {
+                    const active = user.plan === t;
+                    const style = planStyles[t];
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => updateField(user.id, "plan", t)}
+                        className="h-9 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200"
+                        style={{
+                          background: active ? style.bg : "rgba(255,255,255,0.04)",
+                          color: active ? style.text : "#94a3b8",
+                          borderRadius: "12px",
+                          border: `1px solid ${active ? style.border : "rgba(255,255,255,0.06)"}`,
+                          boxShadow: active ? `0 0 14px ${style.border}` : "none",
+                        }}
+                      >
+                        {t === "Private" ? <Crown className="h-3 w-3" /> : <Users className="h-3 w-3" />}
+                        {t}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Plan Selector */}
               <div className="space-y-2.5">
                 <Select value={plan} onValueChange={handlePlanChange}>
