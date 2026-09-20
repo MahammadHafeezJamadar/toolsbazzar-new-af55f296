@@ -774,6 +774,8 @@ const planStyles: Record<string, { bg: string; text: string; glow: string; borde
   Basic: { bg: "rgba(56,189,248,0.08)", text: "#38bdf8", glow: "0 0 20px rgba(56,189,248,0.15)", border: "rgba(56,189,248,0.25)", gradient: "linear-gradient(135deg, #0c4a6e, #0e7490)" },
   Pro: { bg: "rgba(168,85,247,0.08)", text: "#a855f7", glow: "0 0 20px rgba(168,85,247,0.15)", border: "rgba(168,85,247,0.25)", gradient: "linear-gradient(135deg, #581c87, #7e22ce)" },
   Ultra: { bg: "rgba(251,191,36,0.08)", text: "#fbbf24", glow: "0 0 20px rgba(251,191,36,0.15)", border: "rgba(251,191,36,0.25)", gradient: "linear-gradient(135deg, #78350f, #b45309)" },
+  Private: { bg: "rgba(168,85,247,0.1)", text: "#c084fc", glow: "0 0 20px rgba(168,85,247,0.2)", border: "rgba(168,85,247,0.3)", gradient: "linear-gradient(135deg, #581c87, #a855f7)" },
+  Shared: { bg: "rgba(45,212,191,0.08)", text: "#2dd4bf", glow: "0 0 20px rgba(45,212,191,0.15)", border: "rgba(45,212,191,0.25)", gradient: "linear-gradient(135deg, #134e4a, #0d9488)" },
 };
 
 /* ─── Days Remaining ─── */
