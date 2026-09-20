@@ -17,7 +17,7 @@ import {
   LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2, Globe,
   Users, CreditCard, Zap, TrendingUp, LayoutDashboard, Settings, ChevronUp, ChevronDown, Eye,
   Phone, MapPin, Calendar, Clock, Search, UserCheck, Megaphone, AlertTriangle, Wallet, BarChart3, CalendarClock,
-  Copy, Check,
+  Copy, Check, Crown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -774,6 +774,8 @@ const planStyles: Record<string, { bg: string; text: string; glow: string; borde
   Basic: { bg: "rgba(56,189,248,0.08)", text: "#38bdf8", glow: "0 0 20px rgba(56,189,248,0.15)", border: "rgba(56,189,248,0.25)", gradient: "linear-gradient(135deg, #0c4a6e, #0e7490)" },
   Pro: { bg: "rgba(168,85,247,0.08)", text: "#a855f7", glow: "0 0 20px rgba(168,85,247,0.15)", border: "rgba(168,85,247,0.25)", gradient: "linear-gradient(135deg, #581c87, #7e22ce)" },
   Ultra: { bg: "rgba(251,191,36,0.08)", text: "#fbbf24", glow: "0 0 20px rgba(251,191,36,0.15)", border: "rgba(251,191,36,0.25)", gradient: "linear-gradient(135deg, #78350f, #b45309)" },
+  Private: { bg: "rgba(168,85,247,0.1)", text: "#c084fc", glow: "0 0 20px rgba(168,85,247,0.2)", border: "rgba(168,85,247,0.3)", gradient: "linear-gradient(135deg, #581c87, #a855f7)" },
+  Shared: { bg: "rgba(45,212,191,0.08)", text: "#2dd4bf", glow: "0 0 20px rgba(45,212,191,0.15)", border: "rgba(45,212,191,0.25)", gradient: "linear-gradient(135deg, #134e4a, #0d9488)" },
 };
 
 /* ─── Days Remaining ─── */
@@ -1063,6 +1065,34 @@ const UserCard = ({
 
 
 
+              {/* Plan Type — Private / Shared */}
+              <div className="space-y-1.5 mb-3">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Plan Type</span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {(["Private", "Shared"] as const).map((t) => {
+                    const active = user.plan === t;
+                    const style = planStyles[t];
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => updateField(user.id, "plan", t)}
+                        className="h-9 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200"
+                        style={{
+                          background: active ? style.bg : "rgba(255,255,255,0.04)",
+                          color: active ? style.text : "#94a3b8",
+                          borderRadius: "12px",
+                          border: `1px solid ${active ? style.border : "rgba(255,255,255,0.06)"}`,
+                          boxShadow: active ? `0 0 14px ${style.border}` : "none",
+                        }}
+                      >
+                        {t === "Private" ? <Crown className="h-3 w-3" /> : <Users className="h-3 w-3" />}
+                        {t}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Plan Selector */}
               <div className="space-y-2.5">
                 <Select value={plan} onValueChange={handlePlanChange}>
@@ -1088,7 +1118,8 @@ const UserCard = ({
                   </button>
                 </div>
 
-                {/* Video Remaining */}
+                {/* Total Videos Remaining */}
+                <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Total Videos Remaining</span>
                 <div className="flex items-center gap-1.5">
                   <div className="flex-1 flex items-center gap-2 px-3" style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px" }}>
                     <Zap className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
