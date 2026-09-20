@@ -1118,7 +1118,8 @@ const UserCard = ({
                   </button>
                 </div>
 
-                {/* Video Remaining */}
+                {/* Total Videos Remaining */}
+                <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Total Videos Remaining</span>
                 <div className="flex items-center gap-1.5">
                   <div className="flex-1 flex items-center gap-2 px-3" style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px" }}>
                     <Zap className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
