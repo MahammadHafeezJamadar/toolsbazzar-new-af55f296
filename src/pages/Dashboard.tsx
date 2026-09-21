@@ -759,6 +759,15 @@ const Dashboard = () => {
               )}
             </motion.div>
 
+            <FlowXExtensionSection
+              plan={profile?.plan}
+              subscriptionActive={profile?.subscription_active}
+              expiryDate={profile?.expiry_date}
+              name={profile?.name}
+              mobileNumber={profile?.mobile_number}
+              city={profile?.city}
+            />
+
           </div>
 
           {/* Right column */}
