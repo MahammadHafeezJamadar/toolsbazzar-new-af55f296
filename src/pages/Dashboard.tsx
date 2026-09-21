@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import jsPDF from "jspdf";
 import PlanSelectionModal from "@/components/PlanSelectionModal";
+import FlowXExtensionSection from "@/components/FlowXExtensionSection";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -758,6 +759,15 @@ const Dashboard = () => {
                 </div>
               )}
             </motion.div>
+
+            <FlowXExtensionSection
+              plan={profile?.plan}
+              subscriptionActive={profile?.subscription_active}
+              expiryDate={profile?.expiry_date}
+              name={profile?.name}
+              mobileNumber={profile?.mobile_number}
+              city={profile?.city}
+            />
 
           </div>
 
