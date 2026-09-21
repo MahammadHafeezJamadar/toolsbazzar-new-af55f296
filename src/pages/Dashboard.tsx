@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import jsPDF from "jspdf";
 import PlanSelectionModal from "@/components/PlanSelectionModal";
+import FlowXExtensionSection from "@/components/FlowXExtensionSection";
 import {
   AlertDialog,
   AlertDialogAction,
