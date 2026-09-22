@@ -2,8 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Download, Lock, Puzzle, Crown, Users, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import privateAsset from "@/assets/FlowX_Extension_Private.zip.asset.json";
-import sharedAsset from "@/assets/FlowX_Extension_Shared.zip.asset.json";
+
+const PRIVATE_EXTENSION_URL =
+  "https://github.com/MahammadHafeezJamadar/FlowX_/releases/download/Extensions/FlowX_Extension_Private.zip";
+const SHARED_EXTENSION_URL =
+  "https://github.com/MahammadHafeezJamadar/FlowX_/releases/download/Extensions/FlowX_Extension._.Shared.zip";
 
 interface Props {
   plan?: string | null;
@@ -26,15 +29,17 @@ const FlowXExtensionSection = ({ plan, subscriptionActive, expiryDate, name, mob
   if (expiryDate && new Date(expiryDate).getTime() < Date.now()) return null;
 
   const profileComplete = !!(name && mobileNumber && city);
-  const asset = isPrivate ? privateAsset : sharedAsset;
+  const assetUrl = isPrivate ? PRIVATE_EXTENSION_URL : SHARED_EXTENSION_URL;
+  const assetName = assetUrl.split("/").pop() || "FlowX_Extension.zip";
 
   const accent = isPrivate ? "#c9a227" : "#c0c6cc";
   const accentSoft = isPrivate ? "rgba(201,162,39,0.14)" : "rgba(192,198,204,0.12)";
 
   const handleDownload = () => {
     const a = document.createElement("a");
-    a.href = asset.url;
-    a.download = asset.original_filename;
+    a.href = assetUrl;
+    a.download = assetName;
+    a.rel = "noopener noreferrer";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -97,7 +102,7 @@ const FlowXExtensionSection = ({ plan, subscriptionActive, expiryDate, name, mob
           <>
             <div className="flex items-center gap-2 text-xs mb-3" style={{ color: "#8f9499" }}>
               <ShieldCheck className="h-3.5 w-3.5" style={{ color: accent }} />
-              <span className="truncate">{asset.original_filename}</span>
+              <span className="truncate">{assetName}</span>
             </div>
             <button
               onClick={handleDownload}
