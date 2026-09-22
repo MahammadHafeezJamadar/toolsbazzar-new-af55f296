@@ -4,8 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
-import jsPDF from "jspdf";
 import PlanSelectionModal from "@/components/PlanSelectionModal";
 import FlowXExtensionSection from "@/components/FlowXExtensionSection";
 import {
@@ -20,9 +18,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  LogOut, Shield, KeyRound, Trash2, ExternalLink, Download, Gift,
-  Zap, CalendarClock, CreditCard, Clock, Copy, Users, ChevronRight, User, X, FileText,
-  Smartphone, Monitor, Lock, Home,
+  LogOut, Shield, KeyRound, Trash2, CreditCard, User, X,
+  Home, Crown, Users, CalendarClock, Timer,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -35,76 +32,18 @@ interface Profile {
   subscription_active: boolean;
   expiry_date: string | null;
   is_admin: boolean | null;
-  credits_total: number;
-  credits_used: number;
-  daily_credits_limit: number;
-  credits_used_today: number;
-  last_reset_date: string | null;
   referral_code: string | null;
   mobile_number: string | null;
   city: string | null;
   created_at: string | null;
-  video_remaining?: number | null;
 }
 
-/* ─── Circular Progress ─── */
-const CircularProgress = ({
-  value,
-  max,
-  size = 120,
-  strokeWidth = 8,
-  label,
-  sublabel,
-}: {
-  value: number;
-  max: number;
-  size?: number;
-  strokeWidth?: number;
-  label: string;
-  sublabel?: string;
-}) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const pct = max > 0 ? Math.min(value / max, 1) : 0;
-  const offset = circumference - pct * circumference;
-
-  return (
-    <div className="flex flex-col items-center">
-      <svg width={size} height={size} className="-rotate-90">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="#1e1e1e"
-          strokeWidth={strokeWidth}
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="url(#gradient)"
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="transition-all duration-700 ease-out"
-        />
-        <defs>
-          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="hsl(174 72% 46%)" />
-            <stop offset="100%" stopColor="hsl(150 60% 50%)" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <div className="absolute flex flex-col items-center justify-center" style={{ width: size, height: size }}>
-        <span className="text-xl font-bold text-foreground">{label}</span>
-        {sublabel && <span className="text-[10px] text-muted-foreground">{sublabel}</span>}
-      </div>
-    </div>
-  );
-};
+const TEAL = "#21C7B7";
+const TEAL_SOFT = "rgba(33,199,183,0.12)";
+const CARD_BG = "#121212";
+const CARD_BORDER = "#1c2422";
+const FONT_HEAD = "'Sora', sans-serif";
+const FONT_BODY = "'Manrope', sans-serif";
 
 /* ─── Dashboard ─── */
 const Dashboard = () => {
@@ -114,13 +53,9 @@ const Dashboard = () => {
   const [passwordForm, setPasswordForm] = useState({ current: "", new: "", confirm: "" });
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [referralCount, setReferralCount] = useState(0);
-  const [referralCredits, setReferralCredits] = useState(0);
   const [announcement, setAnnouncement] = useState<string | null>(null);
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-  const [flowMessage, setFlowMessage] = useState<"active" | "inactive" | null>(null);
-  const [flowxWinUrl, setFlowxWinUrl] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -130,23 +65,12 @@ const Dashboard = () => {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, referral_code, mobile_number, city, created_at, video_remaining")
+        .select("id, email, name, plan, subscription_active, expiry_date, is_admin, referral_code, mobile_number, city, created_at")
         .eq("id", session.user.id)
         .single();
 
       if (error) toast.error("Failed to load profile");
       else setProfile(data);
-
-      // Load referral stats
-      const { data: refs } = await supabase
-        .from("referrals")
-        .select("id, credits_awarded")
-        .eq("referrer_id", session.user.id);
-
-      if (refs) {
-        setReferralCount(refs.length);
-        setReferralCredits(refs.reduce((s, r) => s + (r.credits_awarded ?? 0), 0));
-      }
 
       // Load announcement
       const { data: annData } = await supabase
@@ -156,22 +80,6 @@ const Dashboard = () => {
         .order("created_at", { ascending: false })
         .limit(1);
       if (annData && annData.length > 0) setAnnouncement((annData[0] as any).message);
-
-      // Load FlowX download URLs from global_settings
-      const { data: flowxSettings } = await supabase
-        .from("global_settings")
-        .select("key, value")
-        .in("key", ["flowx_windows_url"]);
-      if (flowxSettings) {
-        const sanitize = (s: string) => s.trim().replace(/^["'`]+|["'`]+$/g, "").trim();
-        const pick = (k: string) => {
-          const v = flowxSettings.find((s: any) => s.key === k)?.value;
-          if (typeof v === "string") return sanitize(v);
-          if (v && typeof v === "object" && "url" in v) return sanitize(String((v as any).url ?? ""));
-          return "";
-        };
-        setFlowxWinUrl(pick("flowx_windows_url"));
-      }
 
       setLoading(false);
     };
@@ -202,16 +110,6 @@ const Dashboard = () => {
       if (profileChannel) supabase.removeChannel(profileChannel);
     };
   }, [navigate]);
-
-  const EXTENSION_ID = "nkjkofpphngekmnjkdfjhakaegmgcddi";
-
-  const handleOpenGoogleFlow = () => {
-    if (profile?.subscription_active) {
-      setFlowMessage("active");
-    } else {
-      setFlowMessage("inactive");
-    }
-  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -258,134 +156,22 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  const copyReferralCode = () => {
-    if (profile?.referral_code) {
-      navigator.clipboard.writeText(profile.referral_code);
-      toast.success("Referral code copied!");
-    }
-  };
-
-  const handleDownloadInvoice = () => {
-    if (!profile) return;
-    const planPrices: Record<string, number> = { Starter: 299, Pro: 499, Ultra: 999 };
-    const amount = planPrices[profile.plan] || 0;
-    const invoiceNo = `TB-${Date.now().toString(36).toUpperCase()}`;
-    const activationDate = profile.created_at ? new Date(profile.created_at).toLocaleDateString("en-IN") : new Date().toLocaleDateString("en-IN");
-    const expiryDate = profile.expiry_date || "N/A";
-
-    const doc = new jsPDF();
-    const w = doc.internal.pageSize.getWidth();
-
-    // Header gradient bar
-    doc.setFillColor(0, 180, 160);
-    doc.rect(0, 0, w, 40, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont("helvetica", "bold");
-    doc.text("ToolsBazzar", 20, 26);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("AI Video Platform", 20, 34);
-
-    // Invoice title
-    doc.setTextColor(50, 50, 50);
-    doc.setFontSize(18);
-    doc.setFont("helvetica", "bold");
-    doc.text("INVOICE", w - 20, 60, { align: "right" });
-
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Invoice No: ${invoiceNo}`, w - 20, 68, { align: "right" });
-    doc.text(`Date: ${new Date().toLocaleDateString("en-IN")}`, w - 20, 74, { align: "right" });
-
-    // Customer info
-    let y = 90;
-    doc.setTextColor(50, 50, 50);
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("Bill To:", 20, y);
-    y += 8;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text(profile.name || "User", 20, y); y += 6;
-    doc.text(profile.email, 20, y); y += 12;
-
-    // Table header
-    doc.setFillColor(240, 240, 240);
-    doc.rect(20, y, w - 40, 10, "F");
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(50, 50, 50);
-    doc.text("Description", 25, y + 7);
-    doc.text("Amount", w - 25, y + 7, { align: "right" });
-    y += 14;
-
-    // Table row
-    doc.setFont("helvetica", "normal");
-    doc.text(`${profile.plan} Plan Subscription`, 25, y + 5);
-    doc.text(`₹${amount}`, w - 25, y + 5, { align: "right" });
-    y += 10;
-    doc.setDrawColor(220, 220, 220);
-    doc.line(20, y, w - 20, y);
-    y += 8;
-
-    // Total
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("Total:", w - 70, y + 5);
-    doc.text(`₹${amount}`, w - 25, y + 5, { align: "right" });
-    y += 20;
-
-    // Details
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Plan: ${profile.plan}`, 20, y); y += 6;
-    doc.text(`Activation Date: ${activationDate}`, 20, y); y += 6;
-    doc.text(`Expiry Date: ${expiryDate}`, 20, y); y += 16;
-
-    // Thank you
-    doc.setFontSize(14);
-    doc.setTextColor(0, 180, 160);
-    doc.setFont("helvetica", "bold");
-    doc.text("Thank you for your purchase!", w / 2, y, { align: "center" });
-    y += 8;
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(150, 150, 150);
-    doc.text("ToolsBazzar — India's #1 Affordable AI Video Platform", w / 2, y, { align: "center" });
-
-    doc.save(`ToolsBazzar-Invoice-${invoiceNo}.pdf`);
-    toast.success("Invoice downloaded!");
-  };
-
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0a0a" }}>
-        <div className="text-muted-foreground">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#050505" }}>
+        <div className="h-8 w-8 rounded-full border-2 animate-spin" style={{ borderColor: "rgba(33,199,183,0.2)", borderTopColor: TEAL }} />
       </div>
     );
   }
 
   // Derived values
-  const creditsRemaining = (profile?.credits_total ?? 0) - (profile?.credits_used ?? 0);
-  const creditsTotal = profile?.credits_total ?? 0;
-  const isFinished = creditsRemaining <= 0;
-
-  const today = new Date().toISOString().split("T")[0];
-  const isToday = profile?.last_reset_date === today;
-  const usedToday = isToday ? (profile?.credits_used_today ?? 0) : 0;
-  const dailyLimit = profile?.daily_credits_limit ?? 100;
-  const dailyLimitReached = usedToday >= dailyLimit;
-
   const hasExpiry = !!profile?.expiry_date;
   const expiryMs = hasExpiry ? new Date(profile!.expiry_date as string).getTime() : 0;
   const rawDaysLeft = hasExpiry ? Math.ceil((expiryMs - Date.now()) / 86400000) : 0;
   const daysLeft = Math.max(0, rawDaysLeft);
   const isExpired = hasExpiry && rawDaysLeft <= 0;
+  const isActive = !!profile?.subscription_active && !isExpired;
 
-  // Expiry severity: >10 green, 4-10 orange, <4 red, expired red
   const expirySeverity: "green" | "orange" | "red" | "none" = !hasExpiry
     ? "none"
     : isExpired
@@ -397,21 +183,11 @@ const Dashboard = () => {
           : "red";
 
   const expiryColors = {
-    green: { text: "#22c55e", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.3)" },
+    green: { text: TEAL, bg: TEAL_SOFT, border: "rgba(33,199,183,0.35)" },
     orange: { text: "#fb923c", bg: "rgba(251,146,60,0.08)", border: "rgba(251,146,60,0.3)" },
     red: { text: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.4)" },
-    none: { text: "#999", bg: "#151515", border: "#1e1e1e" },
+    none: { text: "#8fa39f", bg: "#0d1211", border: "#1c2422" },
   }[expirySeverity];
-
-  const expiryLabel = !hasExpiry
-    ? "No expiry set"
-    : isExpired
-      ? "❌ Plan Expired"
-      : daysLeft > 10
-        ? `${daysLeft} days remaining`
-        : daysLeft >= 4
-          ? `⚠️ ${daysLeft} days remaining`
-          : `🔴 Expires soon! ${daysLeft} days left`;
 
   const formattedExpiry = hasExpiry
     ? new Date(profile!.expiry_date as string).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
@@ -419,15 +195,19 @@ const Dashboard = () => {
 
   const showRenewalBanner = hasExpiry && (isExpired || daysLeft < 10);
 
-  const disabled = dailyLimitReached || isFinished;
-  const initials = (profile?.name || profile?.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+  const planKey = (profile?.plan || "").trim().toLowerCase();
+  const isPrivate = planKey === "private";
+  const isShared = planKey === "shared";
+  const initials = (profile?.name || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
 
   return (
-    <div className="min-h-screen pb-16 md:pb-0" style={{ background: "#0a0a0a" }}>
+    <div className="min-h-screen pb-16 md:pb-0" style={{ background: "#050505", fontFamily: FONT_BODY }}>
       {/* Desktop Nav */}
-      <nav className="sticky top-0 z-50 border-b hidden md:block" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
+      <nav className="sticky top-0 z-50 border-b hidden md:block backdrop-blur-xl" style={{ background: "rgba(5,5,5,0.85)", borderColor: CARD_BORDER }}>
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
-          <button onClick={() => navigate("/")} className="text-lg font-bold text-foreground bg-transparent border-0 cursor-pointer">ToolsBazzar</button>
+          <button onClick={() => navigate("/")} className="text-lg font-bold bg-transparent border-0 cursor-pointer" style={{ fontFamily: FONT_HEAD, color: "#E8F4F2" }}>
+            ToolsBazzar
+          </button>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
               <Home className="h-4 w-4" /> Home
@@ -448,9 +228,11 @@ const Dashboard = () => {
       </nav>
 
       {/* Mobile Top Bar */}
-      <nav className="sticky top-0 z-50 border-b md:hidden" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
+      <nav className="sticky top-0 z-50 border-b md:hidden backdrop-blur-xl" style={{ background: "rgba(5,5,5,0.85)", borderColor: CARD_BORDER }}>
         <div className="flex items-center justify-between h-14 px-4">
-          <button onClick={() => navigate("/")} className="text-lg font-bold text-foreground bg-transparent border-0 cursor-pointer">ToolsBazzar</button>
+          <button onClick={() => navigate("/")} className="text-lg font-bold bg-transparent border-0 cursor-pointer" style={{ fontFamily: FONT_HEAD, color: "#E8F4F2" }}>
+            ToolsBazzar
+          </button>
           <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
             <LogOut className="h-4 w-4" />
           </Button>
@@ -458,9 +240,9 @@ const Dashboard = () => {
       </nav>
 
       {/* Mobile Bottom Nav */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t md:hidden flex items-center justify-around h-14" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
-        <button onClick={() => navigate("/dashboard")} className="flex flex-col items-center gap-0.5 text-accent bg-transparent border-0 cursor-pointer">
-          <Zap className="h-5 w-5" />
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t md:hidden flex items-center justify-around h-14" style={{ background: "#0a0d0c", borderColor: CARD_BORDER }}>
+        <button onClick={() => navigate("/dashboard")} className="flex flex-col items-center gap-0.5 bg-transparent border-0 cursor-pointer" style={{ color: TEAL }}>
+          <Home className="h-5 w-5" />
           <span className="text-[10px]">Home</span>
         </button>
         <button onClick={() => navigate("/profile")} className="flex flex-col items-center gap-0.5 text-muted-foreground hover:text-foreground bg-transparent border-0 cursor-pointer">
@@ -482,10 +264,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-6 rounded-xl p-4 flex items-center justify-between"
-            style={{
-              background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
-              color: "#0a0a0a",
-            }}
+            style={{ background: `linear-gradient(135deg, ${TEAL}, #17a08f)`, color: "#04140f" }}
           >
             <div className="flex items-center gap-2 font-medium text-sm">
               <span>📢</span> {announcement}
@@ -514,336 +293,113 @@ const Dashboard = () => {
                   ? "❌ Your plan has expired!"
                   : `⚠️ Your plan expires in ${daysLeft} day${daysLeft === 1 ? "" : "s"}!`}
               </p>
-              <p className="text-xs mt-0.5 text-muted-foreground">Contact admin to renew and keep enjoying ToolsBazzar.</p>
+              <p className="text-xs mt-0.5 text-muted-foreground">Contact admin to renew and keep enjoying FlowX.</p>
             </div>
             <button
               onClick={() => setPaymentModalOpen(true)}
               className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg text-xs font-semibold whitespace-nowrap transition-transform hover:scale-[1.02]"
-              style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
+              style={{ background: `linear-gradient(135deg, ${TEAL}, #17a08f)`, color: "#04140f" }}
             >
               <CreditCard className="h-4 w-4" /> Renew Plan
             </button>
           </motion.div>
         )}
 
-        {/* Welcome */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-            Welcome back, <span className="gradient-text">{profile?.name || "User"}</span>!
-          </h1>
-          <div className="flex items-center gap-3 flex-wrap">
-            <span
-              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
-              style={{
-                background: "linear-gradient(135deg, hsla(174, 72%, 46%, 0.15), hsla(150, 60%, 50%, 0.15))",
-                borderColor: "hsla(174, 72%, 46%, 0.3)",
-                color: "hsl(174 72% 56%)",
-                boxShadow: "0 0 20px hsla(174, 72%, 46%, 0.1)",
-              }}
-            >
-              {profile?.plan || "Free"} Plan
-            </span>
-            <span
-              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
-              style={{ background: expiryColors.bg, borderColor: expiryColors.border, color: expiryColors.text }}
-            >
-              {expiryLabel}
-            </span>
-          </div>
-        </motion.div>
+        {/* Split layout: Profile card + Details */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          {/* Left — Identity card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="lg:col-span-2 relative overflow-hidden rounded-3xl border p-6 md:p-8"
+            style={{
+              background: `radial-gradient(140% 100% at 0% 0%, ${TEAL_SOFT} 0%, rgba(33,199,183,0) 55%), ${CARD_BG}`,
+              borderColor: CARD_BORDER,
+            }}
+          >
+            <div
+              className="pointer-events-none absolute -top-20 -right-20 h-52 w-52 rounded-full blur-3xl"
+              style={{ background: "rgba(33,199,183,0.15)" }}
+            />
 
-        {/* Plan Expiry / Quick Stats Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-2xl border p-5 mb-6"
-          style={{
-            background: "linear-gradient(135deg, #111111, #0d0d0d)",
-            borderColor: "#1e1e1e",
-            boxShadow: `0 0 30px ${expiryColors.bg}`,
-          }}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-              <CalendarClock className="h-4 w-4 text-accent" /> Plan Overview
-            </h2>
-            {hasExpiry && (
-              <span
-                className="text-[11px] font-semibold px-2.5 py-1 rounded-full border"
-                style={{ background: expiryColors.bg, borderColor: expiryColors.border, color: expiryColors.text }}
+            <div className="relative flex flex-col items-center text-center">
+              <div
+                className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold border-2 mb-4"
+                style={{
+                  fontFamily: FONT_HEAD,
+                  background: TEAL_SOFT,
+                  borderColor: "rgba(33,199,183,0.4)",
+                  color: TEAL,
+                  boxShadow: "0 0 40px rgba(33,199,183,0.15)",
+                }}
               >
-                {expiryLabel}
-              </span>
-            )}
-          </div>
+                {initials}
+              </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <MiniStat label="Plan" value={profile?.plan || "—"} />
-            <MiniStat
-              label="Status"
-              value={profile?.subscription_active ? "Active" : "Inactive"}
-              valueColor={profile?.subscription_active ? "#22c55e" : "#ef4444"}
-            />
-            <MiniStat label="Expires On" value={formattedExpiry} />
-            <MiniStat
-              label="Days Remaining"
-              value={hasExpiry ? (isExpired ? "0" : String(daysLeft)) : "—"}
-              valueColor={expiryColors.text}
-            />
-            <MiniStat label="Video Remaining" value={String(profile?.video_remaining ?? 0)} />
-          </div>
-        </motion.div>
+              <h1 className="text-xl md:text-2xl font-bold mb-3" style={{ fontFamily: FONT_HEAD, color: "#E8F4F2" }}>
+                {profile?.name || "User"}
+              </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-          {/* Left column */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Quick Actions */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="rounded-xl p-6 border"
-              style={{ background: "#111111", borderColor: "#1e1e1e" }}
-            >
-              <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
-              {profile?.subscription_active ? (
-                <div className="space-y-3">
-                  <button
-                    onClick={handleOpenGoogleFlow}
-                    disabled={disabled}
-                    className="w-full h-12 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{
-                      background: disabled ? "#1e1e1e" : "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
-                      color: disabled ? "#666" : "#0a0a0a",
-                      boxShadow: disabled ? "none" : "0 0 30px hsla(174, 72%, 46%, 0.2)",
-                    }}
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    {dailyLimitReached ? "Daily Limit Reached" : isFinished ? "No Credits" : "Open Google Flow"}
-                  </button>
-
-                  {flowMessage === "active" && (
-                    <div className="rounded-lg border p-3 mt-1" style={{ background: "rgba(34,197,94,0.08)", borderColor: "rgba(34,197,94,0.25)" }}>
-                      <p className="text-xs font-medium" style={{ color: "#22c55e" }}>
-                        ✅ Your plan is active!
-                      </p>
-                      <p className="text-xs mt-1" style={{ color: "#22c55e", opacity: 0.8 }}>
-                        Open the ToolsBazzar extension popup and click 'Open Google Flow' button there.
-                      </p>
-                    </div>
-                  )}
-
-                  {flowMessage === "inactive" && (
-                    <div className="rounded-lg border p-3 mt-1" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.25)" }}>
-                      <p className="text-xs font-medium" style={{ color: "#f97316" }}>
-                        ❌ No active plan!
-                      </p>
-                      <p className="text-xs mt-1" style={{ color: "#f97316", opacity: 0.8 }}>
-                        Please purchase a plan first.
-                      </p>
-                      <button
-                        onClick={() => setPaymentModalOpen(true)}
-                        className="mt-2 w-full h-8 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
-                        style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
-                      >
-                        <CreditCard className="h-3.5 w-3.5" /> Buy Plan
-                      </button>
-                    </div>
-                  )}
-
-                  {(() => {
-                    const profileComplete = !!(profile?.name && profile?.mobile_number && profile?.city);
-                    if (!profileComplete) {
-                      return (
-                        <div className="rounded-lg border p-4" style={{ background: "#1a1a00", borderColor: "#3d3d00" }}>
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-lg">⚠️</span>
-                            <span className="text-sm font-semibold" style={{ color: "#fbbf24" }}>Please complete your profile first!</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mb-3">Fill in your Full Name, Mobile Number, and City to download the extension.</p>
-                          <button
-                            onClick={() => navigate("/profile")}
-                            className="w-full h-9 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
-                            style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
-                          >
-                            Complete Profile
-                          </button>
-                        </div>
-                      );
-                    }
-
-                    const planKey = profile?.plan?.toLowerCase() || "basic";
-                    const extensionUrls: Record<string, string> = {
-                      basic: "https://github.com/MahammadHafeezJamadar/toolzbazzar-extension/raw/main/ToolzBazzar-Basic.zip",
-                      pro: "https://github.com/MahammadHafeezJamadar/toolzbazzar-extension/raw/main/ToolzBazzar-Pro_users.zip",
-                      ultra: "https://github.com/MahammadHafeezJamadar/toolzbazzar-extension/raw/main/ToolzBazzar-Ultra.zip",
-                    };
-                    const planLabel = planKey.charAt(0).toUpperCase() + planKey.slice(1);
-
-                    return (
-                      <div className="grid grid-cols-2 gap-3">
-                        {profile?.subscription_active ? (
-                          <button
-                            onClick={() => {
-                              const url = extensionUrls[planKey] || extensionUrls.basic;
-                              const a = document.createElement("a");
-                              a.href = url;
-                              a.download = "";
-                              document.body.appendChild(a);
-                              a.click();
-                              document.body.removeChild(a);
-                              toast.success("Download started!");
-                            }}
-                            className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
-                            style={{ borderColor: "#1e1e1e", color: "#999" }}
-                          >
-                            <Download className="h-3.5 w-3.5" /> Download Extension
-                          </button>
-                        ) : (
-                          <div className="col-span-2 rounded-lg border p-3" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.25)" }}>
-                            <p className="text-xs font-medium" style={{ color: "#f97316" }}>
-                              ❌ Buy a Plan to get Extension
-                            </p>
-                            <button
-                              onClick={() => setPaymentModalOpen(true)}
-                              className="mt-2 w-full h-8 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
-                              style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
-                            >
-                              <CreditCard className="h-3.5 w-3.5" /> Buy Plan
-                            </button>
-                          </div>
-                        )}
-                        {profile?.subscription_active && (
-                          <>
-                            <button
-                              onClick={() => navigate("/refer")}
-                              className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
-                              style={{ borderColor: "#1e1e1e", color: "#999" }}
-                            >
-                              <Gift className="h-3.5 w-3.5" /> Refer & Earn
-                            </button>
-                            <button
-                              onClick={handleDownloadInvoice}
-                              className="h-10 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors col-span-2"
-                              style={{ borderColor: "#1e1e1e", color: "#999" }}
-                            >
-                              <FileText className="h-3.5 w-3.5" /> Download Invoice
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    );
-                  })()}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Your subscription is inactive. Purchase a plan to get started.
-                  </p>
-                  <button
-                    onClick={() => setPaymentModalOpen(true)}
-                    className="w-full h-12 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all"
-                    style={{
-                      background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
-                      color: "#0a0a0a",
-                      boxShadow: "0 0 30px hsla(174, 72%, 46%, 0.2)",
-                    }}
-                  >
-                    <CreditCard className="h-4 w-4" /> Upgrade Plan
-                  </button>
-                </div>
-              )}
-            </motion.div>
-
-            <FlowXExtensionSection
-              plan={profile?.plan}
-              subscriptionActive={profile?.subscription_active}
-              expiryDate={profile?.expiry_date}
-              name={profile?.name}
-              mobileNumber={profile?.mobile_number}
-              city={profile?.city}
-            />
-
-          </div>
-
-          {/* Right column */}
-          <div className="space-y-4">
-            {/* Profile Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-              className="rounded-xl p-6 border"
-              style={{ background: "#111111", borderColor: "#1e1e1e" }}
-            >
-              <div className="flex items-center gap-3 mb-5">
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border"
-                  style={{
-                    background: "linear-gradient(135deg, hsla(174, 72%, 46%, 0.15), hsla(150, 60%, 50%, 0.15))",
-                    borderColor: "hsla(174, 72%, 46%, 0.3)",
-                    color: "hsl(174 72% 56%)",
-                  }}
+              <div className="flex items-center gap-2 flex-wrap justify-center mb-6">
+                {/* Plan badge */}
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border"
+                  style={
+                    isPrivate
+                      ? { background: TEAL_SOFT, borderColor: "rgba(33,199,183,0.4)", color: TEAL }
+                      : isShared
+                        ? { background: "rgba(232,244,242,0.06)", borderColor: "rgba(232,244,242,0.2)", color: "#c7d6d3" }
+                        : { background: "#0d1211", borderColor: CARD_BORDER, color: "#8fa39f" }
+                  }
                 >
-                  {initials}
-                </div>
-                <div>
-                  <div className="font-semibold text-foreground">{profile?.name || "User"}</div>
-                </div>
+                  {isPrivate ? <Crown className="h-3 w-3" /> : isShared ? <Users className="h-3 w-3" /> : null}
+                  {profile?.plan ? `${profile.plan} Plan` : "No Plan"}
+                </span>
+
+                {/* Status badge */}
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border"
+                  style={
+                    isActive
+                      ? { background: TEAL_SOFT, borderColor: "rgba(33,199,183,0.4)", color: TEAL }
+                      : { background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.35)", color: "#f87171" }
+                  }
+                >
+                  <span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{ background: isActive ? TEAL : "#f87171", boxShadow: isActive ? `0 0 8px ${TEAL}` : "none" }}
+                  />
+                  {isActive ? "Active" : "Inactive"}
+                </span>
               </div>
 
-              <div className="space-y-2.5 mb-5">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Plan</span>
-                  <span className="font-medium text-foreground">{profile?.plan || "—"}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Status</span>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    profile?.subscription_active
-                      ? "bg-[#0d3320] text-[#34d399]"
-                      : "bg-[#331111] text-[#f87171]"
-                  }`}>
-                    {profile?.subscription_active ? "Active" : "Inactive"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Expiry</span>
-                  <span className="font-medium text-foreground">{profile?.expiry_date || "N/A"}</span>
-                </div>
-              </div>
-
-              <div className="border-t pt-4 space-y-2" style={{ borderColor: "#1e1e1e" }}>
+              {/* Account actions */}
+              <div className="w-full border-t pt-5 space-y-2" style={{ borderColor: CARD_BORDER }}>
                 <button
                   onClick={() => setShowChangePassword(!showChangePassword)}
-                  className="w-full h-9 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-[#1a1a1a] transition-colors"
-                  style={{ borderColor: "#1e1e1e", color: "#999" }}
+                  className="w-full h-10 rounded-xl border text-xs font-medium flex items-center justify-center gap-1.5 transition-colors hover:bg-[#161d1b]"
+                  style={{ borderColor: CARD_BORDER, color: "#9fb3b0" }}
                 >
                   <KeyRound className="h-3.5 w-3.5" /> Change Password
                 </button>
 
                 {showChangePassword && (
-                  <div className="space-y-2.5 p-3 rounded-lg" style={{ background: "#0a0a0a" }}>
-                    <div>
+                  <div className="space-y-2.5 p-3 rounded-xl" style={{ background: "#0a0d0c" }}>
+                    <div className="text-left">
                       <Label htmlFor="current-password" className="text-[10px] text-muted-foreground">Current Password</Label>
-                      <Input id="current-password" type="password" value={passwordForm.current} onChange={(e) => setPasswordForm((p) => ({ ...p, current: e.target.value }))} maxLength={128} className="h-8 text-xs bg-[#111] border-[#1e1e1e]" />
+                      <Input id="current-password" type="password" value={passwordForm.current} onChange={(e) => setPasswordForm((p) => ({ ...p, current: e.target.value }))} maxLength={128} className="h-8 text-xs bg-[#101614] border-[#1c2422]" />
                     </div>
-                    <div>
+                    <div className="text-left">
                       <Label htmlFor="new-password" className="text-[10px] text-muted-foreground">New Password</Label>
-                      <Input id="new-password" type="password" value={passwordForm.new} onChange={(e) => setPasswordForm((p) => ({ ...p, new: e.target.value }))} maxLength={128} className="h-8 text-xs bg-[#111] border-[#1e1e1e]" />
+                      <Input id="new-password" type="password" value={passwordForm.new} onChange={(e) => setPasswordForm((p) => ({ ...p, new: e.target.value }))} maxLength={128} className="h-8 text-xs bg-[#101614] border-[#1c2422]" />
                     </div>
-                    <div>
+                    <div className="text-left">
                       <Label htmlFor="confirm-password" className="text-[10px] text-muted-foreground">Confirm Password</Label>
-                      <Input id="confirm-password" type="password" value={passwordForm.confirm} onChange={(e) => setPasswordForm((p) => ({ ...p, confirm: e.target.value }))} maxLength={128} className="h-8 text-xs bg-[#111] border-[#1e1e1e]" />
+                      <Input id="confirm-password" type="password" value={passwordForm.confirm} onChange={(e) => setPasswordForm((p) => ({ ...p, confirm: e.target.value }))} maxLength={128} className="h-8 text-xs bg-[#101614] border-[#1c2422]" />
                     </div>
                     <button
-                      className="w-full h-8 rounded-lg text-xs font-semibold transition-all"
-                      style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#0a0a0a" }}
+                      className="w-full h-9 rounded-lg text-xs font-semibold transition-all"
+                      style={{ background: `linear-gradient(135deg, ${TEAL}, #17a08f)`, color: "#04140f" }}
                       onClick={handleChangePassword}
                       disabled={passwordLoading}
                     >
@@ -854,17 +410,17 @@ const Dashboard = () => {
 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <button className="w-full h-9 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors bg-[#1a0a0a] text-[#f87171] hover:bg-[#2a1111] border border-[#331111]">
+                    <button className="w-full h-10 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors bg-[#160b0b] text-[#f87171] hover:bg-[#1f0f0f] border border-[#2a1414]">
                       <Trash2 className="h-3.5 w-3.5" /> Delete Account
                     </button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="border-[#1e1e1e]" style={{ background: "#111111" }}>
+                  <AlertDialogContent className="border-[#1c2422]" style={{ background: CARD_BG }}>
                     <AlertDialogHeader>
                       <AlertDialogTitle className="text-foreground">Delete your account?</AlertDialogTitle>
                       <AlertDialogDescription>This action cannot be undone. Your account and all data will be permanently deleted.</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel className="bg-[#1e1e1e] border-[#2a2a2a] text-foreground hover:bg-[#2a2a2a]">Cancel</AlertDialogCancel>
+                      <AlertDialogCancel className="bg-[#161d1b] border-[#243029] text-foreground hover:bg-[#1c2422]">Cancel</AlertDialogCancel>
                       <AlertDialogAction onClick={handleDeleteAccount} disabled={deleteLoading} className="bg-[#7f1d1d] text-[#fca5a5] hover:bg-[#991b1b]">
                         {deleteLoading ? "Deleting..." : "Delete"}
                       </AlertDialogAction>
@@ -872,128 +428,107 @@ const Dashboard = () => {
                   </AlertDialogContent>
                 </AlertDialog>
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
 
-          </div>
-        </div>
+          {/* Right — Plan details + stats */}
+          <div className="lg:col-span-3 space-y-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 }}
+              className="rounded-3xl border p-6 md:p-8"
+              style={{
+                background: CARD_BG,
+                borderColor: CARD_BORDER,
+                boxShadow: `0 0 40px ${expiryColors.bg}`,
+              }}
+            >
+              <h2 className="text-base font-semibold mb-5 flex items-center gap-2" style={{ fontFamily: FONT_HEAD, color: "#E8F4F2" }}>
+                <CalendarClock className="h-4 w-4" style={{ color: TEAL }} /> Plan Details
+              </h2>
 
-        {/* Premium Downloads Section */}
-        <div className="mt-8 space-y-6">
-          {/* CARD 1 — FlowX Public Downloads */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="group relative rounded-3xl overflow-hidden border transition-all duration-500 hover:-translate-y-1"
-            style={{
-              background:
-                "radial-gradient(1200px 400px at -10% -20%, hsla(174,72%,46%,0.18), transparent 60%), radial-gradient(900px 400px at 110% 120%, hsla(174,72%,46%,0.10), transparent 55%), linear-gradient(180deg, #0d1414 0%, #0a0f10 100%)",
-              borderColor: "rgba(45,212,191,0.18)",
-              boxShadow:
-                "0 30px 80px -30px rgba(20, 184, 166, 0.35), inset 0 1px 0 rgba(255,255,255,0.03)",
-            }}
-          >
-            {/* decorative orb */}
-            <div
-              className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-40 transition-opacity duration-500 group-hover:opacity-70"
-              style={{ background: "radial-gradient(circle, hsl(174 72% 46% / 0.55), transparent 70%)" }}
-            />
-            <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
-              backgroundImage: "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
-              backgroundSize: "44px 44px",
-            }} />
-
-            <div className="relative p-6 md:p-10 lg:p-12">
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-8">
-                <div className="flex items-start gap-4 md:gap-5">
-                  <div
-                    className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
-                    style={{
-                      background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
-                      boxShadow: "0 10px 30px -10px hsla(174,72%,46%,0.6)",
-                    }}
-                  >
-                    <Download className="h-7 w-7 md:h-8 md:w-8" style={{ color: "#04140f" }} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Expiry date */}
+                <div className="rounded-2xl border p-4" style={{ background: "#0b0f0e", borderColor: CARD_BORDER }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <CalendarClock className="h-3.5 w-3.5" style={{ color: "#6f8580" }} />
+                    <span className="text-[10px] uppercase tracking-[0.15em]" style={{ color: "#6f8580" }}>Expiry Date</span>
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span
-                        className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full"
-                        style={{
-                          background: "hsla(174,72%,46%,0.12)",
-                          color: "hsl(174 72% 66%)",
-                          border: "1px solid hsla(174,72%,46%,0.3)",
-                        }}
-                      >
-                        Public Build
-                      </span>
-                    </div>
-                    <h3
-                      className="font-display font-bold text-foreground leading-tight"
-                      style={{ fontSize: "clamp(1.75rem, 4vw, 2.25rem)" }}
-                    >
-                      🌐 FlowX Public Downloads
-                    </h3>
-                    <p className="text-sm md:text-base mt-2 max-w-xl" style={{ color: "rgba(255,255,255,0.6)" }}>
-                      Download the official FlowX application for Windows.
-                    </p>
+                  <div className="text-lg font-bold" style={{ fontFamily: FONT_HEAD, color: "#E8F4F2" }}>{formattedExpiry}</div>
+                </div>
+
+                {/* Days remaining */}
+                <div className="rounded-2xl border p-4" style={{ background: expiryColors.bg, borderColor: expiryColors.border }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Timer className="h-3.5 w-3.5" style={{ color: expiryColors.text }} />
+                    <span className="text-[10px] uppercase tracking-[0.15em]" style={{ color: expiryColors.text }}>Days Remaining</span>
+                  </div>
+                  <div className="text-lg font-bold" style={{ fontFamily: FONT_HEAD, color: expiryColors.text }}>
+                    {!hasExpiry ? "—" : isExpired ? "Expired" : `${daysLeft} day${daysLeft === 1 ? "" : "s"}`}
+                  </div>
+                </div>
+
+                {/* Plan type */}
+                <div className="rounded-2xl border p-4" style={{ background: "#0b0f0e", borderColor: CARD_BORDER }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    {isPrivate
+                      ? <Crown className="h-3.5 w-3.5" style={{ color: TEAL }} />
+                      : <Users className="h-3.5 w-3.5" style={{ color: "#6f8580" }} />}
+                    <span className="text-[10px] uppercase tracking-[0.15em]" style={{ color: "#6f8580" }}>Plan</span>
+                  </div>
+                  <div className="text-lg font-bold" style={{ fontFamily: FONT_HEAD, color: isPrivate ? TEAL : "#E8F4F2" }}>
+                    {profile?.plan || "—"}
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div className="rounded-2xl border p-4" style={{ background: "#0b0f0e", borderColor: CARD_BORDER }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ background: isActive ? TEAL : "#f87171", boxShadow: isActive ? `0 0 8px ${TEAL}` : "none" }}
+                    />
+                    <span className="text-[10px] uppercase tracking-[0.15em]" style={{ color: "#6f8580" }}>Status</span>
+                  </div>
+                  <div className="text-lg font-bold" style={{ fontFamily: FONT_HEAD, color: isActive ? TEAL : "#f87171" }}>
+                    {isActive ? "Active" : "Inactive"}
                   </div>
                 </div>
               </div>
 
-              {profile?.subscription_active ? (
-                <div className="grid grid-cols-1 gap-4">
-                  <button
-                    onClick={() => {
-                      if (!flowxWinUrl) { toast.error("Windows link not configured yet."); return; }
-                       const link = document.createElement("a");
-                       link.href = flowxWinUrl;
-                       link.download = flowxWinUrl.split("/").pop() || "";
-                       link.target = "_blank";
-                       link.rel = "noopener noreferrer";
-                       link.style.display = "none";
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }}
-                    className="h-16 rounded-2xl border-2 font-semibold text-base flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.99] backdrop-blur-sm"
-                    style={{
-                      borderColor: "hsla(174,72%,46%,0.35)",
-                      color: "#e5faf6",
-                      background: "hsla(174,72%,46%,0.05)",
-                    }}
-                  >
-                    <Monitor className="h-5 w-5" />
-                    <span>Download for Windows</span>
-                  </button>
-
-                  <p className="text-xs text-center md:text-left" style={{ color: "rgba(255,255,255,0.45)" }}>
-                    Windows ZIP · Desktop & laptop package
-                  </p>
-                </div>
-              ) : (
-                <div className="rounded-2xl border p-6 md:p-8 flex flex-col items-center text-center" style={{ background: "rgba(0,0,0,0.35)", borderColor: "rgba(255,255,255,0.08)" }}>
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(255,255,255,0.05)" }}>
-                    <Lock className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                  <div className="text-base font-semibold text-foreground mb-2">FlowX Downloads Locked</div>
-                  <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.55)" }}>
-                    You need an active plan to access FlowX downloads.
-                  </p>
-                  <button
-                    onClick={() => setPaymentModalOpen(true)}
-                    className="h-11 px-6 rounded-xl text-sm font-semibold flex items-center justify-center gap-2"
-                    style={{ background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))", color: "#04140f" }}
-                  >
-                    <CreditCard className="h-4 w-4" /> Upgrade Plan
-                  </button>
-                </div>
+              {!isActive && (
+                <button
+                  onClick={() => setPaymentModalOpen(true)}
+                  className="mt-5 w-full h-12 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]"
+                  style={{
+                    background: `linear-gradient(135deg, ${TEAL}, #17a08f)`,
+                    color: "#04140f",
+                    boxShadow: "0 10px 30px rgba(33,199,183,0.2)",
+                  }}
+                >
+                  <CreditCard className="h-4 w-4" /> {isExpired ? "Renew Plan" : "Activate a Plan"}
+                </button>
               )}
-            </div>
-          </motion.div>
+            </motion.div>
 
+            {/* FlowX Extension */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <FlowXExtensionSection
+                plan={profile?.plan}
+                subscriptionActive={profile?.subscription_active}
+                expiryDate={profile?.expiry_date}
+                name={profile?.name}
+                mobileNumber={profile?.mobile_number}
+                city={profile?.city}
+              />
+            </motion.div>
+          </div>
         </div>
-
       </div>
 
       {/* Plan Selection Modal */}
@@ -1005,48 +540,5 @@ const Dashboard = () => {
     </div>
   );
 };
-
-/* ─── Stat Card ─── */
-const StatCard = ({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  color,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-  sub: string;
-  color: string;
-}) => {
-  const colorMap: Record<string, string> = {
-    accent: "hsl(174 72% 46%)",
-    green: "#34d399",
-    red: "#f87171",
-  };
-  const c = colorMap[color] || colorMap.accent;
-
-  return (
-    <div className="rounded-xl p-4 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
-      <div className="flex items-center gap-2 mb-2">
-        <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: `${c}15` }}>
-          <Icon className="h-3.5 w-3.5" style={{ color: c }} />
-        </div>
-        <span className="text-[11px] text-muted-foreground">{label}</span>
-      </div>
-      <div className="text-xl font-bold text-foreground">{value}</div>
-      <div className="text-[10px] text-muted-foreground mt-0.5">{sub}</div>
-    </div>
-  );
-};
-
-/* ─── Mini Stat ─── */
-const MiniStat = ({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) => (
-  <div className="rounded-xl border p-3" style={{ background: "#0d0d0d", borderColor: "#1e1e1e" }}>
-    <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">{label}</div>
-    <div className="text-sm font-semibold truncate" style={{ color: valueColor || "#f5f5f5" }}>{value}</div>
-  </div>
-);
 
 export default Dashboard;
