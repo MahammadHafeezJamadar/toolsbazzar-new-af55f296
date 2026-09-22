@@ -102,7 +102,7 @@ const FlowXExtensionSection = ({ plan, subscriptionActive, expiryDate, name, mob
           <>
             <div className="flex items-center gap-2 text-xs mb-3" style={{ color: "#8f9499" }}>
               <ShieldCheck className="h-3.5 w-3.5" style={{ color: accent }} />
-              <span className="truncate">{asset.original_filename}</span>
+              <span className="truncate">{assetName}</span>
             </div>
             <button
               onClick={handleDownload}
