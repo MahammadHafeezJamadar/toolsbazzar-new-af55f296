@@ -2,8 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Download, Lock, Puzzle, Crown, Users, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import privateAsset from "@/assets/FlowX_Extension_Private.zip.asset.json";
-import sharedAsset from "@/assets/FlowX_Extension_Shared.zip.asset.json";
+
+const PRIVATE_EXTENSION_URL =
+  "https://github.com/MahammadHafeezJamadar/FlowX_/releases/download/Extensions/FlowX_Extension_Private.zip";
+const SHARED_EXTENSION_URL =
+  "https://github.com/MahammadHafeezJamadar/FlowX_/releases/download/Extensions/FlowX_Extension._.Shared.zip";
 
 interface Props {
   plan?: string | null;
