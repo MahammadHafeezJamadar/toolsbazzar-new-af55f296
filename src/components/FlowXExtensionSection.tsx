@@ -29,15 +29,17 @@ const FlowXExtensionSection = ({ plan, subscriptionActive, expiryDate, name, mob
   if (expiryDate && new Date(expiryDate).getTime() < Date.now()) return null;
 
   const profileComplete = !!(name && mobileNumber && city);
-  const asset = isPrivate ? privateAsset : sharedAsset;
+  const assetUrl = isPrivate ? PRIVATE_EXTENSION_URL : SHARED_EXTENSION_URL;
+  const assetName = assetUrl.split("/").pop() || "FlowX_Extension.zip";
 
   const accent = isPrivate ? "#c9a227" : "#c0c6cc";
   const accentSoft = isPrivate ? "rgba(201,162,39,0.14)" : "rgba(192,198,204,0.12)";
 
   const handleDownload = () => {
     const a = document.createElement("a");
-    a.href = asset.url;
-    a.download = asset.original_filename;
+    a.href = assetUrl;
+    a.download = assetName;
+    a.rel = "noopener noreferrer";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
