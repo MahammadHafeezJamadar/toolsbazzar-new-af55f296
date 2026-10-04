@@ -68,7 +68,6 @@ interface UserProfile {
   referral_code: string | null;
   referred_by: string | null;
   api_key: string | null;
-  video_remaining?: number | null;
 }
 
 interface DeviceSession {
@@ -160,7 +159,7 @@ const Admin = () => {
   const loadUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, heygen_cookies, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by, api_key, video_remaining")
+      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, heygen_cookies, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by, api_key")
       .order("email");
     if (error) toast.error("Failed to load users");
     else setUsers((data as any) || []);
@@ -873,7 +872,6 @@ const UserCard = ({
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [googleEmail, setGoogleEmail] = useState(user.google_email || "");
   const [googlePassword, setGooglePassword] = useState(user.google_password || "");
-  const [videoRemaining, setVideoRemaining] = useState(String(user.video_remaining ?? 0));
   const [cookiesJson, setCookiesJson] = useState(
     user.cookies_json ? JSON.stringify(user.cookies_json, null, 2) : ""
   );
@@ -1118,28 +1116,6 @@ const UserCard = ({
                   </button>
                 </div>
 
-                {/* Total Videos Remaining */}
-                <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">Total Videos Remaining</span>
-                <div className="flex items-center gap-1.5">
-                  <div className="flex-1 flex items-center gap-2 px-3" style={{ background: "rgba(255,255,255,0.04)", borderRadius: "12px" }}>
-                    <Zap className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                    <Input
-                      type="number"
-                      min={0}
-                      value={videoRemaining}
-                      onChange={(e) => setVideoRemaining(e.target.value)}
-                      placeholder="Video Remaining"
-                      className="h-9 flex-1 text-xs border-0 bg-transparent px-0"
-                    />
-                  </div>
-                  <button
-                    className="h-9 w-9 flex-shrink-0 flex items-center justify-center transition-all duration-200"
-                    style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e", borderRadius: "12px" }}
-                    onClick={() => updateField(user.id, "video_remaining", Math.max(0, parseInt(videoRemaining) || 0))}
-                  >
-                    <Save className="h-3.5 w-3.5" />
-                  </button>
-                </div>
 
 
                 {/* Action Buttons — Pill shaped */}
@@ -1709,7 +1685,6 @@ const UserDetailsTab = ({
                   <Section title="Account Details">
                     <InfoRow label="Plan" value={u.plan} />
                     <InfoRow label="Status" value={u.subscription_active ? "Active" : "Inactive"} isStatus active={u.subscription_active} />
-                    <InfoRow label="Video Remaining" value={String(u.video_remaining ?? 0)} />
                     <InfoRow label="Expiry" value={u.expiry_date} />
                     <InfoRow label="Registered" value={u.created_at ? new Date(u.created_at).toLocaleDateString() : null} />
                   </Section>
