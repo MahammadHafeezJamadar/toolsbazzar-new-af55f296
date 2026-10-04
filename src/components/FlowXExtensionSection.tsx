@@ -4,7 +4,7 @@ import { Download, Lock, Puzzle, Crown, Users, ShieldCheck } from "lucide-react"
 import { toast } from "sonner";
 
 const PRIVATE_EXTENSION_URL =
-  "https://github.com/MahammadHafeezJamadar/FlowX_/releases/download/Extensions/FlowX_Extension_Private.zip";
+  "https://github.com/MahammadHafeezJamadar/FlowX_/releases/download/Extensions/FlowX_Private.zip";
 const SHARED_EXTENSION_URL =
   "https://github.com/MahammadHafeezJamadar/FlowX_/releases/download/Extensions/FlowX_Extension._.Shared.zip";
 

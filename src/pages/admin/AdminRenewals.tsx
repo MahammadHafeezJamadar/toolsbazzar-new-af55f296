@@ -141,6 +141,14 @@ const AdminRenewals = () => {
 
   useEffect(() => {
     load();
+    // Always show fresh data: refetch when the tab/window regains focus
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
   }, []);
 
   const counts = useMemo(() => {
