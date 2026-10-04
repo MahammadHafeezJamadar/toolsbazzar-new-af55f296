@@ -10,32 +10,8 @@ import UpiPaymentModal from "@/components/UpiPaymentModal";
 
 const plans = [
   {
-    name: "Sub-Private — 10 Days",
-    price: 299,
-    features: [
-      "10 Days Access",
-      "Unlimited Generation",
-      "4K Download",
-      "Veo 3.1 - Lite, Veo 3.1 - Fast",
-      "Nano Banana, Imagen 4",
-    ],
-    popular: false,
-  },
-  {
-    name: "Sub-Private — 30 Days",
-    price: 699,
-    features: [
-      "30 Days Access",
-      "Unlimited Generation",
-      "4K Download",
-      "Veo 3.1 - Lite, Veo 3.1 - Fast",
-      "Nano Banana, Imagen 4",
-    ],
-    popular: false,
-  },
-  {
     name: "Private — 30 Days",
-    price: 999,
+    price: 899,
     features: [
       "300+ AI Video Generations",
       "Unlimited AI Image Generation",

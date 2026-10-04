@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, AlertTriangle } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UpiPaymentModal from "@/components/UpiPaymentModal";
 
@@ -17,50 +17,11 @@ type Plan = {
   badgeClass?: string;
 };
 
-const sharedPlans: Plan[] = [
-  {
-    name: "Sub-Private",
-    displayName: "Sub-Private",
-    price: 299,
-    duration: "10 Days",
-    features: [
-      "Unlimited Generation",
-      "4K Download",
-      "Veo 3.1 - Lite",
-      "Veo 3.1 - Fast",
-      "Nano Banana",
-      "Imagen 4",
-    ],
-    accent: "from-sky-500/40 to-blue-600/10",
-    ring: "border-sky-500/30",
-    glow: "shadow-[0_0_40px_-10px_rgba(56,189,248,0.35)]",
-  },
-  {
-    name: "Sub-Private",
-    displayName: "Sub-Private",
-    price: 699,
-    duration: "30 Days",
-    badge: "Popular",
-    badgeClass: "bg-gradient-to-r from-amber-400 to-yellow-500 text-black",
-    features: [
-      "Unlimited Generation",
-      "4K Download",
-      "Veo 3.1 - Lite",
-      "Veo 3.1 - Fast",
-      "Nano Banana",
-      "Imagen 4",
-    ],
-    accent: "from-amber-400/40 to-yellow-500/10",
-    ring: "border-amber-400/40",
-    glow: "shadow-[0_0_40px_-10px_rgba(251,191,36,0.4)]",
-  },
-];
-
 const privatePlans: Plan[] = [
   {
     name: "Private",
     displayName: "Private",
-    price: 999,
+    price: 899,
     duration: "30 Days Warranty",
     features: [
       "300+ AI Video Generations",
@@ -166,27 +127,6 @@ const PricingSection = () => {
           <p className="text-sm md:text-base max-w-xl mx-auto" style={{ color: 'rgba(255,255,255,0.6)' }}>
             Choose the plan that fits you. No hidden charges.
           </p>
-        </div>
-
-        {/* Shared Plans */}
-        <div className="mb-14">
-          <div className="text-center mb-6">
-            <h3 className="font-display text-xl md:text-2xl font-bold text-foreground mb-1">Shared Plans</h3>
-            <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>Sub-Private Access</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
-            {sharedPlans.map((p, i) => (
-              <PlanCard key={`shared-${i}`} plan={p} index={i} onSelect={handleSelect} />
-            ))}
-          </div>
-          <div className="max-w-3xl mx-auto mt-5">
-            <div className="flex items-start gap-2.5 rounded-xl p-3.5 border border-yellow-500/20 bg-yellow-500/5">
-              <AlertTriangle className="h-4 w-4 text-yellow-400 flex-shrink-0 mt-0.5" />
-              <p className="text-xs md:text-sm" style={{ color: 'rgba(253,224,71,0.9)' }}>
-                In Sub-Private plans, image or video generation may occasionally fail because the account is shared.
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* Private Plans */}
