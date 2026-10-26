@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import {
   LogOut, Save, Shield, KeyRound, Cookie, Monitor, X, Trash2, Globe,
-  Users, CreditCard, Zap, TrendingUp, LayoutDashboard, Settings, ChevronUp, ChevronDown, Eye,
+  Users, CreditCard, Zap, TrendingUp, LayoutDashboard, Settings, ChevronUp, ChevronDown, Eye, Mail,
   Phone, MapPin, Calendar, Clock, Search, UserCheck, Megaphone, AlertTriangle, Wallet, BarChart3, CalendarClock,
   Copy, Check, Crown,
 } from "lucide-react";
