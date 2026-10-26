@@ -205,6 +205,7 @@ export type Database = {
           subscription_active: boolean | null
           updated_at: string | null
           video_remaining: number
+          video_updated_at: string | null
         }
         Insert: {
           api_key?: string | null
@@ -238,6 +239,7 @@ export type Database = {
           subscription_active?: boolean | null
           updated_at?: string | null
           video_remaining?: number
+          video_updated_at?: string | null
         }
         Update: {
           api_key?: string | null
@@ -271,6 +273,7 @@ export type Database = {
           subscription_active?: boolean | null
           updated_at?: string | null
           video_remaining?: number
+          video_updated_at?: string | null
         }
         Relationships: [
           {

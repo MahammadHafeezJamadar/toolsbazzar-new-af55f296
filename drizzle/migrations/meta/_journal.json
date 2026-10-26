@@ -8,6 +8,13 @@
       "when": 1789817982114,
       "tag": "0000_add_video_remaining_and_restrict_admin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793020410274,
+      "tag": "0001_video_remaining_admin_only",
+      "breakpoints": true
     }
   ]
 }
