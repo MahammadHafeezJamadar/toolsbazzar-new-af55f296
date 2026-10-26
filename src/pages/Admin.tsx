@@ -1083,7 +1083,18 @@ const UserCard = ({
                 const digits = (user.mobile_number || "").replace(/\D/g, "");
                 const phone = digits || "919448646624";
                 const openWhatsApp = (msg: string) => {
-                  window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+                  const text = encodeURIComponent(msg);
+                  const webUrl = `https://wa.me/${phone}?text=${text}`;
+                  const ua = navigator.userAgent || "";
+                  if (/Android/i.test(ua)) {
+                    // Android intent targeting WhatsApp Business (com.whatsapp.w4b) only
+                    window.location.href = `intent://send/?phone=${phone}&text=${text}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;S.browser_fallback_url=${encodeURIComponent(webUrl)};end`;
+                  } else if (/iPhone|iPad|iPod/i.test(ua)) {
+                    // iOS: WhatsApp Business registers the whatsapp:// scheme
+                    window.location.href = `whatsapp://send?phone=${phone}&text=${text}`;
+                  } else {
+                    window.location.href = webUrl;
+                  }
                 };
                 const btnCls = "w-full min-h-11 px-4 rounded-xl text-xs font-semibold border flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]";
                 const btnStyle = { background: "rgba(37,211,102,0.1)", borderColor: "rgba(37,211,102,0.4)", color: "#25D366" };
