@@ -36,6 +36,8 @@ interface Profile {
   mobile_number: string | null;
   city: string | null;
   created_at: string | null;
+  video_remaining?: number | null;
+  video_updated_at?: string | null;
 }
 
 const TEAL = "#21C7B7";
@@ -495,6 +497,21 @@ const Dashboard = () => {
                     {isActive ? "Active" : "Inactive"}
                   </div>
                 </div>
+
+                {isActive && (
+                  <div className="sm:col-span-2 rounded-2xl border p-4 flex flex-wrap items-end justify-between gap-3" style={{ background: TEAL_SOFT, borderColor: "rgba(33,199,183,0.3)" }}>
+                    <div>
+                      <div className="text-[10px] uppercase tracking-[0.15em] mb-2" style={{ color: TEAL }}>Videos Remaining</div>
+                      <div className="text-2xl font-bold" style={{ fontFamily: FONT_HEAD, color: "#E8F4F2" }}>{profile?.video_remaining ?? 0}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] uppercase tracking-[0.15em] mb-1" style={{ color: "#6f8580" }}>Last Updated by Admin</div>
+                      <div className="text-xs" style={{ color: "#E8F4F2" }}>
+                        {profile?.video_updated_at ? new Date(profile.video_updated_at).toLocaleString() : "Not updated yet"}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {!isActive && (
