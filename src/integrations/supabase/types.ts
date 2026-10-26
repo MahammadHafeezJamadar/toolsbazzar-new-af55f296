@@ -174,6 +174,7 @@ export type Database = {
       }
       google_ai_accounts: {
         Row: {
+          assigned_at: string | null
           created_at: string
           credits_exhausted: boolean
           enabled: boolean
@@ -182,9 +183,10 @@ export type Database = {
           password: string
           start_date: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
+          assigned_at?: string | null
           created_at?: string
           credits_exhausted?: boolean
           enabled?: boolean
@@ -193,9 +195,10 @@ export type Database = {
           password?: string
           start_date?: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
+          assigned_at?: string | null
           created_at?: string
           credits_exhausted?: boolean
           enabled?: boolean
@@ -204,7 +207,7 @@ export type Database = {
           password?: string
           start_date?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
