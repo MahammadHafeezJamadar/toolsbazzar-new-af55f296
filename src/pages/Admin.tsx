@@ -1075,20 +1075,43 @@ const UserCard = ({
               {(() => {
                 if (!user.expiry_date) return null;
                 const exp = new Date(user.expiry_date + "T23:59:59");
-                if (isNaN(exp.getTime()) || exp.getTime() >= Date.now()) return null;
+                if (isNaN(exp.getTime())) return null;
+                const expired = exp.getTime() < Date.now();
+                const quotaExhausted = (user.video_remaining ?? 0) <= 0;
+                if (!expired && !quotaExhausted) return null;
+                const planLabel = user.plan === "Private" ? "Private" : "Shared";
+                const digits = (user.mobile_number || "").replace(/\D/g, "");
+                const phone = digits || "919448646624";
+                const openWhatsApp = (msg: string) => {
+                  window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+                };
+                const btnCls = "w-full min-h-11 px-4 rounded-xl text-xs font-semibold border flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]";
+                const btnStyle = { background: "rgba(37,211,102,0.1)", borderColor: "rgba(37,211,102,0.4)", color: "#25D366" };
                 return (
-                  <button
-                    onClick={() => {
-                      const msg = encodeURIComponent(
-                        `Hello ${user.name || "there"}, your ToolsBazzar plan has expired.\nPlan: ${user.plan || "-"}\nExpired on: ${user.expiry_date}\nPlease renew to continue using your plan.`
-                      );
-                      window.location.href = `https://wa.me/919448646624?text=${msg}`;
-                    }}
-                    className="mb-4 w-full min-h-11 px-4 rounded-xl text-xs font-semibold border flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]"
-                    style={{ background: "rgba(37,211,102,0.1)", borderColor: "rgba(37,211,102,0.4)", color: "#25D366" }}
-                  >
-                    Send Renewal Request via WhatsApp
-                  </button>
+                  <div className="mb-4 space-y-2">
+                    {expired && (
+                      <button
+                        onClick={() => openWhatsApp(
+                          `👋 Hello ${user.name || "there"}!\n\n⚠️ Your Google Flow Ultra ${planLabel} Plan has expired.\n\n🔄 Renew your plan now to continue enjoying our services!\n\n💬 Contact us on WhatsApp for renewal details and pricing.\n\n❤️ Thank you for choosing Google Flow Ultra!`
+                        )}
+                        className={btnCls}
+                        style={btnStyle}
+                      >
+                        Send Renewal via WhatsApp
+                      </button>
+                    )}
+                    {quotaExhausted && (
+                      <button
+                        onClick={() => openWhatsApp(
+                          `👋 Hello ${user.name || "there"}!\n\n⚠️ Your Google Flow Ultra ${planLabel} video generation quota has been exhausted.\n\n🔄 To continue generating videos, please recharge your plan.\n\n💬 Contact us on WhatsApp for recharge details and pricing.\n\n❤️ Thank you for choosing Google Flow Ultra!`
+                        )}
+                        className={btnCls}
+                        style={btnStyle}
+                      >
+                        Quota Exhausted
+                      </button>
+                    )}
+                  </div>
                 );
               })()}
 
