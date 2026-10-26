@@ -1,11 +1,12 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Wallet, Users, CalendarClock, BarChart3, Monitor } from "lucide-react";
+import { LayoutDashboard, Wallet, Users, CalendarClock, BarChart3, Monitor, Mail } from "lucide-react";
 
 const items = [
   { to: "/admin/dashboard", label: "Dash", icon: LayoutDashboard },
   { to: "/admin/finance", label: "Finance", icon: Wallet },
   { to: "/admin", label: "Users", icon: Users },
   { to: "/admin/renewals", label: "Renew", icon: CalendarClock },
+  { to: "/admin/gmail", label: "Gmail", icon: Mail },
   { to: "/admin/analytics", label: "Stats", icon: BarChart3 },
   { to: "/admin/devices", label: "Devices", icon: Monitor },
 ];
