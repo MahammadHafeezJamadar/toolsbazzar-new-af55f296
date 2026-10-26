@@ -4,7 +4,7 @@ import { toast } from "@/hooks/use-toast";
 import { ChevronDown, Copy, Eye, EyeOff, Mail, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { gmailCycle, fmtYmd } from "@/lib/gmail-cycle";
 
-interface Account { id: string; gmail: string; password: string; start_date: string }
+interface Account { id: string; gmail: string; password: string; start_date: string; credits_exhausted: boolean; enabled: boolean }
 
 const today = () => fmtYmd(new Date());
 const inputCls = "w-full min-w-0 h-10 rounded-lg px-3 text-sm text-foreground bg-background border border-border";
@@ -15,11 +15,31 @@ const copy = async (v: string, what: string) => {
   catch { toast({ title: "Could not copy", variant: "destructive" }); }
 };
 
+const Toggle = ({ label, on, onChange }: { label: string; on: boolean; onChange: (v: boolean) => void }) => (
+  <button onClick={() => onChange(!on)} role="switch" aria-checked={on}
+    className="h-9 px-2 rounded-md border border-border flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
+    <span className="truncate">{label}</span>
+    <span className="flex items-center gap-1 shrink-0 font-semibold" style={{ color: on ? "#21C7B7" : undefined }}>
+      {on ? "ON" : "OFF"}
+      <span className="relative h-4 w-7 rounded-full transition-colors" style={{ background: on ? "#21C7B7" : "rgba(255,255,255,0.15)" }}>
+        <span className={`absolute top-0.5 h-3 w-3 rounded-full bg-background transition-all ${on ? "left-3.5" : "left-0.5"}`} />
+      </span>
+    </span>
+  </button>
+);
+
 const Row = ({ a, onChanged }: { a: Account; onChanged: () => void }) => {
   const [show, setShow] = useState(false);
   const [edit, setEdit] = useState(false);
   const [f, setF] = useState(a);
   const c = gmailCycle(a.start_date);
+  const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+  const daysLeft = Math.round((c.nextReset.getTime() - t0.getTime()) / 86400000);
+  const toggle = async (field: "credits_exhausted" | "enabled", value: boolean) => {
+    const { error } = await supabase.from("google_ai_accounts").update({ [field]: value }).eq("id", a.id);
+    if (error) return toast({ title: "Could not update", description: error.message, variant: "destructive" });
+    onChanged();
+  };
 
   const save = async () => {
     if (!/^\S+@\S+\.\S+$/.test(f.gmail.trim())) return toast({ title: "Enter a valid Gmail", variant: "destructive" });
@@ -48,7 +68,7 @@ const Row = ({ a, onChanged }: { a: Account; onChanged: () => void }) => {
   );
 
   return (
-    <div className="rounded-lg border border-border p-2.5 space-y-2 bg-background/40">
+    <div className={`rounded-lg border border-border p-2.5 space-y-2 bg-background/40 ${a.enabled ? "" : "opacity-70"}`}>
       <div className="flex items-center gap-2 min-w-0">
         <span className="flex-1 min-w-0 truncate text-sm text-foreground">{a.gmail}</span>
         <span className="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full"
@@ -57,6 +77,16 @@ const Row = ({ a, onChanged }: { a: Account; onChanged: () => void }) => {
             : { background: "rgba(34,197,94,0.12)", color: "#22c55e" }}>
           {c.status === "reset" ? "🔄 Reset Today" : "🟢 Running"}
         </span>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {a.credits_exhausted && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444" }}>🔴 Credits Exhausted</span>}
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={a.enabled ? { background: "rgba(34,197,94,0.12)", color: "#22c55e" } : { background: "rgba(239,68,68,0.15)", color: "#ef4444" }}>
+          {a.enabled ? "🟢 Enabled" : "🔴 Disabled"}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-1.5">
+        <Toggle label="Credits Exhausted" on={a.credits_exhausted} onChange={(v) => toggle("credits_exhausted", v)} />
+        <Toggle label="Account Enabled" on={a.enabled} onChange={(v) => toggle("enabled", v)} />
       </div>
       <div className="flex items-center gap-2">
         <span className="flex-1 min-w-0 truncate text-xs font-mono text-muted-foreground">{show ? a.password || "—" : "••••••••"}</span>
@@ -67,6 +97,7 @@ const Row = ({ a, onChanged }: { a: Account; onChanged: () => void }) => {
       <div className="grid grid-cols-2 gap-1 text-[10px] text-muted-foreground">
         <span>Start: {new Date(a.start_date + "T00:00:00").toLocaleDateString()}</span>
         <span>Next reset: {c.nextReset.toLocaleDateString()}</span>
+        <span className="col-span-2">{daysLeft} day{daysLeft === 1 ? "" : "s"} until next reset</span>
       </div>
       <div className="flex flex-wrap gap-1.5">
         <button onClick={() => copy(a.gmail, "Gmail")} className="h-8 px-2.5 rounded-md text-[11px] font-semibold flex items-center gap-1" style={tealBtn}><Copy className="h-3 w-3" />Copy Gmail</button>
@@ -86,7 +117,7 @@ const GmailAccountsManager = ({ userId }: { userId: string }) => {
 
   const load = async () => {
     const { data } = await supabase.from("google_ai_accounts")
-      .select("id, gmail, password, start_date").eq("user_id", userId).order("created_at");
+      .select("id, gmail, password, start_date, credits_exhausted, enabled").eq("user_id", userId).order("created_at");
     setList((data as Account[]) || []);
   };
   useEffect(() => { load(); }, [userId]);
@@ -108,7 +139,7 @@ const GmailAccountsManager = ({ userId }: { userId: string }) => {
       </button>
       {open && (
         <div className="mt-3 space-y-2">
-          {list.map((a) => <Row key={a.id + a.start_date + a.gmail + a.password} a={a} onChanged={load} />)}
+          {list.map((a) => <Row key={a.id + a.start_date + a.gmail + a.password + a.credits_exhausted + a.enabled} a={a} onChanged={load} />)}
           {list.length === 0 && !adding && <p className="text-xs text-muted-foreground">No Gmail accounts yet.</p>}
           {adding ? (
             <div className="rounded-lg border border-border p-2 space-y-2">
