@@ -42,6 +42,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import VideosRemainingEditor from "@/components/admin/VideosRemainingEditor";
+import GmailAccountsManager from "@/components/admin/GmailAccountsManager";
 
 interface UserProfile {
   id: string;
@@ -1126,7 +1127,9 @@ const UserCard = ({
                 );
               })()}
 
-
+              <div className="mb-4">
+                <GmailAccountsManager userId={user.id} />
+              </div>
 
               {/* Plan Type — Private / Shared */}
               <div className="space-y-1.5 mb-3">
