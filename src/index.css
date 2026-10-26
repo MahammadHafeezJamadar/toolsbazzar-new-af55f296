@@ -36,6 +36,9 @@
     --gmail-border: 270 70% 45%;
     --gmail-highlight: 270 85% 75%;
     --gmail-warning: 43 95% 60%;
+    --admin-surface: 260 15% 7%;
+    --admin-gradient: linear-gradient(135deg, hsl(var(--gmail-border) / .18), hsl(var(--card)) 70%);
+    --admin-glow: 0 8px 28px hsl(var(--gmail-border) / .12);
 
     --radius: 0.75rem;
 
@@ -107,6 +110,16 @@
 }
 
 @layer utilities {
+  .admin-sidebar { background: hsl(var(--admin-surface)); }
+  .admin-nav-active { background: linear-gradient(110deg, hsl(var(--accent) / .12), hsl(var(--gmail-border) / .1)); color: hsl(var(--accent)); border: 1px solid hsl(var(--accent) / .22); }
+  .admin-stat { border: 1px solid hsl(var(--gmail-border) / .24); background: hsl(var(--card)); border-radius: 8px; transition: border-color .2s, box-shadow .2s, transform .2s; }
+  .admin-stat-purple { background: var(--admin-gradient); }
+  .admin-stat:hover { border-color: hsl(var(--accent) / .5); box-shadow: var(--admin-glow); transform: translateY(-2px); }
+  .admin-user-card { background: var(--admin-gradient); border: 1px solid hsl(var(--gmail-border) / .25); border-radius: 8px; transition: border-color .2s, box-shadow .2s; }
+  .admin-user-card:hover { border-color: hsl(var(--gmail-border) / .6); box-shadow: var(--admin-glow); }
+  .admin-enter { animation: admin-enter .25s ease-out; }
+  @keyframes admin-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .admin-enter { animation: none; } .admin-stat, .admin-user-card { transition: none; } .admin-stat:hover { transform: none; } }
   .gmail-panel { border: 1px solid hsl(var(--gmail-border) / .4); background: hsl(var(--card)); }
   .gmail-highlight { color: hsl(var(--gmail-highlight)); }
   .gmail-warning { color: hsl(var(--gmail-warning)); }
