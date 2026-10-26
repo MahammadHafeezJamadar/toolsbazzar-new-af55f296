@@ -1072,6 +1072,26 @@ const UserCard = ({
                 />
               </div>
 
+              {(() => {
+                if (!user.expiry_date) return null;
+                const exp = new Date(user.expiry_date + "T23:59:59");
+                if (isNaN(exp.getTime()) || exp.getTime() >= Date.now()) return null;
+                return (
+                  <button
+                    onClick={() => {
+                      const msg = encodeURIComponent(
+                        `Hello ${user.name || "there"}, your ToolsBazzar plan has expired.\nPlan: ${user.plan || "-"}\nExpired on: ${user.expiry_date}\nPlease renew to continue using your plan.`
+                      );
+                      window.location.href = `https://wa.me/919448646624?text=${msg}`;
+                    }}
+                    className="mb-4 w-full min-h-11 px-4 rounded-xl text-xs font-semibold border flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]"
+                    style={{ background: "rgba(37,211,102,0.1)", borderColor: "rgba(37,211,102,0.4)", color: "#25D366" }}
+                  >
+                    Send Renewal Request via WhatsApp
+                  </button>
+                );
+              })()}
+
 
 
               {/* Plan Type — Private / Shared */}
