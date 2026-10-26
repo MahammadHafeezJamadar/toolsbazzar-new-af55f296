@@ -172,6 +172,36 @@ export type Database = {
         }
         Relationships: []
       }
+      google_ai_accounts: {
+        Row: {
+          created_at: string
+          gmail: string
+          id: string
+          password: string
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          gmail: string
+          id?: string
+          password?: string
+          start_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          gmail?: string
+          id?: string
+          password?: string
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           api_key: string | null

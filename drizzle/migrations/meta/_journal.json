@@ -15,6 +15,13 @@
       "when": 1793020410274,
       "tag": "0001_video_remaining_admin_only",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793024856208,
+      "tag": "0002_google_ai_gmail_accounts",
+      "breakpoints": true
     }
   ]
 }
