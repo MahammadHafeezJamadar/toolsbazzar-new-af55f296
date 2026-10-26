@@ -16,8 +16,8 @@ const features = [
   {
     icon: IndianRupee,
     title: "Affordable Plans",
-    desc: "Premium AI access at Indian prices. Plans starting at just ₹299 per month",
-    points: ["Starting at ₹299/mo", "Flexible credit system", "Cancel anytime"],
+    desc: "Premium AI access at Indian prices. Plans starting at just ₹899",
+    points: ["Starting at ₹899", "Flexible plans", "Instant access"],
   },
   {
     icon: HeadphonesIcon,
