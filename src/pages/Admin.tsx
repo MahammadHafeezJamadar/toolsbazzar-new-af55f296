@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import VideosRemainingEditor from "@/components/admin/VideosRemainingEditor";
 
 interface UserProfile {
   id: string;
@@ -48,6 +49,8 @@ interface UserProfile {
   name: string;
   plan: string;
   subscription_active: boolean;
+  video_remaining?: number | null;
+  video_updated_at?: string | null;
   expiry_date: string | null;
   google_email: string | null;
   google_password: string | null;
@@ -159,7 +162,7 @@ const Admin = () => {
   const loadUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, heygen_cookies, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by, api_key")
+      .select("id, email, name, plan, subscription_active, expiry_date, google_email, google_password, cookies_json, heygen_cookies, credits_total, credits_used, daily_credits_limit, credits_used_today, last_reset_date, created_at, mobile_number, street_address, city, state, pin_code, country, referral_code, referred_by, api_key, video_remaining, video_updated_at")
       .order("email");
     if (error) toast.error("Failed to load users");
     else setUsers((data as any) || []);
@@ -1206,6 +1209,12 @@ const UserCard = ({
                           <InfoRow label="Expiry" value={user.expiry_date} />
                           <InfoRow label="Joined" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : null} />
                         </Section>
+                        <VideosRemainingEditor
+                          userId={user.id}
+                          initial={user.video_remaining}
+                          updatedAt={user.video_updated_at}
+                          onSaved={(c, t) => { user.video_remaining = c; user.video_updated_at = t; }}
+                        />
                       </div>
                     </DialogContent>
                   </Dialog>
