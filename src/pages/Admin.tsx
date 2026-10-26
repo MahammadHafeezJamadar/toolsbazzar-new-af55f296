@@ -1061,8 +1061,16 @@ const UserCard = ({
                 <GlassStatBox label="Registered" value={user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"} icon={<Clock className="h-3 w-3" />} />
               </div>
 
-              {/* API License Key (admin view, unblurred) */}
-              <AdminApiKeyRow apiKey={user.api_key} />
+              {/* Videos Remaining */}
+              <div className="mb-4">
+                <VideosRemainingEditor
+                  key={user.id}
+                  userId={user.id}
+                  initial={user.video_remaining}
+                  updatedAt={user.video_updated_at}
+                  onSaved={(c, t) => { user.video_remaining = c; user.video_updated_at = t; }}
+                />
+              </div>
 
 
 
