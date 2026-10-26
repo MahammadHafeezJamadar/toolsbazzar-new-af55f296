@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
+import GmailNotifications from "@/components/admin/GmailNotifications";
 import AddTransactionDialog from "@/components/admin/AddTransactionDialog";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -177,6 +178,7 @@ const AdminDashboard = () => {
 
   return (
     <AdminShell title="Dashboard" actions={<AddTransactionDialog onCreated={load} />}>
+      <GmailNotifications />
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (

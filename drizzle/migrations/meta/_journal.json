@@ -36,6 +36,13 @@
       "when": 1793025452420,
       "tag": "0004_gmail_stock",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793026022468,
+      "tag": "0005_gmail_stock_replacement_and_subscription_dates",
+      "breakpoints": true
     }
   ]
 }

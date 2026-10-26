@@ -33,6 +33,9 @@
     --border: 0 0% 14%;
     --input: 0 0% 14%;
     --ring: 174 72% 46%;
+    --gmail-border: 270 70% 45%;
+    --gmail-highlight: 270 85% 75%;
+    --gmail-warning: 43 95% 60%;
 
     --radius: 0.75rem;
 
@@ -104,6 +107,9 @@
 }
 
 @layer utilities {
+  .gmail-panel { border: 1px solid hsl(var(--gmail-border) / .4); background: hsl(var(--card)); }
+  .gmail-highlight { color: hsl(var(--gmail-highlight)); }
+  .gmail-warning { color: hsl(var(--gmail-warning)); }
   .glass {
     @apply bg-card/60 backdrop-blur-xl border border-border/50;
   }

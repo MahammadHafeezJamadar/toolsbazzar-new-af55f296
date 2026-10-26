@@ -1,0 +1,3 @@
+- [x] Enhance assigned Gmail controls and replacement from stock.
+- [x] Add clickable live Gmail alerts and missing-date handling.
+- [x] Verify stock safeguards, tests, and admin flows without touching Finance.
