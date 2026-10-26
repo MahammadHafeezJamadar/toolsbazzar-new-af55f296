@@ -25,7 +25,7 @@ export const GmailRow = ({ a, onChanged, mode = "user", extra, onReplace }: {
   const [busy, setBusy] = useState(false);
   useEffect(() => { setF(a); }, [a]);
   const cycle = subscriptionCycle(a.subscription_start_date);
-  const update = async (values: Partial<Account>) => {
+  const update = async (values: Partial<Account> & { assigned_at?: string | null }) => {
     setBusy(true);
     const { error } = await supabase.from("google_ai_accounts").update(values).eq("id", a.id).select("id").single();
     setBusy(false);
@@ -39,7 +39,7 @@ export const GmailRow = ({ a, onChanged, mode = "user", extra, onReplace }: {
   };
   const remove = async () => {
     if (mode === "user") {
-      if (confirm(`Remove ${a.gmail} from this user? Its saved details will stay in stock.`)) await update({ user_id: null });
+      if (confirm(`Remove ${a.gmail} from this user? Its saved details will stay in stock.`)) await update({ user_id: null, assigned_at: null });
       return;
     }
     if (!confirm(`Permanently delete ${a.gmail} from stock?`)) return;
