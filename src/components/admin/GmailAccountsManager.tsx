@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { ChevronDown, Copy, Eye, EyeOff, Mail, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { gmailCycle, fmtYmd } from "@/lib/gmail-cycle";
 
-interface Account { id: string; gmail: string; password: string; start_date: string; credits_exhausted: boolean; enabled: boolean }
+export interface Account { id: string; gmail: string; password: string; start_date: string; credits_exhausted: boolean; enabled: boolean }
 
-const today = () => fmtYmd(new Date());
-const inputCls = "w-full min-w-0 h-10 rounded-lg px-3 text-sm text-foreground bg-background border border-border";
-const tealBtn = { background: "linear-gradient(135deg, #21C7B7, #17a08f)", color: "#050505" };
+export const today = () => fmtYmd(new Date());
+export const inputCls = "w-full min-w-0 h-10 rounded-lg px-3 text-sm text-foreground bg-background border border-border";
+export const tealBtn = { background: "linear-gradient(135deg, #21C7B7, #17a08f)", color: "#050505" };
 
 const copy = async (v: string, what: string) => {
   try { await navigator.clipboard.writeText(v); toast({ title: `${what} copied` }); }
   catch { toast({ title: "Could not copy", variant: "destructive" }); }
 };
 
-const Toggle = ({ label, on, onChange }: { label: string; on: boolean; onChange: (v: boolean) => void }) => (
+export const Toggle = ({ label, on, onChange }: { label: string; on: boolean; onChange: (v: boolean) => void }) => (
   <button onClick={() => onChange(!on)} role="switch" aria-checked={on}
     className="h-9 px-2 rounded-md border border-border flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
     <span className="truncate">{label}</span>
@@ -28,7 +28,7 @@ const Toggle = ({ label, on, onChange }: { label: string; on: boolean; onChange:
   </button>
 );
 
-const Row = ({ a, onChanged }: { a: Account; onChanged: () => void }) => {
+export const GmailRow = ({ a, onChanged, mode = "user", extra }: { a: Account; onChanged: () => void; mode?: "user" | "stock"; extra?: React.ReactNode }) => {
   const [show, setShow] = useState(false);
   const [edit, setEdit] = useState(false);
   const [f, setF] = useState(a);
@@ -49,7 +49,13 @@ const Row = ({ a, onChanged }: { a: Account; onChanged: () => void }) => {
     setEdit(false); onChanged();
   };
   const remove = async () => {
-    if (!confirm(`Remove ${a.gmail}?`)) return;
+    if (mode === "user") {
+      if (!confirm(`Remove ${a.gmail} from this user? It will return to Gmail stock.`)) return;
+      const { error } = await supabase.from("google_ai_accounts").update({ user_id: null, assigned_at: null }).eq("id", a.id);
+      if (error) return toast({ title: "Could not remove", description: error.message, variant: "destructive" });
+      return onChanged();
+    }
+    if (!confirm(`Permanently delete ${a.gmail} from stock?`)) return;
     const { error } = await supabase.from("google_ai_accounts").delete().eq("id", a.id);
     if (error) return toast({ title: "Could not remove", description: error.message, variant: "destructive" });
     onChanged();
@@ -78,6 +84,7 @@ const Row = ({ a, onChanged }: { a: Account; onChanged: () => void }) => {
           {c.status === "reset" ? "🔄 Reset Today" : "🟢 Running"}
         </span>
       </div>
+      {extra}
       <div className="flex flex-wrap gap-1.5">
         {a.credits_exhausted && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444" }}>🔴 Credits Exhausted</span>}
         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={a.enabled ? { background: "rgba(34,197,94,0.12)", color: "#22c55e" } : { background: "rgba(239,68,68,0.15)", color: "#ef4444" }}>
@@ -111,23 +118,30 @@ const Row = ({ a, onChanged }: { a: Account; onChanged: () => void }) => {
 
 const GmailAccountsManager = ({ userId }: { userId: string }) => {
   const [list, setList] = useState<Account[]>([]);
+  const [stock, setStock] = useState<Account[]>([]);
   const [open, setOpen] = useState(false);
-  const [adding, setAdding] = useState(false);
-  const [n, setN] = useState({ gmail: "", password: "", start_date: today() });
+  const [pick, setPick] = useState("");
+  const cols = "id, gmail, password, start_date, credits_exhausted, enabled";
 
   const load = async () => {
-    const { data } = await supabase.from("google_ai_accounts")
-      .select("id, gmail, password, start_date, credits_exhausted, enabled").eq("user_id", userId).order("created_at");
+    const [{ data }, { data: avail }] = await Promise.all([
+      supabase.from("google_ai_accounts").select(cols).eq("user_id", userId).order("assigned_at"),
+      supabase.from("google_ai_accounts").select(cols).is("user_id", null).eq("enabled", true).order("gmail"),
+    ]);
     setList((data as Account[]) || []);
+    setStock((avail as Account[]) || []);
   };
   useEffect(() => { load(); }, [userId]);
 
-  const add = async () => {
-    if (!/^\S+@\S+\.\S+$/.test(n.gmail.trim())) return toast({ title: "Enter a valid Gmail", variant: "destructive" });
-    const { error } = await supabase.from("google_ai_accounts")
-      .insert({ user_id: userId, gmail: n.gmail.trim(), password: n.password, start_date: n.start_date });
-    if (error) return toast({ title: "Could not add", description: error.message, variant: "destructive" });
-    setN({ gmail: "", password: "", start_date: today() }); setAdding(false); load();
+  const assign = async () => {
+    if (!pick) return;
+    // only succeeds if still unassigned — prevents double assignment
+    const { data, error } = await supabase.from("google_ai_accounts")
+      .update({ user_id: userId, assigned_at: new Date().toISOString() })
+      .eq("id", pick).is("user_id", null).select("id");
+    if (error) return toast({ title: "Could not assign", description: error.message, variant: "destructive" });
+    if (!data?.length) toast({ title: "That Gmail was already assigned elsewhere", variant: "destructive" });
+    setPick(""); load();
   };
 
   return (
@@ -139,26 +153,18 @@ const GmailAccountsManager = ({ userId }: { userId: string }) => {
       </button>
       {open && (
         <div className="mt-3 space-y-2">
-          {list.map((a) => <Row key={a.id + a.start_date + a.gmail + a.password + a.credits_exhausted + a.enabled} a={a} onChanged={load} />)}
-          {list.length === 0 && !adding && <p className="text-xs text-muted-foreground">No Gmail accounts yet.</p>}
-          {adding ? (
-            <div className="rounded-lg border border-border p-2 space-y-2">
-              <input className={inputCls} placeholder="Gmail address" value={n.gmail} onChange={(e) => setN({ ...n, gmail: e.target.value })} />
-              <input className={inputCls} placeholder="Password" value={n.password} onChange={(e) => setN({ ...n, password: e.target.value })} />
-              <label className="block text-[10px] text-muted-foreground">Subscription start date
-                <input type="date" className={inputCls + " mt-1"} value={n.start_date} onChange={(e) => setN({ ...n, start_date: e.target.value })} />
-              </label>
-              <div className="flex gap-2">
-                <button onClick={add} className="flex-1 h-9 rounded-lg text-xs font-semibold" style={tealBtn}>Save Gmail</button>
-                <button onClick={() => setAdding(false)} className="h-9 px-3 rounded-lg text-xs border border-border">Cancel</button>
-              </div>
-            </div>
-          ) : (
-            <button onClick={() => setAdding(true)} className="w-full h-9 rounded-lg text-xs font-semibold flex items-center justify-center gap-1" style={tealBtn}>
-              <Plus className="h-3.5 w-3.5" /> Add Gmail
+          {list.map((a) => <GmailRow key={a.id + a.start_date + a.gmail + a.password + a.credits_exhausted + a.enabled} a={a} onChanged={load} />)}
+          {list.length === 0 && <p className="text-xs text-muted-foreground">No Gmail accounts assigned.</p>}
+          <div className="flex gap-2">
+            <select value={pick} onChange={(e) => setPick(e.target.value)} className={inputCls}>
+              <option value="">Select Gmail from Stock ({stock.length} available)</option>
+              {stock.map((g) => <option key={g.id} value={g.id}>{g.gmail}{g.credits_exhausted ? " (credits exhausted)" : ""}</option>)}
+            </select>
+            <button onClick={assign} disabled={!pick} className="h-10 px-3 rounded-lg text-xs font-semibold flex items-center gap-1 disabled:opacity-50" style={tealBtn}>
+              <Plus className="h-3.5 w-3.5" /> Assign
             </button>
-          )}
-          <p className="text-[10px] text-muted-foreground">Reset dates are tracked from the start date only; they don't confirm Google's credits have actually reset.</p>
+          </div>
+          <p className="text-[10px] text-muted-foreground">Add new Gmails on the Gmail Management page. Reset dates are tracked from the start date only; they don't confirm Google's credits have actually reset.</p>
         </div>
       )}
     </div>
