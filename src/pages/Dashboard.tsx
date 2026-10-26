@@ -527,6 +527,20 @@ const Dashboard = () => {
                   <CreditCard className="h-4 w-4" /> {isExpired ? "Renew Plan" : "Activate a Plan"}
                 </button>
               )}
+              {isExpired && (
+                <button
+                  onClick={() => {
+                    const msg = encodeURIComponent(
+                      `Hello ToolsBazzar, I want to renew my plan.\nName: ${profile?.name || "-"}\nPlan: ${profile?.plan || "-"}\nExpired on: ${formattedExpiry}`
+                    );
+                    window.open(`https://wa.me/919448646624?text=${msg}`, "_blank", "noopener,noreferrer");
+                  }}
+                  className="mt-3 w-full h-12 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border transition-transform hover:scale-[1.01]"
+                  style={{ background: "rgba(37,211,102,0.1)", borderColor: "rgba(37,211,102,0.4)", color: "#25D366" }}
+                >
+                  Renew Plan via WhatsApp
+                </button>
+              )}
             </motion.div>
 
             {/* FlowX Extension */}
