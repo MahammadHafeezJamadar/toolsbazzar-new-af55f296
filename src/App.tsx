@@ -10,11 +10,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
-import AdminDevices from "./pages/AdminDevices";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminFinance from "./pages/admin/AdminFinance";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminRenewals from "./pages/admin/AdminRenewals";
 import AdminGmail from "./pages/admin/AdminGmail";
 import ReferAndEarn from "./pages/ReferAndEarn";
 import ProfilePage from "./pages/ProfilePage";
@@ -39,9 +37,7 @@ const App = () => (
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/finance" element={<AdminFinance />} />
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
-          <Route path="/admin/renewals" element={<AdminRenewals />} />
           <Route path="/admin/gmail" element={<AdminGmail />} />
-          <Route path="/admin/devices" element={<AdminDevices />} />
           <Route path="/refer" element={<ReferAndEarn />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/reset-password" element={<ResetPassword />} />

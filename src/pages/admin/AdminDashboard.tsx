@@ -316,7 +316,7 @@ const AdminDashboard = () => {
                   <span style={{ color: "#f59e0b" }}>⚠️</span> Expiring Soon
                 </h3>
                 <button
-                  onClick={() => (window.location.href = "/admin/renewals")}
+                  onClick={() => (window.location.href = "/admin?tab=users")}
                   className="text-[10px] text-muted-foreground hover:text-foreground"
                 >
                   View all →
@@ -331,7 +331,8 @@ const AdminDashboard = () => {
                 {expiring.map((u) => {
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
-                  const exp = new Date(u.expiry_date!);
+                  if (!u.expiry_date) return null;
+                  const exp = new Date(u.expiry_date);
                   exp.setHours(0, 0, 0, 0);
                   const days = Math.ceil((exp.getTime() - today.getTime()) / 86400000);
                   const color = days <= 3 ? "#ef4444" : days <= 7 ? "#f59e0b" : "#22c55e";
@@ -360,14 +361,14 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                       <button
-                        onClick={() => (window.location.href = "/admin/renewals")}
+                        onClick={() => (window.location.href = "/admin?tab=users")}
                         className="ml-2 px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all hover:opacity-90"
                         style={{
                           background: "linear-gradient(135deg, hsl(174 72% 46%), hsl(150 60% 45%))",
                           color: "#0a0a0a",
                         }}
                       >
-                        Renew
+                        View user
                       </button>
                     </div>
                   );
