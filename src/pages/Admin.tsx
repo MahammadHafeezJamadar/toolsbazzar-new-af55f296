@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import VideosRemainingEditor from "@/components/admin/VideosRemainingEditor";
 import GmailAccountsManager from "@/components/admin/GmailAccountsManager";
-import GmailNotifications from "@/components/admin/GmailNotifications";
+import AdminNavigation from "@/components/admin/AdminNavigation";
+import AdminOverview from "@/components/admin/AdminOverview";
+import { useGmailStock } from "@/hooks/use-gmail-stock";
 
 interface UserProfile {
   id: string;
@@ -111,9 +113,6 @@ type AdminTab = "dashboard" | "users" | "user-details" | "announcements" | "sett
 const sidebarItems: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "users", label: "Users", icon: Users },
-  { id: "user-details", label: "User Details", icon: UserCheck },
-  { id: "announcements", label: "Announcements", icon: Megaphone },
-  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 const Admin = () => {
@@ -126,7 +125,9 @@ const Admin = () => {
   const [globalCookiesLoading, setGlobalCookiesLoading] = useState(false);
   const [globalHeygenCookies, setGlobalHeygenCookies] = useState("");
   const [globalHeygenCookiesLoading, setGlobalHeygenCookiesLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
+  const [params, setParams] = useSearchParams();
+  const activeTab: AdminTab = params.get("tab") === "users" ? "users" : "dashboard";
+  const setActiveTab = (tab: AdminTab) => setParams(tab === "users" ? { tab: "users" } : {});
   const [liveUsersToday, setLiveUsersToday] = useState(0);
   const navigate = useNavigate();
 
@@ -356,161 +357,13 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen pb-14 md:pb-0" style={{ background: "#0a0a0a" }}>
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 min-h-screen flex-col border-r fixed left-0 top-0 z-40" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
-        <div className="p-6">
-          <Link to="/" className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-accent" />
-            <span className="text-lg font-bold text-foreground">ToolsBazzar</span>
-          </Link>
-          <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
-        </div>
-
-        <nav className="flex-1 px-3 space-y-1">
-          {sidebarItems.map((item) => (
-            <Fragment key={item.id}>
-              <button
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  activeTab === item.id
-                    ? "bg-accent/10 text-accent"
-                    : "text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a]"
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </button>
-              {item.id === "users" && (
-                <Link
-                  to="/admin/gmail"
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a] transition-colors"
-                >
-                  <Mail className="h-4 w-4" />
-                  Gmail Management
-                </Link>
-              )}
-            </Fragment>
-          ))}
-        </nav>
-
-        <div className="p-3 border-t space-y-1" style={{ borderColor: "#1e1e1e" }}>
-          <Link
-            to="/admin/dashboard"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
-            style={{
-              background: "linear-gradient(135deg, hsla(174,72%,46%,0.15), hsla(150,60%,50%,0.1))",
-              border: "1px solid hsla(174,72%,46%,0.3)",
-              color: "hsl(174 72% 56%)",
-            }}
-          >
-            <LayoutDashboard className="h-4 w-4" />
-            Finance & Analytics
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a] transition-colors"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </button>
-          <Link
-            to="/dashboard"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a] transition-colors"
-          >
-            <Eye className="h-4 w-4" />
-            User Dashboard
-          </Link>
-        </div>
-      </aside>
-
-      {/* Mobile Top Bar */}
-      <nav className="sticky top-0 z-50 border-b md:hidden" style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}>
-        <div className="flex items-center justify-between h-14 px-4">
-          <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 text-accent" />
-            <span className="text-lg font-bold text-foreground">Admin</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/dashboard" className="text-muted-foreground"><Eye className="h-4 w-4" /></Link>
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground">
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile Bottom Nav */}
-      <div
-        className="fixed bottom-0 left-0 right-0 z-50 border-t md:hidden flex items-center overflow-x-auto h-14 px-1"
-        style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}
-      >
-        {sidebarItems.map((item) => (
-          <Fragment key={item.id}>
-            <button
-              onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 ${
-                activeTab === item.id ? "text-accent" : "text-muted-foreground"
-              }`}
-            >
-              <item.icon className="h-5 w-5" />
-              <span className="text-[10px]">{item.label}</span>
-            </button>
-            {item.id === "users" && (
-              <button
-                onClick={() => navigate("/admin/gmail")}
-                className="flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 text-muted-foreground"
-              >
-                <Mail className="h-5 w-5" />
-                <span className="text-[10px]">Gmail</span>
-              </button>
-            )}
-          </Fragment>
-        ))}
-        <button
-          onClick={() => navigate("/admin/finance")}
-          className="flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 text-muted-foreground"
-        >
-          <Wallet className="h-5 w-5" />
-          <span className="text-[10px]">Finance</span>
-        </button>
-        <button
-          onClick={() => navigate("/admin/analytics")}
-          className="flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 text-muted-foreground"
-        >
-          <BarChart3 className="h-5 w-5" />
-          <span className="text-[10px]">Analytics</span>
-        </button>
-        <button
-          onClick={() => navigate("/admin/renewals")}
-          className="flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 text-muted-foreground"
-        >
-          <CalendarClock className="h-5 w-5" />
-          <span className="text-[10px]">Renewals</span>
-        </button>
-        <button
-          onClick={() => navigate("/admin/devices")}
-          className="flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 text-muted-foreground"
-        >
-          <Monitor className="h-5 w-5" />
-          <span className="text-[10px]">Devices</span>
-        </button>
-      </div>
-
-
+    <div className="min-h-screen bg-background md:flex">
+      <AdminNavigation active={activeTab === "users" ? "users" : "dashboard"} onDashboard={() => setActiveTab("dashboard")} onUsers={() => setActiveTab("users")} onLogout={handleLogout} />
       {/* Main content */}
-      <main className="md:ml-64 overflow-y-auto">
-        <div className="p-4 md:p-8">
+      <main className="min-w-0 flex-1 pb-24 md:pb-0">
+        <div className="mx-auto max-w-7xl p-4 md:p-8">
           {activeTab === "dashboard" && (
-            <DashboardTab
-              totalUsers={totalUsers}
-              activeSubscriptions={activeSubscriptions}
-              totalCreditsUsed={totalCreditsUsed}
-              monthlyRevenue={monthlyRevenue}
-              liveUsersToday={liveUsersToday}
-            />
+            <AdminOverview totalUsers={totalUsers} activeSubscriptions={activeSubscriptions} onUsers={(status) => setParams({ tab: "users", ...(status ? { status } : {}) })} />
           )}
           {activeTab === "users" && (
             <UsersTab
@@ -521,26 +374,6 @@ const Admin = () => {
               updateField={updateField}
               deleteUser={deleteUser}
               loadSessionCounts={loadSessionCounts}
-            />
-          )}
-          {activeTab === "user-details" && (
-            <UserDetailsTab users={users} referralCounts={referralCounts} />
-          )}
-          {activeTab === "announcements" && <AnnouncementsTab />}
-          {activeTab === "settings" && (
-            <SettingsTab
-              globalCookiesOpen={globalCookiesOpen}
-              setGlobalCookiesOpen={setGlobalCookiesOpen}
-              globalCookies={globalCookies}
-              setGlobalCookies={setGlobalCookies}
-              globalCookiesLoading={globalCookiesLoading}
-              loadGlobalCookies={loadGlobalCookies}
-              saveGlobalCookies={saveGlobalCookies}
-              globalHeygenCookies={globalHeygenCookies}
-              setGlobalHeygenCookies={setGlobalHeygenCookies}
-              globalHeygenCookiesLoading={globalHeygenCookiesLoading}
-              loadGlobalHeygenCookies={loadGlobalHeygenCookies}
-              saveGlobalHeygenCookies={saveGlobalHeygenCookies}
             />
           )}
         </div>
@@ -578,32 +411,6 @@ const StatCard = ({
   </div>
 );
 
-const DashboardTab = ({
-  totalUsers,
-  activeSubscriptions,
-  totalCreditsUsed,
-  monthlyRevenue,
-  liveUsersToday,
-}: {
-  totalUsers: number;
-  activeSubscriptions: number;
-  totalCreditsUsed: number;
-  monthlyRevenue: number;
-  liveUsersToday: number;
-}) => (
-  <div>
-    <h1 className="text-2xl font-bold text-foreground mb-6">Dashboard</h1>
-    <GmailNotifications />
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-      <StatCard icon={Users} label="Total Users" value={String(totalUsers)} />
-      <StatCard icon={CreditCard} label="Active Subscriptions" value={String(activeSubscriptions)} />
-      <StatCard icon={TrendingUp} label="Revenue (est.)" value={`₹${monthlyRevenue.toLocaleString()}`} />
-      <StatCard icon={Zap} label="Total Credits Used" value={totalCreditsUsed.toLocaleString()} />
-      <StatCard icon={Clock} label="Active Today" value={String(liveUsersToday)} trend="live" />
-    </div>
-  </div>
-);
-
 /* ─── Users Tab ─── */
 const UsersTab = ({
   users,
@@ -623,12 +430,17 @@ const UsersTab = ({
   loadSessionCounts: () => void;
 }) => {
   const [search, setSearch] = useState("");
+  const [params, setParams] = useSearchParams();
+  const statusFilter = params.get("status") || "all";
 
   const isProfileComplete = (u: UserProfile) => !!(u.name && u.mobile_number && u.city);
   const profileCompleteCount = users.filter(isProfileComplete).length;
   const profileIncompleteCount = users.length - profileCompleteCount;
 
   const filtered = users.filter((u) => {
+    if (statusFilter === "active" && !u.subscription_active) return false;
+    if (statusFilter === "inactive" && u.subscription_active) return false;
+    if (statusFilter === "expired" && (!u.expiry_date || new Date(u.expiry_date + "T23:59:59").getTime() >= Date.now())) return false;
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return (
@@ -641,39 +453,34 @@ const UsersTab = ({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-4">User Management</h1>
+      <header className="mb-6 border-b border-border pb-5"><div className="mb-2 text-xs gmail-highlight">YOUR MEMBERS</div><h1 className="text-3xl font-bold tracking-normal">User Management</h1></header>
 
       {/* Mini Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+        <div className="admin-stat rounded-lg p-4">
           <div className="text-lg font-bold text-foreground">{users.length}</div>
           <div className="text-[10px] text-muted-foreground">Total Users</div>
         </div>
-        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+        <div className="admin-stat rounded-lg p-4">
           <div className="text-lg font-bold text-foreground">{users.filter(u => u.subscription_active).length}</div>
           <div className="text-[10px] text-muted-foreground">Active Subs</div>
         </div>
-        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
-          <div className="text-lg font-bold text-[#34d399]">{profileCompleteCount}</div>
+        <div className="admin-stat rounded-lg p-4">
+          <div className="text-lg font-bold text-accent">{profileCompleteCount}</div>
           <div className="text-[10px] text-muted-foreground">Profile Complete</div>
         </div>
-        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
-          <div className="text-lg font-bold text-[#fbbf24]">{profileIncompleteCount}</div>
+        <div className="admin-stat rounded-lg p-4">
+          <div className="text-lg font-bold gmail-warning">{profileIncompleteCount}</div>
           <div className="text-[10px] text-muted-foreground">Incomplete</div>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="mb-4">
-        <Input
-          placeholder="Search by name, email, mobile or API key..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="h-9 bg-[#0a0a0a] border-[#1e1e1e] focus:border-accent text-sm"
-        />
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row">
+        <div className="relative flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><Input aria-label="Search users" placeholder="Search name, email, phone or API key" value={search} onChange={(e) => setSearch(e.target.value)} className="h-11 border-border bg-card pl-10" /></div>
+        <Select value={statusFilter} onValueChange={(value) => setParams({ tab: "users", status: value })}><SelectTrigger aria-label="Filter users by status" className="h-11 w-full border-border bg-card sm:w-44"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All statuses</SelectItem><SelectItem value="active">Active</SelectItem><SelectItem value="inactive">Inactive</SelectItem><SelectItem value="expired">Expired</SelectItem></SelectContent></Select>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="mb-3 text-xs text-muted-foreground">{filtered.length} users</div>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {filtered.map((u) => (
           <UserCard
             key={u.id}
@@ -907,6 +714,8 @@ const UserCard = ({
 
   const initials = (user.name || user.email || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
   const pc = planStyles[user.plan] || planStyles.Basic;
+  const { accounts } = useGmailStock();
+  const assignedGmails = accounts.filter((a) => a.user_id === user.id).length;
   const daysInfo = getDaysRemaining(user.expiry_date);
   const planDurations: Record<string, number> = { Starter: 8, Pro: 17, Ultra: 28 };
 
@@ -965,39 +774,24 @@ const UserCard = ({
 
   return (
     <div
-      className="relative overflow-hidden cursor-pointer transition-all duration-300"
-      style={{
-        background: "#12121a",
-        borderRadius: "16px",
-        border: `1px solid ${expanded ? pc.border : "rgba(255,255,255,0.06)"}`,
-        boxShadow: expanded ? pc.glow : "none",
-      }}
+      className="admin-user-card relative overflow-hidden cursor-pointer"
       onClick={() => setExpanded(!expanded)}
     >
       {/* Top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-[1px] opacity-50" style={{ background: `linear-gradient(90deg, transparent, ${pc.text}, transparent)` }} />
+      <div className="absolute inset-x-0 top-0 h-px bg-accent/20" />
 
       {/* Card Header */}
       <div className="p-5">
         <div className="flex items-start gap-3.5">
           {/* Gradient Avatar */}
           <div
-            className="w-11 h-11 flex items-center justify-center text-sm font-bold flex-shrink-0"
-            style={{
-              background: pc.gradient,
-              color: "#fff",
-              borderRadius: "14px",
-              boxShadow: pc.glow,
-            }}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-secondary text-sm font-bold gmail-highlight"
           >
             {initials}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
-              <span
-                className="font-bold text-sm bg-clip-text text-transparent"
-                style={{ backgroundImage: `linear-gradient(135deg, ${pc.text}, #fff)` }}
-              >
+              <span className="text-sm font-bold text-foreground">
                 {user.name || "—"}
               </span>
               <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} />
@@ -1029,8 +823,8 @@ const UserCard = ({
           {/* Status */}
           <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full border ${
             user.subscription_active
-              ? "bg-[rgba(34,197,94,0.08)] text-[#22c55e] border-[rgba(34,197,94,0.2)]"
-              : "bg-[rgba(239,68,68,0.08)] text-[#ef4444] border-[rgba(239,68,68,0.2)]"
+              ? "bg-accent/10 text-accent border-accent/20"
+              : "bg-destructive/10 text-destructive border-destructive/20"
           }`}>
             {user.subscription_active ? "● Active" : "● Inactive"}
           </span>
@@ -1053,6 +847,8 @@ const UserCard = ({
             <Monitor className="h-3 w-3" /> {activeDevices}
           </span>
         </div>
+
+        <div className="mt-3 flex items-center gap-2 text-xs gmail-highlight"><Mail className="h-3.5 w-3.5" />{assignedGmails} Gmail account{assignedGmails === 1 ? "" : "s"} assigned</div>
 
         {/* Expiry pill */}
         {user.expiry_date && (
@@ -1646,16 +1442,16 @@ const UserDetailsTab = ({
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-4">
-        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
+        <div className="admin-stat rounded-lg p-4">
           <div className="text-lg font-bold text-foreground">{users.length}</div>
           <div className="text-[10px] text-muted-foreground">Total Users</div>
         </div>
-        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
-          <div className="text-lg font-bold text-[#34d399]">{completeCount}</div>
+        <div className="admin-stat rounded-lg p-4">
+          <div className="text-lg font-bold text-accent">{completeCount}</div>
           <div className="text-[10px] text-muted-foreground">Complete</div>
         </div>
-        <div className="rounded-lg p-3 border" style={{ background: "#111111", borderColor: "#1e1e1e" }}>
-          <div className="text-lg font-bold text-[#fbbf24]">{incompleteCount}</div>
+        <div className="admin-stat rounded-lg p-4">
+          <div className="text-lg font-bold gmail-warning">{incompleteCount}</div>
           <div className="text-[10px] text-muted-foreground">Incomplete</div>
         </div>
       </div>

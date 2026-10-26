@@ -28,4 +28,9 @@ describe("Gmail stock rules", () => {
     expect(cycle?.daysLeft).toBe(1);
     expect(cycle?.nextReset.getDate()).toBe(28);
   });
+  it("upcoming alerts include the next three days but not today or later dates", () => {
+    expect(matchesGmailFilter(account, "Upcoming Resets", new Date(2026, 6, 17))).toBe(true);
+    expect(matchesGmailFilter(account, "Upcoming Resets", new Date(2026, 6, 16))).toBe(false);
+    expect(matchesGmailFilter(account, "Upcoming Resets", resetDay)).toBe(false);
+  });
 });

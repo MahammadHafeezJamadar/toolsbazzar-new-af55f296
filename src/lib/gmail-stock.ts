@@ -10,7 +10,7 @@ export interface GmailAccount {
   user_id: string | null;
 }
 
-export const gmailFilters = ["All", "Reset Today", "Credits Exhausted", "Available", "Disabled", "Missing Dates", "Assigned"] as const;
+export const gmailFilters = ["All", "Reset Today", "Upcoming Resets", "Credits Exhausted", "Available", "Disabled", "Missing Dates", "Assigned"] as const;
 export type GmailFilter = typeof gmailFilters[number];
 
 export function subscriptionCycle(start: string | null, now = new Date()) {
@@ -24,6 +24,7 @@ export function subscriptionCycle(start: string | null, now = new Date()) {
 
 export function matchesGmailFilter(account: GmailAccount, filter: GmailFilter, now = new Date()) {
   switch (filter) {
+    case "Upcoming Resets": { const cycle = subscriptionCycle(account.subscription_start_date, now); return Boolean(cycle && cycle.daysLeft > 0 && cycle.daysLeft <= 3); }
     case "Reset Today": return subscriptionCycle(account.subscription_start_date, now)?.status === "reset";
     case "Credits Exhausted": return account.credits_exhausted;
     case "Disabled": return !account.enabled;

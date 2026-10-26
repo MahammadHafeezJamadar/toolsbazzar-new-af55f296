@@ -1,3 +1,6 @@
 - [x] Enhance assigned Gmail controls and replacement from stock.
 - [x] Add clickable live Gmail alerts and missing-date handling.
 - [x] Verify stock safeguards, tests, and admin flows without touching Finance.
+- [x] Simplify all admin navigation and remove Renewals/Devices pages.
+- [x] Polish Dashboard statistics, compact Gmail alerts and Users presentation.
+- [x] Verify desktop/mobile navigation and preserved Finance access.

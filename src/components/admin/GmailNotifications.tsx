@@ -19,9 +19,9 @@ export default function GmailNotifications({ onFilter }: { onFilter?: (filter: G
   return <section className="mb-5 space-y-3" aria-label="Gmail stock notifications">
     <h2 className="text-sm font-semibold">Google AI Pro Gmail</h2>
     {error ? <div className="flex items-center gap-2 text-sm text-destructive">Could not load Gmail alerts.<Button variant="outline" size="sm" onClick={() => refresh()}>Retry</Button></div> :
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
         {alerts.map(({ filter, label, icon: Icon, tone }) => <Button key={filter} variant="outline"
-          className="gmail-panel h-auto min-h-24 items-start justify-start whitespace-normal p-4 text-left hover:border-accent hover:bg-secondary"
+          className="admin-stat h-auto min-h-20 items-start justify-start whitespace-normal p-3 text-left"
           onClick={() => onFilter ? onFilter(filter) : navigate(`/admin/gmail?filter=${encodeURIComponent(filter)}`)}>
           <Icon className={`mt-1 ${tone}`} />
           <span className="min-w-0"><span className={`block text-2xl font-semibold ${tone}`}>{isLoading ? "—" : counts[filter]}</span><span className="mt-1 block text-xs text-muted-foreground">{label}</span></span>
