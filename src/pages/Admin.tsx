@@ -376,26 +376,6 @@ const Admin = () => {
               loadSessionCounts={loadSessionCounts}
             />
           )}
-          {activeTab === "user-details" && (
-            <UserDetailsTab users={users} referralCounts={referralCounts} />
-          )}
-          {activeTab === "announcements" && <AnnouncementsTab />}
-          {activeTab === "settings" && (
-            <SettingsTab
-              globalCookiesOpen={globalCookiesOpen}
-              setGlobalCookiesOpen={setGlobalCookiesOpen}
-              globalCookies={globalCookies}
-              setGlobalCookies={setGlobalCookies}
-              globalCookiesLoading={globalCookiesLoading}
-              loadGlobalCookies={loadGlobalCookies}
-              saveGlobalCookies={saveGlobalCookies}
-              globalHeygenCookies={globalHeygenCookies}
-              setGlobalHeygenCookies={setGlobalHeygenCookies}
-              globalHeygenCookiesLoading={globalHeygenCookiesLoading}
-              loadGlobalHeygenCookies={loadGlobalHeygenCookies}
-              saveGlobalHeygenCookies={saveGlobalHeygenCookies}
-            />
-          )}
         </div>
       </main>
     </div>
