@@ -1,0 +1,1 @@
+ALTER TABLE public.google_ai_accounts ADD COLUMN credits_exhausted boolean NOT NULL DEFAULT false, ADD COLUMN enabled boolean NOT NULL DEFAULT true;
