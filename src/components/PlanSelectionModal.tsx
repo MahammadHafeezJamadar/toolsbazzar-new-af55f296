@@ -25,7 +25,7 @@ const plans = [
     name: "Private — 30 Days",
     price: 1599,
     features: [
-      "500+ AI Video Generations",
+      "600+ AI Video Generations",
       "Unlimited AI Image Generation",
       "All Premium Models",
       "1K–4K Download",

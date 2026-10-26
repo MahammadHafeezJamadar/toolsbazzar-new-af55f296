@@ -20,7 +20,7 @@ const CTASection = () => (
         </p>
         <Button size="lg" className="gradient-btn border-0 font-semibold px-8 h-12 rounded-lg w-full sm:w-auto hover-shine uppercase" style={{ letterSpacing: '0.05em', fontWeight: 600 }} asChild>
           <Link to="/register">
-            Get Started for ₹299 <ArrowRight className="ml-2 h-4 w-4" />
+            Get Started Now <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
       </motion.div>

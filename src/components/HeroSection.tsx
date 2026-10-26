@@ -17,7 +17,7 @@ const HeroSection = () => (
           <span className="gradient-text">AI</span>
         </h1>
         <p className="max-w-xl mx-auto text-sm md:text-base mb-8 md:mb-12 leading-relaxed px-2" style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 300, letterSpacing: '0.02em' }}>
-          India's most affordable Google Flow access. Generate stunning AI videos with Veo 3.1 technology. Starting at just ₹299/month.
+          India's most affordable Google Flow access. Generate stunning AI videos with Veo 3.1 technology.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4 sm:px-0">
           <Button size="lg" className="gradient-btn border-0 font-semibold px-8 h-12 rounded-lg w-full sm:w-auto uppercase" style={{ letterSpacing: '0.05em', fontWeight: 600 }} asChild>

@@ -45,7 +45,7 @@ const privatePlans: Plan[] = [
     badge: "Best Value",
     badgeClass: "bg-gradient-to-r from-amber-400 to-yellow-500 text-black",
     features: [
-      "500+ AI Video Generations",
+      "600+ AI Video Generations",
       "Unlimited AI Image Generation",
       "All Premium Models",
       "1K–4K Download",
