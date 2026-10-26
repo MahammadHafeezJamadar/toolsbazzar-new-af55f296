@@ -182,6 +182,7 @@ export type Database = {
           id: string
           password: string
           start_date: string
+          subscription_start_date: string | null
           updated_at: string
           user_id: string | null
         }
@@ -194,6 +195,7 @@ export type Database = {
           id?: string
           password?: string
           start_date?: string
+          subscription_start_date?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -206,6 +208,7 @@ export type Database = {
           id?: string
           password?: string
           start_date?: string
+          subscription_start_date?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -504,6 +507,10 @@ export type Database = {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       process_referral: {
         Args: { new_user_id: string; referral_code_input: string }
+        Returns: undefined
+      }
+      replace_user_gmail: {
+        Args: { p_new_id: string; p_old_id: string; p_user_id: string }
         Returns: undefined
       }
     }
