@@ -5,8 +5,8 @@ const items = [
   { to: "/admin/dashboard", label: "Dash", icon: LayoutDashboard },
   { to: "/admin/finance", label: "Finance", icon: Wallet },
   { to: "/admin", label: "Users", icon: Users },
-  { to: "/admin/renewals", label: "Renew", icon: CalendarClock },
   { to: "/admin/gmail", label: "Gmail", icon: Mail },
+  { to: "/admin/renewals", label: "Renew", icon: CalendarClock },
   { to: "/admin/analytics", label: "Stats", icon: BarChart3 },
   { to: "/admin/devices", label: "Devices", icon: Monitor },
 ];

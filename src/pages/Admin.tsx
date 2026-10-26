@@ -368,18 +368,28 @@ const Admin = () => {
 
         <nav className="flex-1 px-3 space-y-1">
           {sidebarItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === item.id
-                  ? "bg-accent/10 text-accent"
-                  : "text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a]"
-              }`}
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </button>
+            <Fragment key={item.id}>
+              <button
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === item.id
+                    ? "bg-accent/10 text-accent"
+                    : "text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a]"
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </button>
+              {item.id === "users" && (
+                <Link
+                  to="/admin/gmail"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-[#1a1a1a] transition-colors"
+                >
+                  <Mail className="h-4 w-4" />
+                  Gmail Management
+                </Link>
+              )}
+            </Fragment>
           ))}
         </nav>
 
@@ -437,16 +447,26 @@ const Admin = () => {
         style={{ background: "#0f0f0f", borderColor: "#1e1e1e" }}
       >
         {sidebarItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            className={`flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 ${
-              activeTab === item.id ? "text-accent" : "text-muted-foreground"
-            }`}
-          >
-            <item.icon className="h-5 w-5" />
-            <span className="text-[10px]">{item.label}</span>
-          </button>
+          <Fragment key={item.id}>
+            <button
+              onClick={() => setActiveTab(item.id)}
+              className={`flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 ${
+                activeTab === item.id ? "text-accent" : "text-muted-foreground"
+              }`}
+            >
+              <item.icon className="h-5 w-5" />
+              <span className="text-[10px]">{item.label}</span>
+            </button>
+            {item.id === "users" && (
+              <button
+                onClick={() => navigate("/admin/gmail")}
+                className="flex flex-col items-center gap-0.5 min-w-[64px] flex-shrink-0 text-muted-foreground"
+              >
+                <Mail className="h-5 w-5" />
+                <span className="text-[10px]">Gmail</span>
+              </button>
+            )}
+          </Fragment>
         ))}
         <button
           onClick={() => navigate("/admin/finance")}
