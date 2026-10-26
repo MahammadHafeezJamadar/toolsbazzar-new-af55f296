@@ -175,6 +175,8 @@ export type Database = {
       google_ai_accounts: {
         Row: {
           created_at: string
+          credits_exhausted: boolean
+          enabled: boolean
           gmail: string
           id: string
           password: string
@@ -184,6 +186,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          credits_exhausted?: boolean
+          enabled?: boolean
           gmail: string
           id?: string
           password?: string
@@ -193,6 +197,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          credits_exhausted?: boolean
+          enabled?: boolean
           gmail?: string
           id?: string
           password?: string
