@@ -43,6 +43,13 @@
       "when": 1793026022468,
       "tag": "0005_gmail_stock_replacement_and_subscription_dates",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794642775397,
+      "tag": "0006_protected_admin_roles",
+      "breakpoints": true
     }
   ]
 }

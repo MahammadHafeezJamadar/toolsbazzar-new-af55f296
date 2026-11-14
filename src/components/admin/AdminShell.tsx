@@ -15,9 +15,9 @@ export default function AdminShell({ title, children, actions }: AdminShellProps
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/login"); return; }
-      const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", session.user.id).single();
+      const { data: isAdmin, error } = await supabase.rpc("is_admin", { _user_id: session.user.id });
       if (!active) return;
-      if (!profile?.is_admin || session.user.email?.toLowerCase() !== "hafeezjamadar295@gmail.com") { toast.error("Admin access only"); navigate("/dashboard"); return; }
+      if (error || !isAdmin) { toast.error("Admin access only"); navigate("/dashboard"); return; }
       setAuthChecked(true);
     })();
     return () => { active = false; };

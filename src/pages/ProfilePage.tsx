@@ -52,7 +52,8 @@ const ProfilePage = () => {
           pin_code: (data as any).pin_code || "",
           country: (data as any).country || "India",
         });
-        setIsAdmin(!!data.is_admin);
+        const { data: adminAccess } = await supabase.rpc("is_admin", { _user_id: session.user.id });
+        setIsAdmin(adminAccess === true);
         setApiKey((data as any).api_key || "");
       }
       setLoading(false);

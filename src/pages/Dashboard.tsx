@@ -72,7 +72,10 @@ const Dashboard = () => {
         .single();
 
       if (error) toast.error("Failed to load profile");
-      else setProfile(data);
+      else {
+        const { data: adminAccess } = await supabase.rpc("is_admin", { _user_id: session.user.id });
+        setProfile({ ...data, is_admin: adminAccess === true });
+      }
 
       // Load announcement
       const { data: annData } = await supabase
@@ -101,7 +104,7 @@ const Dashboard = () => {
           'postgres_changes',
           { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${s.user.id}` },
           (payload) => {
-            setProfile((prev) => prev ? { ...prev, ...payload.new } as Profile : prev);
+            setProfile((prev) => prev ? { ...prev, ...payload.new, is_admin: prev.is_admin } as Profile : prev);
           }
         )
         .subscribe();

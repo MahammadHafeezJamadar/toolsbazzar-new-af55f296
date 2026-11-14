@@ -20,11 +20,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
+      throw new Error("Missing service configuration");
+    }
 
     // Client with caller's token to verify admin status
-    const callerClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+    const callerClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
@@ -38,13 +42,9 @@ Deno.serve(async (req) => {
 
     // Check admin using service role
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
-    const { data: profile } = await adminClient
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", caller.id)
-      .single();
+    const { data: isAdmin, error: roleError } = await callerClient.rpc("is_admin", { _user_id: caller.id });
 
-    if (!profile?.is_admin) {
+    if (roleError || !isAdmin) {
       return new Response(JSON.stringify({ error: "Forbidden: admin only" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -136,14 +136,8 @@ const Admin = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/login"); return; }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("is_admin")
-        .eq("id", session.user.id)
-        .single();
-
-      const AUTHORIZED_ADMIN_EMAIL = "hafeezjamadar295@gmail.com";
-      if (!profile?.is_admin || session.user.email?.toLowerCase() !== AUTHORIZED_ADMIN_EMAIL) {
+      const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin", { _user_id: session.user.id });
+      if (adminError || !isAdmin) {
         toast.error("Access denied");
         navigate("/dashboard");
         return;
