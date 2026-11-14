@@ -4,4 +4,4 @@
 - [x] Simplify all admin navigation and remove Renewals/Devices pages.
 - [x] Polish Dashboard statistics, compact Gmail alerts and Users presentation.
 - [x] Verify desktop/mobile navigation and preserved Finance access.
-- [ ] Transfer only the two intended accounts' admin roles and verify access and record preservation.
+- [x] Transfer only the two intended accounts' admin roles and verify access and record preservation.
